@@ -1,0 +1,26 @@
+{
+  "name": "AFFILIATE_API",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "mode=dev node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "legendDai",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "glob": "^7.1.6",
+    "helmet": "^4.1.0",
+    "moment": "^2.27.0",
+    "moment-timezone": "^0.5.31",
+    "mysql2": "^2.1.0",
+    "underscore": "^1.10.2",
+    "winston": "^2.4.4"
+  }
+}
