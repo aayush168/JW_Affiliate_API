@@ -13,4 +13,20 @@ service.getRoleList = async () => {
   }
 }
 
+service.addRoleList = async (name) => {
+  try {
+    let conn = await db.getConn('read')
+    let conn1 = await db.getConn('write')
+    const role = (await conn.execute(db.sql('role/getRoleByName.sql'), [ name ]))[0]
+    if (role.length > 0) {
+      return { code: 'code.role.exist', msg: 'Role already exist' }
+    }
+    await conn1.execute(db.sql('role/addRole.sql'), [ name ]);
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service; 

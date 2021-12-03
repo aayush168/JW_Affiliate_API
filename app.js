@@ -19,13 +19,21 @@ const appServer = require('http').createServer(app);
 
 app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
-app.use(session({ secret: 'thisisyouraffiliatecreator', cookie: { maxAge: 12 * 60 * 60 * 1000 } }));
+app.use(session({ 
+  secret: 'thisisyouraffiliatecreator',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 12 * 60 * 60 * 1000 }
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/operator', router.operator);
 app.use('/role', router.role);
 app.use('/modules', router.modules);
+app.use('/agent', router.agentAdmin);
+
+app.use('/api/v1/agent', router.agentClient);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);

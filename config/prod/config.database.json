@@ -24,5 +24,17 @@
       "max":10
     },
     "timezone": "+07:00"
+  },
+  "jw": {
+    "user":"ocmsuser_jw",
+    "password":"nD8E89uMb7eSKbSNqAjckFR7",
+    "server":"dbr.jeet55.net",
+    "database":"jw_ocms_v2",
+    "requestTimeout":10000,
+    "connectionTimeout":10000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
   }
 }

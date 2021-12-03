@@ -1,6 +1,5 @@
 const path = require('path');
 const express = require('express')
-const svgCaptcha = require('svg-captcha');
 const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('operator');
@@ -23,6 +22,7 @@ router.post('/add', async function (req, res) {
     const name = req.body.name;
     const username = req.body.username;
     const password = req.body.password;
+    const status = req.body.status
     if (!name) {
       return res.status(400).json({ code: 'params.name.required', msg: 'Name is required.' })
     }
@@ -32,7 +32,10 @@ router.post('/add', async function (req, res) {
     if (!password) {
       return res.status(400).json({ code: 'params.password.required', msg: 'Password is required.' })
     }
-    const result = await operatorService.addOperator(name, username, password)
+    if (status === undefined || status === null) {
+      return res.status(400).json({ code: 'params.status.required', msg: 'Status is required.' })
+    }
+    const result = await operatorService.addOperator(name, username, password, status)
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
@@ -100,9 +103,11 @@ router.post('/auth/login', async function (req, res) {
   try {
     const username = req.body.username
     const password = req.body.password
-    const captcha = req.body.captcha
-    if (captcha != req.session.captcha) {
-      return res.status(400).json({ code: 'code.captcha.invalid', user: null });
+    if (!username) {
+      return res.status(400).json({ code: 'params.username.required', msg: 'Username is required.' })
+    }
+    if (!password) {
+      return res.status(400).json({ code: 'params.password.required', msg: 'Password is required.' })
     }
     let result = await operatorService.login(username, password)
     if (!result.user) {
@@ -121,7 +126,7 @@ router.post('/checklogin', async function (req, res) {
     if (req.session.user) {
       return res.json({ user: req.session.user });
     }
-    res.json({ user: null})
+    res.json({ user: null })
   } catch (err) {
     log.error(err);
     res.status(500).send(err)
@@ -140,16 +145,4 @@ router.post('/logout', async function (req, res) {
   }
 })
 
-router.get('/captcha', async function (req, res) {
-  try {
-    const captcha = svgCaptcha.create();
-    req.session.captcha = captcha.text;
-
-    res.type('svg');
-    res.json({ captcha: captcha.data });
-  } catch (err) {
-    log.error(err);
-    res.status(500).send(err)
-  }
-})
 module.exports = router; 

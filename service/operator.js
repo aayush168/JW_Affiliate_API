@@ -22,7 +22,7 @@ service.getOperatorList = async (username, createdAt) => {
   }
 }
 
-service.addOperator = async (name, username, password) => {
+service.addOperator = async (name, username, password, status) => {
   try {
     let conn = await db.getConn('read')
     let conn1 = await db.getConn('write')
@@ -33,7 +33,7 @@ service.addOperator = async (name, username, password) => {
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    await conn1.execute(db.sql('operator/addOperator.sql'), [ name, username, encryptPassword, salt1, salt2 ]);
+    await conn1.execute(db.sql('operator/addOperator.sql'), [ name, username, encryptPassword, salt1, salt2, status ]);
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -89,7 +89,7 @@ service.login = async (username, password) => {
     if (result.length === 0) {
       return { code: 'code.operator.noExist', user: null }
     }
-    let user = result[0]
+    let user = result[0];
     if (user.Status !== 1) {
       return { code: 'code.account.disabled', user: null }
     }

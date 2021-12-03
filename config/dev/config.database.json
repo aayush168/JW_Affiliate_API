@@ -22,5 +22,17 @@
     "pool":{
       "max":10
     }
+  },
+  "jw": {
+    "user":"ocmsdev_jw",
+    "password":"Wo9QK2FLQnE3EKnLtCcT",
+    "server":"devdb.gpms365.net",
+    "database":"jw_ocms_v2",
+    "requestTimeout":10000,
+    "connectionTimeout":10000,
+    "port":3306,
+    "pool":{
+      "max":10
+    }
   }
 }

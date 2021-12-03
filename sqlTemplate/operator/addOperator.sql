@@ -1,4 +1,4 @@
 INSERT INTO Operator
-(Name, Username, Password, Salt1, Salt2)
+(Name, Username, Password, Salt1, Salt2, Status)
 VALUES
-(?, ?, ?, ?, ?)
+(?, ?, ?, ?, ?, ?)
