@@ -32,4 +32,20 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
   }
 }
 
+service.updateAgentStatus = async (status, id) => {
+  try {
+    let conn = await db.getConn('read')
+    let conn1 = await db.getConn('write')
+    let agent = (await conn.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (agent.length === 0) {
+      return { code: "code.agent.noExist", msg: "Agent Not Found" }
+    }
+    await conn1.execute(db.sql('agent/updateAgentStatus.sql'), [ status, id ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service;
