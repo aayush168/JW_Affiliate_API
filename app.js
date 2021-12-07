@@ -32,8 +32,10 @@ app.use('/operator', router.operator);
 app.use('/role', router.role);
 app.use('/modules', router.modules);
 app.use('/agent', router.agentAdmin);
+app.use('/setting', router.settingAdmin);
 
 app.use('/api/v1/agent', router.agentClient);
+app.use('/api/v1/setting', router.settingClient);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);

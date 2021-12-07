@@ -11,11 +11,21 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
       startTime = moment(createdAt).format('YYYY-MM-DD 00:00:00')
     }
     let sql = db.sql('agent/getAgentList.sql')
-    sql = sql.replace('${RevenueShareType}', (revuenueShareType === '') ? '' : ` AND RevenueShareType = ${revuenueShareType}`)
-    sql = sql.replace('${Status}', (status === '') ? '' : `AND Status = ${status}`)
-    sql = sql.replace('${CreatedAt}', (createdAt === '') ? '' : `AND Created_at >= "${createdAt}"`)
+    sql = sql.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
+    sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
+    sql = sql.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)
+    sql = sql.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
+    sql = sql.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType) > 0`)
     const result = (await conn.query({ sql: sql, values: [ `%${username}%`, offset, size ]}));
-    return { code: 'common.success', list: result[0] }
+
+    let sqlCount = db.sql('agent/getAgentListCount.sql')
+    sqlCount = sqlCount.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
+    sqlCount = sqlCount.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
+    sqlCount = sqlCount.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)
+    sqlCount = sqlCount.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
+    sqlCount = sqlCount.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType)`)
+    const rowCount = (await conn.query({ sql: sqlCount, values: [ `%${username}%` ]}))[0];
+    return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw new Error(err);

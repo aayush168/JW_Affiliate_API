@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express')
 const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
-const	log = logger.getLogger('role');
+const	log = logger.getLogger('agent');
 const agentService = require(path.join(rootPath, 'service', 'agent', 'admin.js'));
 let { agent, validate } = require(path.join(rootPath, 'validator', 'index.js'))
 
@@ -13,15 +13,13 @@ router.get('/getList', async function (req, res) {
     const params = {
       username: req.query.username ? req.query.username : '',
       createdAt: req.query.createdAt ? req.query.createdAt : '',
-      status: req.query.status === 0 || req.query.status === 1 ? req.query.status : '',
-      revenueShareType: req.query.revenueShareType ? req.query.revenueShareType : '',
-      playerSourceType: req.query.playerSourceType ? req.query.playerSourceType : '',
-      paymentType: req.query.paymentType ? req.query.paymentType : req.query.paymentType
+      status: parseInt(req.query.status) === 0 || parseInt(req.query.status) === 1 ? parseInt(req.query.status) : '',
+      revenueShareType: parseInt(req.query.revenueShareType) ? parseInt(req.query.revenueShareType) : '',
+      playerSourceType: parseInt(req.query.playerSourceType) ? parseInt(req.query.playerSourceType) : '',
+      paymentType: parseInt(req.query.paymentType) ? parseInt(req.query.paymentType) : req.query.paymentType
     }
     const result = await agentService.getAgentList(size, page, params);
-    console.log(result);
-    res.json({ code: 'common.success' });
-    // res.json(result)
+    res.json(result)
   } catch (err) {
     log.error(err)
     res.status(500).send(err);

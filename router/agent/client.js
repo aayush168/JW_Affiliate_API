@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express')
 const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
-const	log = logger.getLogger('role');
+const	log = logger.getLogger('agent');
 const agentService = require(path.join(rootPath, 'service', 'agent', 'client.js'));
 let { agent, validate } = require(path.join(rootPath, 'validator', 'index.js'))
 
