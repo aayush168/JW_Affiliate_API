@@ -42,7 +42,7 @@ const registrationRules = [
       .exists().withMessage({ code: 'params.revenueShareType.required', msg: 'Revenue Share Type is required.' })
       .custom(revenueShareType => {
         if(revenueShareType) {
-          let allowedRevenueShareType = [1,2] // 1: Monthly Revenue Share, 2: Weekly Revenue Share
+          let allowedRevenueShareType = [1,2] // 1: Weekly Revenue Share, 2: Monthly Revenue Share
           if (!allowedRevenueShareType.includes(revenueShareType)) {
             throw { code: 'params.revenueShareType.invalid', msg: 'Invalid Revenue Share Type'}
           }
@@ -51,34 +51,9 @@ const registrationRules = [
       }),
       body('playerSourceType')
         .exists().withMessage({ code: 'params.playerSourceType.required', msg: 'Player Source type is required.' })
-        .isArray().withMessage({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' })
-        .custom(playerSourceType => {
-          if(playerSourceType) {
-            let allowedPlayerSourceType = [1,2,3,4,5,6] // 1: Website, 2: Social Media Page, 3: Casino Agent, 4: Friends and Family, 5: Affiliate, 6. Casino Player
-            if (playerSourceType.length > 0) {
-              for (let i = 0; i < playerSourceType.length; i++) {
-                const sourceType = playerSourceType[i];
-                if (!allowedPlayerSourceType.includes(sourceType)) {
-                  throw { code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' }
-                }
-              }
-            } else {
-              throw { code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source Type'}
-            }
-          }
-          return true
-        }),
+        .isArray().withMessage({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' }),
       body('paymentType')
-        .exists().withMessage({ code: 'params.paymentType.required', msg: 'Payment type is required.' })
-        .custom(paymentType => {
-          if(paymentType) {
-            let allowedPaymentType = [1,2,3,4] // 1: Indian Bank Account, 2: Skrill (Account Type ROW(Rest of the World)), 3: USDT Transfer, 4: Player Account
-            if (!allowedPaymentType.includes(paymentType)) {
-              throw { code: 'params.paymentType.invalid', msg: 'Invalid Payment Type'}
-            }
-          }
-          return true
-        }),
+        .exists().withMessage({ code: 'params.paymentType.required', msg: 'Payment type is required.' }),
       body('bankName')
         .custom((bankName, {req}) => {
           if(req.body.paymentType === 1 && !bankName) {
@@ -115,7 +90,7 @@ const registrationRules = [
           }
           return true
         })
-        .isLength({ max: 45 }).withMessage({ code: 'params.isfc.illegal', msg: 'Invalid ISFC.' }),
+        .isLength({ max: 11 }).withMessage({ code: 'params.isfc.illegal', msg: 'Invalid ISFC.' }),
       body('branch')
         .custom((branch, {req}) => {
           if(req.body.paymentType === 1 && !branch) {
@@ -153,7 +128,6 @@ const registrationRules = [
 const agentRegistrationRules = () => {
   return [...registrationRules]
 }
-
 
 module.exports = {
   agentRegistrationRules

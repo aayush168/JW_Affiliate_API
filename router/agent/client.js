@@ -5,11 +5,27 @@ const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('agent');
 const agentService = require(path.join(rootPath, 'service', 'agent', 'client.js'));
 let { agent, validate } = require(path.join(rootPath, 'validator', 'index.js'))
-
+const settingService = require(path.join(rootPath, 'service', 'setting', 'admin.js'));
 
 router.post('/auth/register', agent.agentRegistrationRules(), validate, async function (req, res) {
   try {
     const paymentType = req.body.paymentType;
+    const playerSourceType = req.body.playerSourceType;
+    const paymenTypeListResult = await settingService.checkPaymentTypeById(paymentType)
+    const playerSourceTypeListResult = await settingService.getSourceTypeList()
+    if (paymenTypeListResult.code !== 'common.success') {
+      return res.status(400).send(paymenTypeListResult)
+    }
+    if (playerSourceTypeListResult.list.length === 0) {
+      return res.status(500).send({ code: 'code.playerSourceType.unknown', msg: 'Error Fetching Player Source type.' })
+    }
+    const allowedPlayerSourceType = playerSourceTypeListResult.list.map(x => x.Id);
+    for (let i = 0; i < playerSourceType.length; i++) {
+      const sourceType = playerSourceType[i];
+      if (!allowedPlayerSourceType.includes(sourceType)) {
+        throw { code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' }
+      }
+    }
     if (paymentType === 4) {
       const result = await agentService.checkAgentPlayerAccountUsername(req.body.playerAccountUsername);
       if (result.code !== 'common.success') {
@@ -25,7 +41,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       skype: req.body.skype ? req.body.skype : null,
       email: req.body.email,
       revenueShareType: req.body.revenueShareType,
-      playerSourceType: req.body.playerSourceType,
+      playerSourceType: playerSourceType.toString(),
       otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null
     }
     const result = await agentService.addAgent(registerAgentPayload);

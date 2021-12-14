@@ -1,13 +1,25 @@
 let service = {}
 const path = require('path');
 let db = require(path.join(rootPath, 'db', 'index.js'));
-let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
-let moment = require('moment-timezone');
 
 service.getPaymentTypeList = async () => {
   try {
     let conn = await db.getConn('read')
-    const result = (await conn.execute(db.sql('setting/admin/getPaymentTypeList.sql')))[0]
+    const result = (await conn.query(db.sql('setting/admin/getPaymentTypeList.sql')))[0]
+    return { code: 'common.success', list: result }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkPaymentTypeById = async (id) => {
+  try {
+    let conn = await db.getConn('read')
+    const result = (await conn.query(db.sql('setting/admin/getPaymentTypeById.sql'), [id]))[0]
+    if (result.length === 0) {
+      return { code: "code.paymentType.noExist", msg: "Payment Type Not Found" }
+    }
     return { code: 'common.success', list: result }
   } catch (err) {
     console.log(err);
@@ -34,7 +46,7 @@ service.updatePaymentType = async (status, id) => {
 service.getSourceTypeList = async () => {
   try {
     let conn = await db.getConn('read')
-    const result = (await conn.execute(db.sql('setting/admin/getSourceTypeList.sql')))[0]
+    const result = (await conn.query(db.sql('setting/admin/getSourceTypeList.sql')))[0]
     return { code: 'common.success', list: result }
   } catch (err) {
     console.log(err);
