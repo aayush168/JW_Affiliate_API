@@ -1,4 +1,4 @@
 INSERT INTO AgentPaymentInfo
-(AgentId, PaymentType, USDTAddress)
+(AgentId, PaymentTypeId, USDTAddress)
 VALUES
 (?, ?, ?)

@@ -18,7 +18,7 @@ service.checkPaymentTypeById = async (id) => {
     let conn = await db.getConn('read')
     const result = (await conn.query(db.sql('setting/admin/getPaymentTypeById.sql'), [id]))[0]
     if (result.length === 0) {
-      return { code: "code.paymentType.noExist", msg: "Payment Type Not Found" }
+      return { code: "code.paymentType.noExist", msg: "Invalid Payment Type" }
     }
     return { code: 'common.success', list: result }
   } catch (err) {

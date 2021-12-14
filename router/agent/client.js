@@ -17,7 +17,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       return res.status(400).send(paymenTypeListResult)
     }
     if (playerSourceTypeListResult.list.length === 0) {
-      return res.status(500).send({ code: 'code.playerSourceType.unknown', msg: 'Error Fetching Player Source type.' })
+      return res.status(422).send({ code: 'code.playerSourceType.unknown', msg: 'Error Fetching Player Source type.' })
     }
     const allowedPlayerSourceType = playerSourceTypeListResult.list.map(x => x.Id);
     for (let i = 0; i < playerSourceType.length; i++) {
