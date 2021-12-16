@@ -18,6 +18,7 @@ COPY ./router /api/project/router
 COPY ./service /api/project/service
 COPY ./sqlTemplate /api/project/sqlTemplate
 COPY ./utils /api/project/utils
+COPY ./validator /api/project/validator
 COPY ./app.js /api/project
 
 EXPOSE 5999
