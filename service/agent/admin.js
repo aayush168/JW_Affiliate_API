@@ -2,14 +2,11 @@ let service = {}
 const path = require('path');
 let db = require(path.join(rootPath, 'db', 'index.js'));
 let moment = require('moment-timezone');
+let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 
 service.getAgentList = async (size, offset, { username, createdAt, status, revenueShareType, playerSourceType, paymentType }) => {
   try {
     let conn = await db.getConn('read')
-    let startTime
-    if (createdAt !== '') {
-      startTime = moment(createdAt).format('YYYY-MM-DD 00:00:00')
-    }
     let sql = db.sql('agent/getAgentList.sql')
     sql = sql.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
@@ -42,6 +39,38 @@ service.updateAgentStatus = async (status, id) => {
     }
     await conn1.execute(db.sql('agent/updateAgentStatus.sql'), [ status, id ])
     return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.updatePassword = async (password, id) => {
+  try {
+    let conn = await db.getConn('read')
+    let conn1 = await db.getConn('write')
+    let operator = (await conn.execute(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (operator.length === 0) {
+      return { code: "code.agent.noExist", msg: "Agent Not Found" }
+    }
+    const salt1 = encrypt.getSalt(10)
+    const salt2 = encrypt.getSalt(12)
+    const operatorPwd = encrypt.encryptPassword(password, salt1, salt2);
+    await conn1.execute(db.sql('agent/updatePassword.sql'), [ password, operatorPwd, salt1, salt2, id ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.getAgentRegisteredToday = async () => {
+  try {
+    let conn = await db.getConn('read')
+    const start = moment().format('YYYY-MM-DD 00:00:00')
+    const end = moment().format('YYYY-MM-DD 23:59:59')
+    const result = (await conn.execute(db.sql('agent/getAgentRegisteredCount.sql'), [start, end]))[0]
+    return { code: 'common.success', detail: result[0] }
   } catch (err) {
     console.log(err);
     throw new Error(err);

@@ -14,7 +14,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.execute(db.sql('agent/addAgent.sql'), [ name, username, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink ])
+    const result = await conn1.execute(db.sql('agent/addAgent.sql'), [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink ])
     const agentId = result[0].insertId
     return { code: 'common.success', agentId: agentId }
   } catch (err) {
@@ -46,7 +46,6 @@ service.addAgentSkrillInfo = async ({ agentId, paymentType, skrillAddress }) => 
   }
 }
 
-
 service.addAgentUsdtWalletInfo = async ({ agentId, paymentType, usdtWallet }) => {
   try {
     let conn = await db.getConn('write')
@@ -68,7 +67,7 @@ service.checkAgentPlayerAccountUsername = async (playerAccountUsername) => {
     }
     const result1 = (await conn.execute(db.sql('agent/getPlayerAccountByUsername.sql'), [ playerAccountUsername ]))[0]
     if (result1.length > 0) {
-      return { code: 'code.playerAccountUsername.exist', msg: 'Player Account Username is already taken' }
+      return { code: 'code.playerAccountUsername.exist', msg: 'Player Account already linked to other affiliate account' }
     }
     return { code: 'common.success' }
   } catch (err) {
