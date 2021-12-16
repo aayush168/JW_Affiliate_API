@@ -1,5 +1,5 @@
 {
-  "read": {
+  "main:read": {
     "user":"jwlabs",
     "password":"Welcome2PN",
     "server":"paymentgatewaydb-cluster-1.cluster-ro-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
@@ -7,11 +7,12 @@
     "requestTimeout":20000,
     "connectionTimeout":20000,
     "port":3306,
+    "timezone": "+07:00",
     "pool":{
       "max":10
     }
   },
-  "write": {
+  "main:write": {
     "user":"jwlabs",
     "password":"Welcome2PN",
     "server":"paymentgatewaydb-cluster-1.cluster-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
@@ -19,6 +20,7 @@
     "requestTimeout":20000,
     "connectionTimeout":20000,
     "port":3306,
+    "timezone": "+07:00",
     "pool":{
       "max":10
     }
@@ -31,6 +33,7 @@
     "requestTimeout":10000,
     "connectionTimeout":10000,
     "port":3306,
+    "timezone": "+07:00",
     "pool":{
       "max":10
     }

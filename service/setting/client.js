@@ -4,7 +4,7 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 
 service.getSettingDetail = async () => {
   try {
-    let conn = await db.getConn('read')
+    let conn = await db.getConn('main:read')
     const paymentType = (await conn.query(db.sql('setting/client/getPaymentTypeList.sql')))[0];
     const playerSourceType = (await conn.query(db.sql('setting/client/getPlayerSourceList.sql')))[0];
     return { code: 'common.success', setting: {

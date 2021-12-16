@@ -1,5 +1,5 @@
 {
-  "read": {
+  "main:read": {
     "user":"jwlabs",
     "password":"Welcome2PN",
     "server":"paymentgatewaydb-cluster-1.cluster-ro-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
@@ -12,7 +12,7 @@
     },
     "timezone": "+07:00"
   },
-  "write": {
+  "main:write": {
     "user":"jwlabs",
     "password":"Welcome2PN",
     "server":"paymentgatewaydb-cluster-1.cluster-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",

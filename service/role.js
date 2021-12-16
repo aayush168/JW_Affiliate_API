@@ -4,7 +4,7 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 
 service.getRoleList = async () => {
   try {
-    let conn = await db.getConn('read')
+    let conn = await db.getConn('main:read')
     const result = (await conn.execute(db.sql('role/getRoleList.sql')))[0]
     return { code: 'common.success', list: result }
   } catch (err) {
@@ -15,8 +15,8 @@ service.getRoleList = async () => {
 
 service.addRoleList = async (name) => {
   try {
-    let conn = await db.getConn('read')
-    let conn1 = await db.getConn('write')
+    let conn = await db.getConn('main:read')
+    let conn1 = await db.getConn('main:write')
     const role = (await conn.execute(db.sql('role/getRoleByName.sql'), [ name ]))[0]
     if (role.length > 0) {
       return { code: 'code.role.exist', msg: 'Role already exist' }
