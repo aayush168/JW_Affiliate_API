@@ -55,73 +55,18 @@ const registrationRules = [
       body('paymentType')
         .exists().withMessage({ code: 'params.paymentType.required', msg: 'Payment type is required.' }),
       body('bankName')
-        .custom((bankName, {req}) => {
-          if(req.body.paymentType === 1 && !bankName) {
-            throw { code: 'params.bankName.required', msg: 'Bank Name is required'}
-          }
-          return true
-        })
         .isLength({ max: 100 }).withMessage({ code: 'params.bankName.illegal', msg: 'Invalid Bank Name.' }),
       body('accountName')
-        .custom((accountName, {req}) => {
-          if(req.body.paymentType === 1 && !accountName) {
-            throw { code: 'params.accountName.required', msg: 'Account Name is required'}
-          }
-          return true
-        })
         .isLength({ max: 75 }).withMessage({ code: 'params.accountName.illegal', msg: 'Invalid Account Name.' }),
-      body('accountType')
-        .custom((accountType, {req}) => {
-          if(req.body.paymentType === 1 && !accountType) {
-            throw { code: 'params.accountType.required', msg: 'Account Type is required'}
-          }
-          if(accountType) {
-            let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-            if (!allowedAccountType.includes(accountType)) {
-              throw { code: 'params.accountType.invalid', msg: 'Invalid Account Type'}
-            }
-          }
-          return true
-        }),
       body('isfc')
-        .custom((isfc, {req}) => {
-          if(req.body.paymentType === 1 && !isfc) {
-            throw { code: 'params.isfc.required', msg: 'ISFC is required'}
-          }
-          return true
-        })
         .isLength({ max: 11 }).withMessage({ code: 'params.isfc.illegal', msg: 'Invalid ISFC.' }),
       body('branch')
-        .custom((branch, {req}) => {
-          if(req.body.paymentType === 1 && !branch) {
-            throw { code: 'params.branch.required', msg: 'Bank Branch is required'}
-          }
-          return true
-        })
         .isLength({ max: 100 }).withMessage({ code: 'params.branch.illegal', msg: 'Invalid Bank Branch Name.' }),
       body('skrillAddress')
-        .custom((skrillAddress, {req}) => {
-          if(req.body.paymentType === 2 && !skrillAddress) {
-            throw { code: 'params.skrillAddress.required', msg: 'Skrill Address is required'}
-          }
-          return true
-        })
         .isLength({ max: 255 }).withMessage({ code: 'params.skrillAddress.illegal', msg: 'Invalid Skrill Address.' }),
       body('usdtWallet')
-        .custom((usdtWallet, {req}) => {
-          if(req.body.paymentType === 3 && !usdtWallet) {
-            throw { code: 'params.usdtWallet.required', msg: 'USDT Wallet is required'}
-          }
-          return true
-        })
         .isLength({ max: 255 }).withMessage({ code: 'params.usdtWallet.illegal', msg: 'Invalid USDT Wallet Address.' }),
       body('playerAccountUsername')
-        .custom((playerAccountUsername, {req}) => {
-          if(req.body.paymentType === 4 && !playerAccountUsername) {
-            throw { code: 'params.playerAccountUsername.required', msg: 'Player Account Username is required'}
-          }
-          return true
-        })
         .isLength({ max: 75 }).withMessage({ code: 'params.playerAccountUsername.illegal', msg: 'Invalid Player Account Username.' })
 ]
 

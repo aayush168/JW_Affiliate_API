@@ -7,8 +7,13 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
   try {
     let conn = await db.getConn('main:read')
     let conn1 = await db.getConn('main:write')
-    const agent = (await conn.execute(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
+    let conn2 = await db.getConn('jw')
+    const agent = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
     if (agent.length > 0) {
+      return { code: 'code.username.exist', msg: 'Username is already taken' }
+    }
+    const agentOCMS = (await conn2.query(db.sql('agent/getAgentByUsernameOCMS.sql'), [ username ]))[0]
+    if (agentOCMS.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
     const salt1 = encrypt.getSalt(10)
@@ -90,7 +95,7 @@ service.addAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUsernam
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('main:read')
-    let result = (await conn.execute(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
+    let result = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
     if (result.length === 0) {
       return { code: 'code.operator.noExist', user: null }
     }
