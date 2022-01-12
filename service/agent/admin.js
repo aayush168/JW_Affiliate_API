@@ -6,7 +6,7 @@ let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 
 service.getAgentList = async (size, offset, { username, createdAt, status, revenueShareType, playerSourceType, paymentType }) => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     let sql = db.sql('agent/getAgentList.sql')
     sql = sql.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
@@ -31,8 +31,8 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
 
 service.updateAgentStatus = async (status, id) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     let agent = (await conn.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
     if (agent.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
@@ -47,8 +47,8 @@ service.updateAgentStatus = async (status, id) => {
 
 service.updatePassword = async (password, id) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     let operator = (await conn.execute(db.sql('agent/getAgentById.sql'), [ id ]))[0];
     if (operator.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
@@ -66,7 +66,7 @@ service.updatePassword = async (password, id) => {
 
 service.getAgentRegisteredToday = async () => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     const start = moment().format('YYYY-MM-DD 00:00:00')
     const end = moment().format('YYYY-MM-DD 23:59:59')
     const result = (await conn.execute(db.sql('agent/getAgentRegisteredCount.sql'), [start, end]))[0]

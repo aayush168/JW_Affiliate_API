@@ -5,7 +5,7 @@ let _ = require('underscore');
 
 service.getModuleListByRole = async (roleId) => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     let result = (await conn.execute(db.sql('modules/getModuleAuthorityListByRoleId.sql'), [ roleId ]))[0]
     result = result.map(x => x.Name)
     return { code: 'common.success', list: result }
@@ -17,7 +17,7 @@ service.getModuleListByRole = async (roleId) => {
 
 service.getModuleList = async (roleId) => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     let moduleList = (await conn.execute(db.sql('modules/getModuleList.sql')))[0]
     let allowAccess = (await conn.execute(db.sql('modules/getAllowedAccessModules.sql'), [ roleId ]))[0]
     allowAccess = allowAccess.map(x => x.ModuleId)
@@ -31,7 +31,7 @@ service.getModuleList = async (roleId) => {
 
 service.setModuleAuthority = async (roleId, moduleItems) => {
   try {
-    let conn = await db.getConn('main:write')
+    let conn = await db.getConn('extra:write')
     await conn.execute(db.sql('modules/removeModuleAuthority.sql'), [ roleId ])
     if (moduleItems.length > 0) {
       let insertData = _.reduce(moduleItems, function (prev, next) {

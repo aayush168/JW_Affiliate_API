@@ -20,9 +20,12 @@
     "express-validator": "^6.13.0",
     "glob": "^7.1.6",
     "helmet": "^4.1.0",
+    "memoizee": "^0.4.15",
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.31",
     "mysql2": "^2.1.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
     "underscore": "^1.10.2",
     "winston": "^2.4.4"
   }

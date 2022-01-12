@@ -4,7 +4,7 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 
 service.getPaymentTypeList = async () => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     const result = (await conn.query(db.sql('setting/admin/getPaymentTypeList.sql')))[0]
     return { code: 'common.success', list: result }
   } catch (err) {
@@ -15,7 +15,7 @@ service.getPaymentTypeList = async () => {
 
 service.checkPaymentTypeById = async (id) => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     const result = (await conn.query(db.sql('setting/admin/getPaymentTypeById.sql'), [id]))[0]
     if (result.length === 0) {
       return { code: "code.paymentType.noExist", msg: "Invalid Payment Type" }
@@ -29,8 +29,8 @@ service.checkPaymentTypeById = async (id) => {
 
 service.updatePaymentType = async (status, id) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     let paymentType = (await conn.execute(db.sql('setting/admin/getPaymentTypeById.sql'), [ id ]))[0];
     if (paymentType.length === 0) {
       return { code: "code.paymentType.noExist", msg: "Payment Type Not Found" }
@@ -45,7 +45,7 @@ service.updatePaymentType = async (status, id) => {
 
 service.getSourceTypeList = async () => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     const result = (await conn.query(db.sql('setting/admin/getSourceTypeList.sql')))[0]
     return { code: 'common.success', list: result }
   } catch (err) {
@@ -56,8 +56,8 @@ service.getSourceTypeList = async () => {
 
 service.updatePlayerSource = async (status, id) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     let paymentType = (await conn.execute(db.sql('setting/admin/getPlayerSourceById.sql'), [ id ]))[0];
     if (paymentType.length === 0) {
       return { code: "code.playerSource.noExist", msg: "Player Source Not Found" }

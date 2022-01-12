@@ -1,0 +1,132 @@
+let service = {};
+const _ = require('underscore');
+const path = require('path');
+const db = require(path.join(rootPath, 'db', 'index.js'));
+
+service.getBetData = async function(agentCode, startDateTime, endDateTime, username){
+  let conn;
+  let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  try{
+    conn = await db.getConn('jw');
+    let result = await getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    return result[0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
+service.getTotalBetData = async function(agentCode, startDateTime, endDateTime, username){
+  let conn;
+  let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  try{
+    conn = await db.getConn('jw');
+    let result = await getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    return result[0][0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
+service.getAccData = async function(agentCode, startDateTime, endDateTime, username){
+  let conn;
+  let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  try{
+    conn = await db.getConn('jw');
+    let result = await getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    return result[0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
+service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, username){
+  let conn;
+  let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  try{
+    conn = await db.getConn('jw');
+    let result = await getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    return result[0][0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
+service.getBonusData = async function (agentCode, startDateTime, endDateTime, username) {
+  try {
+    let conn = await db.getConn('jw');
+    let xconn = await db.getConn('extra1:read');
+    let cUsername = (username === "" || _.isUndefined(username)) ? 1 : 0;
+    let agentPlayer = (await conn.query({ sql: db.sql('realtimePlayer/getAgentPlayer.sql'), values: [ agentCode, cUsername, username ] }))[0];
+    let memberUsername = _.pluck(agentPlayer, 'Username');
+    let bonusData = [];
+    let memberUser = _.chunk(memberUsername, 50000);
+    for (var i = 0; i < memberUser.length; i++) {
+      let users = memberUser[i];
+      let result = (await xconn.query({ sql: db.sql('memberBonus/getBonusData.sql'), values: [
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime
+      ] }))[0];
+      if (result.length !== 0) {
+        bonusData.push(result);
+      }
+    }
+    return bonusData[0];
+  } catch (err) {
+    console.log(err);
+    throw (err instanceof Error) ? new Error(err) : err;
+  }
+}
+
+service.getTotalBonusData = async function (agentCode, startDateTime, endDateTime, username) {
+  try {
+    let conn = await db.getConn('jw');
+    let xconn = await db.getConn('extra1:read');
+    let cUsername = (username === "" || _.isUndefined(username)) ? 1 : 0;
+    let agentPlayer = (await conn.query({ sql: db.sql('realtimePlayer/getAgentPlayer.sql'), values: [ agentCode, cUsername, username ] }))[0];
+    let memberUsername = _.pluck(agentPlayer, 'Username');
+    let totalBonus = 0;
+    let memberUsers = _.chunk(memberUsername, 50000);
+    for (var i = 0; i < memberUsers.length; i++) {
+      let users = memberUsers[i];
+      let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime,
+        users, startDateTime, endDateTime
+      ] }))[0][0];
+      totalBonus = parseFloat(totalBonus) + parseFloat(bonus.TotalAmount);
+    }
+    return totalBonus;
+  } catch (err) {
+    console.log(err);
+    throw (err instanceof Error) ? new Error(err) : err;
+  }
+}
+
+function getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
+  return conn.query({ sql: db.sql('playerPerformance/getBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+}
+
+function getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
+  return conn.query({ sql: db.sql('playerPerformance/getTotalBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+}
+
+function getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
+  return conn.query({ sql: db.sql('playerPerformance/getAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+}
+
+function getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
+  return conn.query({ sql: db.sql('playerPerformance/getTotalAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+}
+
+module.exports = service;

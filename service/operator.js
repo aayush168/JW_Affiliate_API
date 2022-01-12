@@ -6,7 +6,7 @@ let moment = require('moment-timezone');
 
 service.getOperatorList = async (username, createdAt) => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     let startTime
     if (createdAt !== '') {
       startTime = moment(createdAt).format('YYYY-MM-DD 00:00:00')
@@ -24,8 +24,8 @@ service.getOperatorList = async (username, createdAt) => {
 
 service.addOperator = async (name, username, password, status) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     const operator = (await conn.execute(db.sql('operator/getOperatorByUsername.sql'), [ username ]))[0]
     if (operator.length > 0) {
       return { code: 'code.operator.exist', msg: 'Username is already taken' }
@@ -43,8 +43,8 @@ service.addOperator = async (name, username, password, status) => {
 
 service.updateOperator = async (name, username, status, roleId, id) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     let operator = (await conn.execute(db.sql('operator/getOperatorById.sql'), [ id ]))[0];
     if (operator.length === 0) {
       return { code: "code.operator.noExist", msg: "Operator Not Found" }
@@ -65,8 +65,8 @@ service.updateOperator = async (name, username, status, roleId, id) => {
 
 service.updatePassword = async (password, id) => {
   try {
-    let conn = await db.getConn('main:read')
-    let conn1 = await db.getConn('main:write')
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
     let operator = (await conn.execute(db.sql('operator/getOperatorById.sql'), [ id ]))[0];
     if (operator.length === 0) {
       return { code: "code.operator.noExist", msg: "Operator Not Found" }
@@ -84,7 +84,7 @@ service.updatePassword = async (password, id) => {
 
 service.login = async (username, password) => {
   try {
-    let conn = await db.getConn('main:read')
+    let conn = await db.getConn('extra:read')
     let result = (await conn.execute(db.sql('operator/getOperatorByUsername.sql'), [ username ]))[0];
     if (result.length === 0) {
       return { code: 'code.operator.noExist', user: null }
