@@ -36,7 +36,7 @@ function calculateEarning(members, revenue, carried, promotion) {
     earning = netRevenue * commission[0]['rate'];
     return earning;
   }
-
+  
   if (commission.length === 4) {
     if (members >= commission[3]['members'] && netRevenue >= commission[3]['minRevenue']) {
       earning = netRevenue * commission[3]['rate'];

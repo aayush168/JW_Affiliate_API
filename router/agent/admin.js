@@ -4,6 +4,7 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('agent');
 const agentService = require(path.join(rootPath, 'service', 'agent', 'admin.js'));
+const controller = require(path.join(rootPath, 'controller', 'index.js'));
 
 router.get('/getList', async function (req, res) {
   try {
@@ -79,4 +80,18 @@ router.get('/getAgentRegisteredToday', async function (req, res) {
   }
 })
 
-module.exports = router; 
+router.get('/settlement/getList', async function (req, res) {
+  try {
+    const size = req.query.size ? parseInt(req.query.size) : 20;
+    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const startDate = req.query.startDate
+    const endDate = req.query.endDate
+    const result = await controller.settlement.getSettlementData(startDate, endDate)
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+})
+
+module.exports = router;

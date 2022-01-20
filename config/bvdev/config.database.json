@@ -1,0 +1,50 @@
+{
+  "extra:read": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"paymentgatewaydb-cluster-1.cluster-ro-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
+    "database":"affiliate_dev",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  },
+  "extra:write": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"paymentgatewaydb-cluster-1.cluster-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
+    "database":"affiliate_dev",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  },
+  "jw": {
+    "user":"ocmsuser_jw",
+    "password":"nD8E89uMb7eSKbSNqAjckFR7",
+    "server":"dbr.jeet55.net",
+    "database":"jw_ocms_v2",
+    "requestTimeout":10000,
+    "connectionTimeout":10000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  },
+  "extra1:read": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"paymentgatewaydb-cluster-1.cluster-ro-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
+    "database":"jeetwinextra",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  }
+}

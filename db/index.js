@@ -37,13 +37,15 @@ function initialize(){
       })
     })
     process.push(loadSql());
+    console.log('teset')
 
     return Promise.all(process)
     .then(function(res){
+        console.log(res)
         return Promise.all(_.map(confList, function(item, i){
         pool[item.name] = res[i];
         pool[item.name].on('connection', function (connection) {
-            connection.query(`SET time_zone = "${item.conf.timezone ? item.conf.timezone : '+07:00'}";`)
+            connection.query(`SET time_zone = "${item.conf.timezone ? item.conf.timezone : '+08:00'}";`)
         });
 
         return pool[item.name].query(`SELECT 1`)
