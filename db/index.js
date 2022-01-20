@@ -37,11 +37,9 @@ function initialize(){
       })
     })
     process.push(loadSql());
-    console.log('teset')
 
     return Promise.all(process)
     .then(function(res){
-        console.log(res)
         return Promise.all(_.map(confList, function(item, i){
         pool[item.name] = res[i];
         pool[item.name].on('connection', function (connection) {
