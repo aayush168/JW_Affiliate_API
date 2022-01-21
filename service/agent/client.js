@@ -1,18 +1,8 @@
 let service = {}
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
-const config = require(path.join(rootPath, 'config', 'index.js'));
 const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
-const _ = require('underscore');
-const memoize = require('memoizee');
-const _CACHE_MAX_AGE = 60000;
-const revenueService = require(path.join(rootPath, 'service', 'revenue.js'));
-const memberService = require(path.join(rootPath, 'service', 'member.js'));
-const mEnableMembers = memoize(memberService.getPlayersCount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
-const mCurrentBetData = memoize(revenueService.getCurrentBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
-const mCarriedRevenue = memoize(revenueService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
-const mCurrentPromotion = memoize(revenueService.getCurrentPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
-const mBonusAmount = memoize(revenueService.getBonusAmount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+const config = require('../../config/index.js');
 
 service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink }) => {
   try {
@@ -106,11 +96,26 @@ service.addAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUsernam
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')
-    let result = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
+    let conn1 = await db.getConn('extra:read')
+    let result
+    let mode = process.env.mode
+    if (mode && mode.includes('bv')) {
+      result = (await conn1.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
+    } else {
+      result = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
+    }
     if (result.length === 0) {
       return { code: 'code.operator.noExist', user: null }
     }
-    let user = result[0];
+    let user = result[0]
+    if (mode && mode.includes('bv')) {
+      const agentData = (await conn.query(db.sql('agent/ocms/getAgentFromAgentChannel.sql'), [ username ]))[0];
+      user = {
+        ...result[0],
+        ...agentData[0],
+        OperatorPW: result[0].Password
+      }
+    }
     if (user.Active !== 1) {
       return { code: 'code.account.disabled', user: null }
     }
@@ -124,49 +129,4 @@ service.login = async (username, password) => {
   }
 }
 
-service.getEstimateRevenue = async (agentCode, start, end) => {
-  try {
-    const currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
-    const enableMembers = await mEnableMembers(`${agentCode}%`, '', '', '', '', 0);
-    const currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
-    const carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`);
-    const bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
-    const promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
-    const cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
-    const earning = calculateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
-    return { code: 'common.success', data: { members: parseFloat(enableMembers.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning }};
-  } catch (err) {
-    console.log(err);
-    throw new Error(err);
-  }
-}
-
-function calculateEarning(members, revenue, carried, promotion) {
-  if ((revenue - promotion) <= 0) {
-    return 0;
-  }
-  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
-  let netRevenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
-  let earning = 0;
-  let commission = config.commission.level;
-  
-  if (commission.length === 1) {
-    earning = netRevenue * commission[0]['rate'];
-    return earning;
-  }
-
-  if (commission.length === 4) {
-    if (members >= commission[3]['members'] && netRevenue >= commission[3]['minRevenue']) {
-      earning = netRevenue * commission[3]['rate'];
-    } else if (members >= commission[2]['members'] && netRevenue >= commission[2]['minRevenue']) {
-      earning = netRevenue * commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      earning = netRevenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      earning = netRevenue * commission[0]['rate'];
-    }
-    return earning;
-  }
-}
-
-module.exports = service; 
+module.exports = service;

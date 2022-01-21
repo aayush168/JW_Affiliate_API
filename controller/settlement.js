@@ -13,48 +13,35 @@ let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true,
 let controller = {};
 
 async function getMembers (endDate) {
-  console.time('getMembers');
   const result = await mGetMembers(`${endDate} 23:59:59`)
-  console.timeEnd('getMembers');
   return result;
 }
 async function getBetData (startDate, endDate) {
-  console.time('getBetData');
   const result = await mGetBetData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
-  console.timeEnd('getBetData');
   return result;
 }
 async function getPromotion (startDate, endDate) {
-  console.time('getPromotion');
   const result = await mGetPromotion(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
-  console.timeEnd('getPromotion');
   return result;
 }
 
 async function getMemberUsername (endDate) {
-  console.time('getMemberUsername');
   let result = await mGetMemberUsername(`${endDate} 23:59:59`);
-  console.timeEnd('getMemberUsername');
   return result;
 }
 
 async function getCarriedRevenue (startDate, memberUsername) {
-  console.time('getCarriedRevenue');
   const result = await mGetCarriedRevenue(`${startDate} 00:00:00`, memberUsername);
-  console.timeEnd('getCarriedRevenue');
   return result;
 }
 async function getOtherBonus (startDate, endDate, memberUsername) {
-  console.time('getOtherBonus');
   const result =  await mGetOtherBonus(`${startDate} 00:00:00`, `${endDate} 23:59:59`, memberUsername);
-  console.timeEnd('getOtherBonus');
   return result
 }
 
 controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
-  console.time('settelemtnData');
   let [ members, betData, promotionData, memberUsername ] = await Promise.all([
     getMembers(endDate),
     getBetData(startDate, endDate),
@@ -65,8 +52,6 @@ controller.getSettlementData = async function (startDate, endDate) {
     getCarriedRevenue(startDate, memberUsername),
     getOtherBonus(startDate, endDate, memberUsername)
   ])
-  console.timeEnd('settelemtnData');
-
   _.each(members, function (item) {
     let data = {
       name: item.Name,

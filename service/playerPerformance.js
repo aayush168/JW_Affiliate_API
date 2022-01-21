@@ -9,6 +9,7 @@ service.getBetData = async function(agentCode, startDateTime, endDateTime, usern
   try{
     conn = await db.getConn('jw');
     let result = await getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    console.log(result[0]);
     return result[0];
   }catch(err){
     console.log(err);

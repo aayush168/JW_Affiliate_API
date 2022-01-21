@@ -35,7 +35,7 @@ service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTi
 service.getCarriedRevenue = async function(agentCode, startDateTime){
   try{
     let conn = await db.getConn('jw');
-    let xconn = await db.getConn('extra:read');
+    let xconn = await db.getConn('extra1:read');
     let netWinSummary = (await conn.execute(db.sql('revenue/getNetWinSummary.sql'), [ agentCode, startDateTime ] ))[0];
     let promotionSummary = (await conn.execute(db.sql('revenue/getPromotionSummary.sql'), [ agentCode, startDateTime, agentCode, startDateTime, agentCode, startDateTime ]))[0];
     let agentMember = (await conn.execute(db.sql('revenue/getAgentPlayer.sql'), [ agentCode ] ))[0];
@@ -87,7 +87,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime){
 service.getBonusAmount = async function (agentCode, startDateTime, endDateTime) {
   try {
     let conn = await db.getConn('jw');
-    let xconn = await db.getConn('extra:read');
+    let xconn = await db.getConn('extra1:read');
     let agentMember = (await conn.execute(db.sql('revenue/getAgentPlayer.sql'), [ agentCode ] ))[0];
     let memberUsername = _.pluck(agentMember, 'Username');
     let totalBonus = 0;

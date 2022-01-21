@@ -7,6 +7,7 @@ const agentService = require(path.join(rootPath, 'service', 'agent', 'client.js'
 let { agent, validate } = require(path.join(rootPath, 'validator', 'index.js'))
 const settingService = require(path.join(rootPath, 'service', 'setting', 'admin.js'));
 const controller = require(path.join(rootPath, 'controller', 'index.js'));
+const config = require('../../config/index.js');
 
 router.post('/auth/register', agent.agentRegistrationRules(), validate, async function (req, res) {
   try {
@@ -192,10 +193,7 @@ router.post('/revenue/estimate/data', async function (req, res) {
     if (!end) {
       return res.status(400).json({ code: 'params.end.required', msg: 'End Date is required.' })
     }
-    let result = await agentService.getEstimateRevenue(agentCode, start, end)
-    if (result.code !== 'common.success') {
-      return res.status(400).send(result)
-    }
+    let result = await controller.revenue.getEstimateRevenue(agentCode, start, end)
     res.json(result)
   } catch (err) {
     log.error(err)
@@ -231,6 +229,36 @@ router.get('/player/realtime/data', async function (req, res) {
     const endDate = req.query.endDate
     const result = await controller.realtimePlayerPerformance.getRealtimePlayerPerformance(agentCode, startDate, endDate, username, page);
     res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+});
+
+router.get('/player/performance/data', async function (req, res) {
+  try {
+    const size = req.query.size ? parseInt(req.query.size) : 20;
+    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const agentCode = req.query.agentCode;
+    const username = req.query.username
+    const startDate = req.query.startDate
+    const endDate = req.query.endDate
+    const result = await controller.playerPerformance.getPlayerPerformance(agentCode, startDate, endDate, username, page);
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+});
+
+
+router.get('/setting/getList', async function (req, res) {
+  try {
+    const settingData = {
+      setting: config.settings,
+      commission: config.commission
+    }
+    res.json(settingData)
   } catch (err) {
     log.error(err)
     res.status(500).send(err);
