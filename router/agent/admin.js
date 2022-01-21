@@ -94,4 +94,29 @@ router.get('/settlement/getList', async function (req, res) {
   }
 })
 
+router.post('/register/manual', async function (req, res) {
+  try {
+    const username = req.body.username;
+    const name = req.body.name;
+    const password = req.body.password
+    if (!username) {
+      return res.status(400).json({ code: 'params.username.required', msg: 'Username is required.' })
+    }
+    if (!name) {
+      return res.status(400).json({ code: 'params.name.required', msg: 'Full Name is required.' })
+    }
+    if (!password) {
+      return res.status(400).json({ code: 'params.password.required', msg: 'Password is required.' })
+    }
+    const result = await agentService.addAgent(name, username, password);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+})
+
 module.exports = router;

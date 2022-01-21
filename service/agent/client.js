@@ -6,7 +6,6 @@ const config = require('../../config/index.js');
 
 service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink }) => {
   try {
-    let mode = process.env.mode
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
     const conn2 = await db.getConn('jw')
@@ -14,11 +13,9 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     if (agent.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
-    if (mode && !mode.includes('bv')) {
-      const agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
-      if (agentOCMS.length > 0) {
-        return { code: 'code.username.exist', msg: 'Username is already taken' }
-      }
+    const agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
+    if (agentOCMS.length > 0) {
+      return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
@@ -102,7 +99,6 @@ service.login = async (username, password) => {
     let conn1 = await db.getConn('extra:read')
     let result
     let mode = process.env.mode
-    console.log(mode)
     if (mode && mode.includes('bv')) {
       result = (await conn1.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
     } else {

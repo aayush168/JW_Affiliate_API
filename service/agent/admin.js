@@ -77,4 +77,34 @@ service.getAgentRegisteredToday = async () => {
   }
 }
 
+service.addAgent = async (name, username, password) => {
+  try {
+    const conn = await db.getConn('extra:read')
+    const conn1 = await db.getConn('extra:write')
+    const conn2 = await db.getConn('jw')
+    const agent = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
+    if (agent.length > 0) {
+      return { code: 'code.username.exist', msg: 'Username is already taken' }
+    }
+    let mode = process.env.mode
+    let agentOCMS
+    if (mode && mode.includes('bv')) {
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
+    } else {
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
+    }
+    if (agentOCMS.length > 0) {
+      return { code: 'code.username.exist', msg: 'Username is already taken' }
+    }
+    const salt1 = encrypt.getSalt(10)
+    const salt2 = encrypt.getSalt(12)
+    const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
+    await conn1.execute(db.sql('agent/addAgentManual.sql'), [ name, username, password, encryptPassword, salt1, salt2 ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service;
