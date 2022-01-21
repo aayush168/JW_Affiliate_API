@@ -7,7 +7,6 @@
     "requestTimeout":20000,
     "connectionTimeout":20000,
     "port":3306,
-    "timezone": "+07:00",
     "pool":{
       "max":10
     }
@@ -20,7 +19,6 @@
     "requestTimeout":20000,
     "connectionTimeout":20000,
     "port":3306,
-    "timezone": "+07:00",
     "pool":{
       "max":10
     }
@@ -33,7 +31,6 @@
     "requestTimeout":10000,
     "connectionTimeout":10000,
     "port":3306,
-    "timezone": "+07:00",
     "pool":{
       "max":10
     }
@@ -46,7 +43,6 @@
     "requestTimeout":20000,
     "connectionTimeout":20000,
     "port":3306,
-    "timezone": "+07:00",
     "pool":{
       "max":10
     }
