@@ -11,9 +11,11 @@ RUN npm install
 # Copy app source
 RUN mkdir -p /api/project/logs
 COPY ./config /api/project/config
+COPY ./controller /api/project/controller
+COPY ./dataAPI /api/project/dataAPI
 COPY ./db /api/project/db
-COPY ./middlewares /api/project/middlewares
 COPY ./logger /api/project/logger
+COPY ./middlewares /api/project/middlewares
 COPY ./router /api/project/router
 COPY ./service /api/project/service
 COPY ./sqlTemplate /api/project/sqlTemplate
