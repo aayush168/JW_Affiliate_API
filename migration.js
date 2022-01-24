@@ -16,7 +16,6 @@ async function init () {
   } catch (err) {
     console.log('migration script error :', err)
   }
-  
 }
 
 async function fetchAgentData () {
