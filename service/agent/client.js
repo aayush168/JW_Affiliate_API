@@ -109,17 +109,24 @@ service.login = async (username, password) => {
     }
     let user = result[0]
     if (mode && mode.includes('bv')) {
-      const agentData = (await conn.query(db.sql('agent/ocms/getAgentFromAgentChannel.sql'), [ username ]))[0];
+      const agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
       user = {
         ...result[0],
         ...agentData[0],
-        OperatorPW: result[0].Password
+        OperatorPW: result[0].Password,
+        salt1: result[0].Salt1,
+        salt2: result[0].Salt2
+      }
+    } else {
+      user = {
+        ...user,
+        salt1: user.salt
       }
     }
     if (user.Active !== 1) {
       return { code: 'code.account.disabled', user: null }
     }
-    if (user.OperatorPW !== encrypt.encryptPassword(password, user.salt, user.salt2)) {
+    if (user.OperatorPW !== encrypt.encryptPassword(password, user.salt1, user.salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
     return { code: 'common.success', user: { id: user.OperatorIdx, username: user.OperatorID, name: user.OperatorName, code: user.Code }}

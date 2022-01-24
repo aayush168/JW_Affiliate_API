@@ -184,7 +184,7 @@ router.post('/logout', async function (req, res) {
 
 router.post('/revenue/estimate/data', async function (req, res) {
   try {
-    const agentCode = req.session.user.code;
+    const agentCode = req.body.agentCode;
     const start = req.body.start;
     const end = req.body.end;
     if (!start) {
@@ -207,11 +207,10 @@ router.get('/player/getList', async function (req, res) {
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
     const agentCode = req.query.agentCode;
     const username = req.query.username
-    const name = req.query.name
     const startDate = req.query.startDate
     const endDate = req.query.endDate
     const status = req.query.status === null || req.query.status === undefined || req.query.status === 'null' ? '' : parseInt(req.query.status)
-    const result = await controller.playerlist.getPlayers(agentCode, startDate, endDate, username, name, status, page);
+    const result = await controller.playerlist.getPlayers(agentCode, startDate, endDate, username, status, page);
     res.json(result)
   } catch (err) {
     log.error(err)

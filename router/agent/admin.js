@@ -5,6 +5,8 @@ const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('agent');
 const agentService = require(path.join(rootPath, 'service', 'agent', 'admin.js'));
 const controller = require(path.join(rootPath, 'controller', 'index.js'));
+const csvParser = require('json2csv').Parser;
+const moment = require('moment-timezone');
 
 router.get('/getList', async function (req, res) {
   try {
@@ -86,8 +88,46 @@ router.get('/settlement/getList', async function (req, res) {
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
     const startDate = req.query.startDate
     const endDate = req.query.endDate
+    const type = req.query.type
     const result = await controller.settlement.getSettlementData(startDate, endDate)
-    res.json(result)
+    if (type === 'search') {
+      res.json(result)
+    } else {
+      const fields = [
+        {
+          label: 'Username',
+          value: 'name'
+        },
+        {
+          label: 'Members',
+          value: 'members'
+        },
+        {
+          label: 'Turnover',
+          value: 'turnover'
+        },
+        {
+          label: 'Revenue',
+          value: 'revenue'
+        },
+        {
+          label: 'Carried Negative Revenue',
+          value: 'carried'
+        },
+        {
+          label: 'Reached Level',
+          value: 'level'
+        },
+        {
+          label: 'Earning',
+          value: 'earning'
+        }
+      ]
+      const json2csvParser = new csvParser({ fields, excelStrings: true, quote: '"', withBOM: true });
+      const csv = json2csvParser.parse(result.affiliates, { fields });
+      res.attachment(`settlement_detail_report_${moment(startDate).format('YYYYMMDD')}_${moment(endDate).format('YYYYMMDD')}.csv`)
+      res.status(200).send(csv)
+    }
   } catch (err) {
     log.error(err)
     res.status(500).send(err);

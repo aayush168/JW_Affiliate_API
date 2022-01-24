@@ -21,7 +21,7 @@ app.use(helmet());
 app.use(cors({ origin: true, credentials: true }));
 app.use(session({ 
   secret: 'thisisyouraffiliatecreator',
-  resave: false,
+  resave: true,
   saveUninitialized: true,
   cookie: { maxAge: 12 * 60 * 60 * 1000 }
 }));

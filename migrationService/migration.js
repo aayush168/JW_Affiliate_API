@@ -37,8 +37,9 @@ service.getAgentDataBV = async () => {
 
 service.addAgentDataBV = async (payload) => {
   try {
+    console.log(payload, 'test')
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('migration/labs/addAgent.sql'), [ payload.Name, payload.Username, payload.Password, payload.Salt1, payload.Salt2 ])
+    await conn.execute(db.sql('migration/labs/addAgentBV.sql'), [ payload.AgentName, payload.Username, payload.Password, payload.EncryptPassword, payload.Salt1, payload.Salt2, 1 ])
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

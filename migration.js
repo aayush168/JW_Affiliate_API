@@ -21,6 +21,7 @@ async function init () {
 
     // Migration for BV
     const result = await fetchAgentDataBV();
+    await addAgentDataLabsBV(result)
     log.info(`Migration Successful`)
   } catch (err) {
     console.log('migration script error :', err)
@@ -47,17 +48,18 @@ async function fetchAgentDataBV () {
   try {
     const dataSample = migrationData.Affiliate
     let agentData = []
-    let operatorData = []
     dataSample.forEach(x => {
-      if (x.Username) {
-        agentData.push(x)
+      if (x.Username) {        
+        const agent = addPayloadData(x)
+        agentData.push(agent)
       } else {
-        operatorData.push(x)
+        x.Username = x["AgentName"]
+        x.Password = 'bv666888'
+        const agent = addPayloadData(x)
+        agentData.push(agent)
       }
     })
-    console.log(agentData.length, 'agent data')
-    console.log(operatorData.length, 'operator data')
-    // return result
+    return agentData
   } catch (err) {
     console.log('fetching agent data error: ', err)
   }
@@ -66,7 +68,19 @@ async function fetchAgentDataBV () {
 async function addAgentDataLabsBV (data) {
   for (let i = 0; i < data.length; i ++) {
     const agentData = data[i]
-    await migrationService.addAgentData(agentData);
+    await migrationService.addAgentDataBV(agentData);
+  }
+}
+
+function addPayloadData (agent) {
+  const Salt1 = encrypt.getSalt(10)
+  const Salt2 = encrypt.getSalt(12)
+  const EncryptPassword = encrypt.encryptPassword(agent.Password, Salt1, Salt2);
+  return {
+    ...agent,
+    Salt1: Salt1,
+    Salt2: Salt2,
+    EncryptPassword: EncryptPassword
   }
 }
 
