@@ -150,7 +150,7 @@ router.post('/auth/login', async function (req, res) {
     if (!result.user) {
       return res.status(401).send(result)
     }
-    req.session.user = result.user;
+    req.session.client = result.user;
     res.json({ user: result.user })
   } catch (err) {
     log.error(err)
@@ -160,8 +160,8 @@ router.post('/auth/login', async function (req, res) {
 
 router.post('/checklogin', async function (req, res) {
   try {
-    if (req.session.user) {
-      return res.json({ user: req.session.user });
+    if (req.session.client) {
+      return res.json({ user: req.session.client });
     }
     res.json({ user: null })
   } catch (err) {
