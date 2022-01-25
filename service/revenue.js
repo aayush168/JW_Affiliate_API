@@ -8,11 +8,11 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 let dataAPI = require(path.join(rootPath, 'dataAPI', 'index.js'));
 let mTurnoverData = memoize(dataAPI.getTurnoverData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
-service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime){
+service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime, username = ""){
   let conn;
   try{
     conn = await db.getConn('jw');
-    let result = await getCurrentBetData(conn, agentCode, startDateTime, endDateTime);
+    let result = await getCurrentBetData(conn, agentCode, startDateTime, endDateTime, username);
     return result;
   }catch(err){
     console.log(err);
@@ -20,11 +20,11 @@ service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime
   }
 };
 
-service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTime){
+service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTime, username = ''){
   let conn;
   try{
     conn = await db.getConn('jw');
-    let result = await getCurrentPromotion(conn, agentCode, startDateTime, endDateTime);
+    let result = await getCurrentPromotion(conn, agentCode, startDateTime, endDateTime, username);
     return result[0][0];
   }catch(err){
     console.log(err);
@@ -32,13 +32,13 @@ service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTi
   }
 };
 
-service.getCarriedRevenue = async function(agentCode, startDateTime){
+service.getCarriedRevenue = async function(agentCode, startDateTime, username = ""){
   try{
     let conn = await db.getConn('jw');
     let xconn = await db.getConn('extra1:read');
-    let netWinSummary = (await conn.execute(db.sql('revenue/getNetWinSummary.sql'), [ agentCode, startDateTime ] ))[0];
-    let promotionSummary = (await conn.execute(db.sql('revenue/getPromotionSummary.sql'), [ agentCode, startDateTime, agentCode, startDateTime, agentCode, startDateTime ]))[0];
-    let agentMember = (await conn.execute(db.sql('revenue/getAgentPlayer.sql'), [ agentCode ] ))[0];
+    let netWinSummary = (await conn.execute(db.sql('revenue/getNetWinSummary.sql'), [ agentCode, startDateTime, `%${username}%` ] ))[0];
+    let promotionSummary = (await conn.execute(db.sql('revenue/getPromotionSummary.sql'), [ agentCode, startDateTime, `%${username}%` ,agentCode, startDateTime, `%${username}%` ,agentCode, startDateTime, `%${username}%` ]))[0];
+    let agentMember = (await conn.execute(db.sql('revenue/getAgentPlayer.sql'), [ agentCode, `%${username}%` ] ))[0];
     let memberUsername = _.pluck(agentMember, 'Username');
     let memberUsers = _.chunk(memberUsername, 50000);
     let totalBonus = {};
@@ -78,17 +78,17 @@ service.getCarriedRevenue = async function(agentCode, startDateTime){
       if (netLoss > 0) { netLoss = 0; }
     })
     return { Revenue: netLoss };
-  }catch(err){
+  } catch(err){
     console.log(err);
     throw err;
   }
 };
 
-service.getBonusAmount = async function (agentCode, startDateTime, endDateTime) {
+service.getBonusAmount = async function (agentCode, startDateTime, endDateTime, username = "") {
   try {
     let conn = await db.getConn('jw');
     let xconn = await db.getConn('extra1:read');
-    let agentMember = (await conn.execute(db.sql('revenue/getAgentPlayer.sql'), [ agentCode ] ))[0];
+    let agentMember = (await conn.execute(db.sql('revenue/getAgentPlayer.sql'), [ agentCode, `%${username}%` ] ))[0];
     let memberUsername = _.pluck(agentMember, 'Username');
     let totalBonus = 0;
     let memberUsers = _.chunk(memberUsername, 50000);
@@ -111,19 +111,19 @@ service.getBonusAmount = async function (agentCode, startDateTime, endDateTime) 
   }
 }
 
-let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateTime){
+let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateTime, username){
   let TotalTurnover = 0, TotalNetWin = 0;
   let startDate = startDateTime;
   let endDate = endDateTime;
 
-  let agentPlayer = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode ] }))[0];
+  let agentPlayer = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ] }))[0];
   let agentPlayerUsername = _.pluck(agentPlayer, 'Username');
 
   if (!(moment(moment(startDate).format('YYYY-MM-DD')).isSame(moment(moment(endDate).format('YYYY-MM-DD'))))) {
     let sStartDate = moment(startDateTime).format('YYYY-MM-DD');
     let sEndDate = moment(endDateTime).subtract({ days: 1 }).format('YYYY-MM-DD');
     
-    let result = (await conn.query({ sql: db.sql('revenue/getTotalTurnoverNetwin.sql'), values: [ agentCode, sStartDate, sEndDate ]}))[0];
+    let result = (await conn.query({ sql: db.sql('revenue/getTotalTurnoverNetwin.sql'), values: [ agentCode, sStartDate, sEndDate, `%${username}%` ]}))[0];
     if (result.length !== 0) {
       TotalTurnover += parseFloat(result[0].Turnover)
       TotalNetWin += parseFloat(result[0].Revenue)
@@ -139,15 +139,14 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
       TotalNetWin += parseFloat(bData.winAmount)
     }
   }
-
   return { Turnover: TotalTurnover, Revenue: (TotalNetWin * -1)}
 }
 
-function getCurrentPromotion(conn, agentCode, startDateTime, endDateTime){
+function getCurrentPromotion(conn, agentCode, startDateTime, endDateTime, username){
   return conn.query({ sql: db.sql('revenue/getCurrentPromotion.sql'), values: [
-    agentCode, startDateTime, endDateTime,
-    agentCode, startDateTime, endDateTime,
-    agentCode, startDateTime, endDateTime
+    agentCode, startDateTime, endDateTime, `%${username}%`,
+    agentCode, startDateTime, endDateTime, `%${username}%`,
+    agentCode, startDateTime, endDateTime, `%${username}%`
   ] });
 }
 

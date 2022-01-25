@@ -11,12 +11,13 @@ let mCurrentPromotion = memoize(revenueService.getCurrentPromotion, { primitive:
 let mBonusAmount = memoize(revenueService.getBonusAmount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
 
-controller.getEstimateRevenue = async function(agentCode, start, end){
-  let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
-  let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', '', '', 0);
-  let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
-  let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`);
-  let bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
+controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
+  let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', username, 0);
+  let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
+  console.log(currentPromotion, 'test')
+  let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
+  let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username);
+  let bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   let earning = calculateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
