@@ -1,6 +1,5 @@
 let path = require('path');
 let _ = require('underscore');
-const { parse } = require('path');
 let realtimePlayerPerformanceService = require(path.join(rootPath, 'service', 'realtimePlayerPerformance.js'));
 let controller = {};
 
@@ -44,7 +43,7 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
       obj.deposit = parseFloat(item.Amount);
     }else{
       obj = {
-        name: item.Username,
+        name: item.Username.slice(0, 3).concat('*******'),
         turnover: 0,
         netwin: 0,
         deposit: parseFloat(item.Amount),
@@ -117,9 +116,15 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
   total.withdraw = parseFloat(totalWithdrawData.Amount);
   total.promotion = parseFloat(totalPromotionData.Amount) + parseFloat(totalBonusData);
   total.loyaltyPoint = parseFloat(totalPromotionData.LoyaltyPoint);
-
   let totalCount = data.length;
-
+  if (data.length > 0) {
+    data = data.map(x => {
+      if (x.name) {
+       x.name =  x.name.slice(0, 3).concat('*******')
+      }
+      return x
+    })
+  }
   return { data: data.splice(index, 20), total: total, totalCount: totalCount };
 };
 

@@ -23,6 +23,7 @@ service.getPlayers = async function(agentCode, start, end, username, status, ind
 };
 
 service.getPlayersCount = async function(agentCode, start, end, username, status){
+  console.log(username)
   let cStart = (start == "" || _.isUndefined(start)) ? 1 : 0;
   let cEnd = (end == "" || _.isUndefined(end)) ? 1 : 0;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
