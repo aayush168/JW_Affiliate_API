@@ -243,12 +243,8 @@ router.get('/player/performance/data', async function (req, res) {
     const startDate = req.query.startDate
     const endDate = req.query.endDate
     const result = await controller.playerPerformance.getPlayerPerformance(agentCode, startDate, endDate, username, page);
-    const revenueData = await controller.revenue.getEstimateRevenue(agentCode, startDate, endDate, username)
-    const data = {
-      ...result,
-      revenue: revenueData.revenue
-    }
-    res.json(data)
+    // const revenueData = await controller.revenue.getEstimateRevenue(agentCode, startDate, endDate, username)
+    res.json(result)
   } catch (err) {
     log.error(err)
     res.status(500).send(err);

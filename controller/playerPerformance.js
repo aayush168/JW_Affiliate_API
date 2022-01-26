@@ -1,6 +1,7 @@
 let path = require('path');
 let _ = require('underscore');
 let playerPerformanceService = require(path.join(rootPath, 'service', 'playerPerformance.js'));
+let config = require(path.join(rootPath, 'config', 'index.js'));
 let controller = {};
 
 controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index){
@@ -10,7 +11,8 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     netwin: 0,
     deposit: 0,
     withdraw: 0,
-    promotion: 0
+    promotion: 0,
+    revenue: 0
   };
   let betData = await playerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let accData = await playerPerformanceService.getAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
@@ -75,6 +77,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.deposit = parseFloat(totalAccData.Deposit);
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
+  total.revenue = calculateEstimateRevenue(parseFloat(data.length), parseFloat(total.netwin), parseFloat(total.promotion))
   let totalCount = data.length;
   if (data.length > 0) {
     data = data.map(x => {
@@ -86,5 +89,30 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   }
   return { data: data.splice(index, 20), total: total, totalCount: totalCount };
 };
+
+function calculateEstimateRevenue(members, netwin, promotion) {
+  if ((netwin + promotion) <= 0) {
+    return 0;
+  }
+  let totalNetwin = parseFloat(netwin) + parseFloat(promotion);
+  let revenue = 0;
+  let commission = config.commission.level;
+  if (commission.length === 1) {
+    revenue = totalNetwin * commission[0]['rate'];
+    return revenue;
+  }
+  if (commission.length === 4) {
+    if (members >= commission[3]['members'] && totalNetwin >= commission[3]['minRevenue']) {
+      revenue = totalNetwin * commission[3]['rate'];
+    } else if (members >= commission[2]['members'] && totalNetwin >= commission[2]['minRevenue']) {
+      revenue = totalNetwin * commission[2]['rate'];
+    } else if (members >= commission[1]['members'] && totalNetwin >= commission[1]['minRevenue']) {
+      revenue = totalNetwin * commission[1]['rate'];
+    } else if (members >= commission[0]['members'] && totalNetwin >= commission[0]['minRevenue']) {
+      revenue = totalNetwin * commission[0]['rate'];
+    }
+    return revenue;
+  }
+}
 
 module.exports = controller;
