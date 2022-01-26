@@ -76,6 +76,14 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   let totalCount = data.length;
+  if (data.length > 0) {
+    data = data.map(x => {
+      if (x.name) {
+       x.name =  x.name.slice(0, 3).concat('*******')
+      }
+      return x
+    })
+  }
   return { data: data.splice(index, 20), total: total, totalCount: totalCount };
 };
 

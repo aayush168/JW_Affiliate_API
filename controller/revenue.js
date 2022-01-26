@@ -14,7 +14,6 @@ let controller = {};
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
   let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', username, 0);
   let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
-  console.log(currentPromotion, 'test')
   let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username);
   let bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
@@ -32,12 +31,10 @@ function calculateEarning(members, revenue, carried, promotion) {
   let netRevenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
   let earning = 0;
   let commission = config.commission.level;
-  
   if (commission.length === 1) {
     earning = netRevenue * commission[0]['rate'];
     return earning;
   }
-  
   if (commission.length === 4) {
     if (members >= commission[3]['members'] && netRevenue >= commission[3]['minRevenue']) {
       earning = netRevenue * commission[3]['rate'];
