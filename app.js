@@ -16,7 +16,6 @@ const	log = logger.getLogger('app');
 const db = require('./db');
 const router = require('./router');
 const middlewares = require('./middlewares/errorHandler');
-const { start } = require('repl');
 
 const _PORT = (process.env.httpPort) ? process.env.httpPort : 5999;
 
