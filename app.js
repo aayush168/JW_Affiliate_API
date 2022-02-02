@@ -48,7 +48,7 @@ app.use(middlewares.errorHandler);
 async function init() {
   try {
     await db.initialize();
-    cron.schedule('0 0 13 2 * *', () => {
+    cron.schedule('0 0 14 2 * *', () => {
       const dateFormat = 'YYYY-MM-DD'
       const lastMonth = moment().subtract(1, 'months')
       const endDate = moment(lastMonth).endOf('months').format(dateFormat)
