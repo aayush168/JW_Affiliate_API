@@ -15,11 +15,12 @@ const credPath = path.join(rootPath, 'credentials', 'credential.json')
 let service = {}
 let s3;
 
-function awsUpload(file, folder) {
+function awsUpload(file) {
+  console.log(file, 'test')
   file.originalname = file.fieldname + '_' + moment().tz('Asia/Taipei').format('YYYYMMDDHHmmss') + '_' + path.extname(file.originalname)
   return s3.upload({
     Bucket: app.awsConfig.bucket,
-    Key: `${app.awsConfig.folder}/${folder}/${file.originalname}`,
+    Key: `${app.awsConfig.folder}/${file.originalname}`,
     Body: file.buffer,
     ContentType: file.mimetype,
     ACL: "public-read",
@@ -64,9 +65,9 @@ service.init = async () => {
   }
 }
 
-service.save = async (file, folder) => {
+service.save = async (file) => {
   try {
-    return await awsUpload(file, folder)
+    return await awsUpload(file)
   } catch (err) {
     log.error(err)
     throw new Error(err);

@@ -10,6 +10,7 @@ const	log = logger.getLogger('app');
 
 const db = require('./db');
 const router = require('./router');
+const s3 = require('./service/awsUpload.js');
 const middlewares = require('./middlewares/errorHandler');
 
 const _PORT = (process.env.httpPort) ? process.env.httpPort : 5999;
@@ -45,6 +46,7 @@ app.use(middlewares.errorHandler);
 async function init() {
   try {
     await db.initialize();
+    await s3.init();
     appServer.listen(_PORT, function () {
       log.info(`Server listening on PORT: ${_PORT} mode: ${process.env.mode || 'prod'}`)
     })

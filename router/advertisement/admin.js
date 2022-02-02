@@ -73,9 +73,13 @@ router.put('/category/update/:id', async function (req, res) {
   }
 })
 
-router.get('/getList', async function (req, res) {
+router.post('/getList', async function (req, res) {
   try {
-    const result = await advertisementService.getBannerList()
+    let size = req.body.size ? parseInt(req.body.size) : 20;
+    let page = req.body.page ? size * (parseInt(req.body.page) - 1) : 0;
+    const category = req.body.category ? req.body.category : ''
+    const status = req.body.status ? req.body.status : '' 
+    const result = await advertisementService.getBannerList(category, status, size, page)
     res.json(result)
   } catch (err) {
     log.error(err)
@@ -83,23 +87,33 @@ router.get('/getList', async function (req, res) {
   }
 })
 
-
 router.post('/addBanner', async function (req, res) {
   try {
-    let up = await promisify(upload.fields( [{ name: 'advertisementBanner', maxCount: 1 }] ))
+    // 0: Disabled, 1: Enabled
+    const allowedStatus = [0, 1]
+    let up = await promisify(upload.fields( [{ name: 'zipFile', maxCount: 1 }] ))
     await up(req, res)
-    const categoryId = req.body.categoryId
+    const name = req.body.name
+    const category = parseInt(req.body.category)
     const description = req.body.description
-    if (!categoryId) {
+    const status = parseInt(req.body.status)
+    const order = parseInt(req.body.order)
+    if (!category) {
       return res.status(400).json({ code: 'params.categoryId.required', msg: 'Category Id is required' })
     }
-    let advertisementBanner
-    if (req.files && req.files.advertisementBanner && req.files.advertisementBanner[0]) {
-      advertisementBanner = req.files.advertisementBanner[0]
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid status' })
+    }
+    if (!order) {
+      return res.status(400).json({ code: 'params.order.required', msg: 'Order is required' })
+    }
+    let uploadFile
+    if (req.files && req.files.zipFile && req.files.zipFile[0]) {
+      uploadFile = req.files.zipFile[0]
     } else {
       return res.status(400).json({ code: 'params.banner.required', msg: 'Advertisement Banner is required' })
     }
-    const result = await advertisementService.addAdvertisementBanner(name, description, advertisementBanner);
+    const result = await advertisementService.addAdvertisementBanner(name, category, description, uploadFile, status, order);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
