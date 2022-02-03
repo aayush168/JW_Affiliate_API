@@ -48,13 +48,12 @@ app.use(middlewares.errorHandler);
 async function init() {
   try {
     await db.initialize();
+    const date1 = getSettlementDates()
+    controller.settlement.getSettlementData(date1.startDate, date1.endDate)
     cron.schedule('0 30 16 2 * *', () => {
-      const dateFormat = 'YYYY-MM-DD'
-      const lastMonth = moment().subtract(1, 'months')
-      const endDate = moment(lastMonth).endOf('months').format(dateFormat)
-      const startDate = moment(lastMonth).startOf('months').format(dateFormat)
-      log.info(`Monthly Settlement Cronjob started ${startDate} to ${endDate}`)
-      controller.settlement.getSettlementData(startDate, endDate)
+      const date = getSettlementDates()
+      log.info(`Monthly Settlement Cronjob started ${date.startDate} to ${date.endDate}`)
+      controller.settlement.getSettlementData(date.startDate, date.endDate)
     }, {
       timezone: "Asia/Taipei"
     });
@@ -63,6 +62,17 @@ async function init() {
     })
   } catch (err) {
     log.error(err)
+  }
+}
+
+function getSettlementDates () {
+  const dateFormat = 'YYYY-MM-DD'
+  const lastMonth = moment().subtract(1, 'months')
+  const endDate = moment(lastMonth).endOf('months').format(dateFormat)
+  const startDate = moment(lastMonth).startOf('months').format(dateFormat)
+  return {
+    startDate: startDate,
+    endDate: endDate
   }
 }
 
