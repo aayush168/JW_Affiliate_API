@@ -73,12 +73,12 @@ router.put('/category/update/:id', async function (req, res) {
   }
 })
 
-router.post('/getList', async function (req, res) {
+router.post('/banner/getList', async function (req, res) {
   try {
     let size = req.body.size ? parseInt(req.body.size) : 20;
     let page = req.body.page ? size * (parseInt(req.body.page) - 1) : 0;
-    const category = req.body.category ? req.body.category : ''
-    const status = req.body.status ? req.body.status : '' 
+    const category = req.body.category ? parseInt(req.body.category) : ''
+    const status = req.body.status === null ? '' : parseInt(req.body.status)
     const result = await advertisementService.getBannerList(category, status, size, page)
     res.json(result)
   } catch (err) {
@@ -87,7 +87,7 @@ router.post('/getList', async function (req, res) {
   }
 })
 
-router.post('/addBanner', async function (req, res) {
+router.post('/banner/add', async function (req, res) {
   try {
     // 0: Disabled, 1: Enabled
     const allowedStatus = [0, 1]
@@ -121,6 +121,44 @@ router.post('/addBanner', async function (req, res) {
   } catch (err) {
     log.error(err)
     res.status(500).send(err);
+  }
+})
+
+router.put('/banner/update/:id', async function (req, res) {
+  try {
+    const id = req.params.id
+    // 0: Disabled, 1: Enabled
+    const allowedStatus = [0, 1]
+    let up = await promisify(upload.fields( [{ name: 'zipFile', maxCount: 1 }] ))
+    await up(req, res)
+    const name = req.body.name
+    const category = parseInt(req.body.category)
+    const description = req.body.description
+    const status = parseInt(req.body.status)
+    const order = parseInt(req.body.order)
+    if (!category) {
+      return res.status(400).json({ code: 'params.categoryId.required', msg: 'Category Id is required' })
+    }
+    if (!allowedStatus.includes(status)) {
+      return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid status' })
+    }
+    if (!order) {
+      return res.status(400).json({ code: 'params.order.required', msg: 'Order is required' })
+    }
+    let uploadFile
+    if (req.files && req.files.zipFile && req.files.zipFile[0]) {
+      uploadFile = req.files.zipFile[0]
+    } else {
+      uploadFile = false
+    }
+    const result = await advertisementService.updateAdvertisementBanner(name, category, description, uploadFile, status, order, id);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
   }
 })
 

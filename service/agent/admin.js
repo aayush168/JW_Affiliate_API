@@ -14,6 +14,7 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
     sql = sql.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
     sql = sql.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType) > 0`)
     const result = (await conn.query({ sql: sql, values: [ `%${username}%`, offset, size ]}));
+    console.log(offset, size)
 
     let sqlCount = db.sql('agent/getAgentListCount.sql')
     sqlCount = sqlCount.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)

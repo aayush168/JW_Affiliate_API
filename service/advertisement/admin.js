@@ -2,6 +2,7 @@ let service = {}
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const s3 = require(path.join(rootPath, 'service', 'awsUpload.js'));
+const config = require('../../config/index');
 
 service.getCategoryList = async () => {
   try {
@@ -63,24 +64,45 @@ service.addAdvertisementBanner = async (name, category, description, uploadFile,
   }
 }
 
-service.getBannerList = async (category, status, offset, size) => {
+service.getBannerList = async (category, status, size, offset) => {
   try {
     let conn = await db.getConn('extra:read')
     let sql = db.sql('advertisement/getAdvertisementBanner.sql')
     sql = sql.replace('${Category}', (category === '') ? '' : ` AND ac.Id = ${category}`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND ab.Status = ${status}`)
     const result = (await conn.query({ sql: sql, values: [ offset, size ]}));
-    console.log(result[0], 'test');
     let sqlCount = db.sql('advertisement/getAdvertisementBannerCount.sql')
     sqlCount = sqlCount.replace('${Category}', (category === '') ? '' : ` AND ac.Id = ${category}`)
     sqlCount = sqlCount.replace('${Status}', (status === '') ? '' : `AND ab.Status = ${status}`)
     const rowCount = (await conn.query({ sql: sqlCount}))[0];
-    console.log(rowCount, 'test');
     return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw new Error(err);
   }
 }
+
+service.updateAdvertisementBanner = async (name, category, description, uploadFile, status, order, id) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    let conn1 = await db.getConn('extra:read')
+    await conn.execute(db.sql('advertisement/updateAdvertisementBanner.sql'), [ name, category, description, status, order, id ])
+    if (uploadFile !== false) {
+      const bucket = config.app.awsConfig.bucket
+      const referenceId = id
+      const pictureFileCategory = 'advertisement-banner'
+      const pictureData = await conn1.execute(db.sql('picture/getPictureFileDetail.sql'), [ id, pictureFileCategory ])
+      await s3.delete(bucket, pictureData[0][0].Key)
+      await conn.execute(db.sql('picture/removePictureData.sql'), [ id, pictureFileCategory ])
+      const { Location, Key } = await s3.save(uploadFile)
+      await conn.execute(db.sql('picture/addPictureFile.sql'), [referenceId, pictureFileCategory, Location, Key])
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 
 module.exports = service; 
