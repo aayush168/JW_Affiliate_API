@@ -1,4 +1,4 @@
 INSERT INTO PictureFiles
-(ReferenceId, Category, Url, `Key`)
+(ReferenceId, Category, Url, `Key`, PreviewUrl, PreviewKey)
 VALUES
-(?, ?, ?, ?)
+(?, ?, ?, ?, ?, ?)

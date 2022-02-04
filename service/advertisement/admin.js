@@ -47,7 +47,7 @@ service.updateCategory = async (name, status, id) => {
   }
 }
 
-service.addAdvertisementBanner = async (name, category, description, uploadFile, status, order) => {
+service.addAdvertisementBanner = async (name, category, description, uploadFile, previewFile, status, order, id) => {
   try {
     let conn = await db.getConn('extra:write')
     const result = (await conn.execute(db.sql('advertisement/addAdvertisementBanner.sql'), [ name, category, description, status, order ]))
@@ -55,7 +55,8 @@ service.addAdvertisementBanner = async (name, category, description, uploadFile,
       const referenceId = result[0].insertId
       const pictureFileCategory = 'advertisement-banner'
       const { Location, Key } = await s3.save(uploadFile)
-      await conn.execute(db.sql('picture/addPictureFile.sql'), [referenceId, pictureFileCategory, Location, Key])
+      const previewBanner = await s3.save(previewFile)
+      await conn.execute(db.sql('picture/addPictureFile.sql'), [referenceId, pictureFileCategory, Location, Key, previewBanner.Location, previewBanner.Key ])
     }
     return { code: 'common.success' }
   } catch (err) {
@@ -82,20 +83,26 @@ service.getBannerList = async (category, status, size, offset) => {
   }
 }
 
-service.updateAdvertisementBanner = async (name, category, description, uploadFile, status, order, id) => {
+service.updateAdvertisementBanner = async (name, category, description, uploadFile, previewFile, status, order, id) => {
   try {
     let conn = await db.getConn('extra:write')
     let conn1 = await db.getConn('extra:read')
+    const pictureFileCategory = 'advertisement-banner'
+    const bucket = config.app.awsConfig.bucket
     await conn.execute(db.sql('advertisement/updateAdvertisementBanner.sql'), [ name, category, description, status, order, id ])
+    const pictureData = await conn1.execute(db.sql('picture/getPictureFileDetail.sql'), [ id, pictureFileCategory ])
+    const referenceId = id
     if (uploadFile !== false) {
-      const bucket = config.app.awsConfig.bucket
-      const referenceId = id
-      const pictureFileCategory = 'advertisement-banner'
-      const pictureData = await conn1.execute(db.sql('picture/getPictureFileDetail.sql'), [ id, pictureFileCategory ])
       await s3.delete(bucket, pictureData[0][0].Key)
-      await conn.execute(db.sql('picture/removePictureData.sql'), [ id, pictureFileCategory ])
       const { Location, Key } = await s3.save(uploadFile)
-      await conn.execute(db.sql('picture/addPictureFile.sql'), [referenceId, pictureFileCategory, Location, Key])
+      await conn.execute(db.sql('picture/updatePictureFile.sql'), [Location, Key, referenceId, pictureFileCategory ])
+    }
+    if (previewFile !== false) {
+      if (pictureData[0][0].PreviewUrl) {
+        await s3.delete(bucket, pictureData[0][0].PreviewKey)
+      }
+      const { Location, Key } = await s3.save(previewFile)
+      await conn.execute(db.sql('picture/updatePreviewPictureFile.sql'), [Location, Key, referenceId, pictureFileCategory ])
     }
     return { code: 'common.success' }
   } catch (err) {
@@ -104,5 +111,4 @@ service.updateAdvertisementBanner = async (name, category, description, uploadFi
   }
 }
 
-
-module.exports = service; 
+module.exports = service;

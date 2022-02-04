@@ -16,7 +16,6 @@ let service = {}
 let s3;
 
 function awsUpload(file) {
-  console.log(file, 'test')
   file.originalname = file.fieldname + '_' + moment().tz('Asia/Taipei').format('YYYYMMDDHHmmss') + '_' + path.extname(file.originalname)
   return s3.upload({
     Bucket: app.awsConfig.bucket,

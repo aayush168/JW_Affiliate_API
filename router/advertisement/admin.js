@@ -8,8 +8,25 @@ const multer = require('multer');
 const { promisify } = require('util');
 
 const upload = multer({
+  fileFilter: function (req, file, cb) {
+    let filetypes
+    if (file.fieldname === 'zipFile') {
+      filetypes = /zip|rar/;
+    } else {
+      filetypes = /jpg|svg|png|jpeg/;
+    }
+    // Check ext
+      const extname =  filetypes.test(path.extname(file.originalname).toLowerCase());
+    // Check mime
+    const mimetype = filetypes.test(file.mimetype);
+    if (mimetype && extname) {
+      cb(null, true)
+    } else {
+      cb({ error: "Invalid File type. Only files are allowed with size less than 10 MB" });
+    }
+  },
   limits: {
-    fieldSize: 16 * 1024 * 1024
+    fieldSize: 10 * 1024 * 1024
   }
 })
 
@@ -91,7 +108,7 @@ router.post('/banner/add', async function (req, res) {
   try {
     // 0: Disabled, 1: Enabled
     const allowedStatus = [0, 1]
-    let up = await promisify(upload.fields( [{ name: 'zipFile', maxCount: 1 }] ))
+    let up = await promisify(upload.fields( [{ name: 'zipFile', maxCount: 1 }, { name: 'previewBanner', maxCount: 1 }] ))
     await up(req, res)
     const name = req.body.name
     const category = parseInt(req.body.category)
@@ -113,7 +130,13 @@ router.post('/banner/add', async function (req, res) {
     } else {
       return res.status(400).json({ code: 'params.banner.required', msg: 'Advertisement Banner is required' })
     }
-    const result = await advertisementService.addAdvertisementBanner(name, category, description, uploadFile, status, order);
+    let previewFile
+    if (req.files && req.files.previewBanner && req.files.previewBanner[0]) {
+      previewFile = req.files.previewBanner[0]
+    } else {
+      return res.status(400).json({ code: 'params.previewBanner.required', msg: 'Preview Banner is required' })
+    }
+    const result = await advertisementService.addAdvertisementBanner(name, category, description, uploadFile, previewFile, status, order);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
@@ -129,7 +152,7 @@ router.put('/banner/update/:id', async function (req, res) {
     const id = req.params.id
     // 0: Disabled, 1: Enabled
     const allowedStatus = [0, 1]
-    let up = await promisify(upload.fields( [{ name: 'zipFile', maxCount: 1 }] ))
+    let up = await promisify(upload.fields( [{ name: 'zipFile', maxCount: 1 }, { name: 'previewBanner', maxCount: 1 }] ))
     await up(req, res)
     const name = req.body.name
     const category = parseInt(req.body.category)
@@ -151,7 +174,13 @@ router.put('/banner/update/:id', async function (req, res) {
     } else {
       uploadFile = false
     }
-    const result = await advertisementService.updateAdvertisementBanner(name, category, description, uploadFile, status, order, id);
+    let previewFile
+    if (req.files && req.files.previewBanner && req.files.previewBanner[0]) {
+      previewFile = req.files.previewBanner[0]
+    } else {
+      previewFile = false
+    }
+    const result = await advertisementService.updateAdvertisementBanner(name, category, description, uploadFile, previewFile, status, order, id);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
