@@ -20,6 +20,7 @@ COPY ./router /api/project/router
 COPY ./service /api/project/service
 COPY ./sqlTemplate /api/project/sqlTemplate
 COPY ./utils /api/project/utils
+COPY ./system /api/project/system
 COPY ./validator /api/project/validator
 COPY ./app.js /api/project
 
