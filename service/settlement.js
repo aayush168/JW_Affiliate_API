@@ -154,27 +154,51 @@ async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername
 }
 
 function getMemberUsername (conn, endDate) {
-  return conn.query({ sql: db.sql('settlement/getMemberUsername.sql'), values: [ endDate ] });
+  if (process.env.mode && process.env.mode === 'bvprod') {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberUsername.sql'), values: [ endDate ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getMemberUsername.sql'), values: [ endDate ] });
+  }
 }
 
 function getBetData(conn, startDate, endDate){
-  return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
+  if (process.env.mode && process.env.mode === 'bvprod') {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
+  }
 }
 
 function getPromotion(conn, startDate, endDate){
-  return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
+  if (process.env.mode && process.env.mode === 'bvprod') {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
+  }
 }
 
 function getMembers(conn, endDate){
-  return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ endDate ] });
+  if (process.env.mode && process.env.mode === 'bvprod') {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ endDate ] });
+  }
 }
 
 function getNetWinSummary(conn, startDate){
-  return conn.query({ sql: db.sql('settlement/getNetWinSummary.sql'), values: [ startDate ] });
+  if (process.env.mode && process.env.mode === 'bvprod') {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getNetWinSummary.sql'), values: [ startDate ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getNetWinSummary.sql'), values: [ startDate ] });
+  }
 }
 
 function getPromotionSummary (conn, startDate) {
-  return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
+  if (process.env.mode && process.env.mode === 'bvprod') {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
+  } else {
+    return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
+  }
 }
 
 module.exports = service;

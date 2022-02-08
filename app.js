@@ -5,6 +5,11 @@ const express = require('express');
 const session = require('express-session')
 const helmet = require('helmet')
 const cors = require('cors');
+const cron = require('node-cron');
+const moment = require('moment-timezone')
+
+const controller = require(path.join(rootPath, 'controller', 'index.js'));
+
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('app');
 
@@ -47,11 +52,31 @@ async function init() {
   try {
     await db.initialize();
     await s3.init();
+    const date1 = getSettlementDates()
+    controller.settlement.getSettlementData(date1.startDate, date1.endDate)
+    cron.schedule('0 30 16 2 * *', () => {
+      const date = getSettlementDates()
+      log.info(`Monthly Settlement Cronjob started ${date.startDate} to ${date.endDate}`)
+      controller.settlement.getSettlementData(date.startDate, date.endDate)
+    }, {
+      timezone: "Asia/Taipei"
+    });
     appServer.listen(_PORT, function () {
       log.info(`Server listening on PORT: ${_PORT} mode: ${process.env.mode || 'prod'}`)
     })
   } catch (err) {
     log.error(err)
+  }
+}
+
+function getSettlementDates () {
+  const dateFormat = 'YYYY-MM-DD'
+  const lastMonth = moment().subtract(1, 'months')
+  const endDate = moment(lastMonth).endOf('months').format(dateFormat)
+  const startDate = moment(lastMonth).startOf('months').format(dateFormat)
+  return {
+    startDate: startDate,
+    endDate: endDate
   }
 }
 
