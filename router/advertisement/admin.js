@@ -11,19 +11,14 @@ const upload = multer({
   fileFilter: function (req, file, cb) {
     let filetypes
     if (file.fieldname === 'zipFile') {
-      filetypes = /zip|rar/;
+      filetypes = ['zip','rar'];
     } else {
-      filetypes = /jpg|svg|png|jpeg/;
+      filetypes = ['jpg','svg','png','jpeg'];
     }
-    // Check ext
-      const extname =  filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
-    const mimetype = filetypes.test(file.mimetype);
-    if (mimetype && extname) {
-      cb(null, true)
-    } else {
-      cb({ error: "Invalid File type. Only files are allowed with size less than 10 MB" });
+    if (filetypes.indexOf(file.originalname.split('.')[file.originalname.split('.').length - 1]) === -1) {
+      cb({ error: "Invalid File type" });
     }
+    cb(null, true)
   },
   limits: {
     fieldSize: 10 * 1024 * 1024
