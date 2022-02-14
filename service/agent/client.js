@@ -93,6 +93,52 @@ service.addAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUsernam
   }
 }
 
+
+service.addAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, branch }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.execute(db.sql('agent/addBdtBankInfo.sql'), [ agentId, paymentType, bankName, accountName, accountNumber, accountType, branch ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+
+service.addAgentBkashInfo = async ({ agentId, paymentType, bkashWallet }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.execute(db.sql('agent/addBkashWallet.sql'), [ agentId, paymentType, bkashWallet ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.addAgentNagadtInfo = async ({ agentId, paymentType, nagadWallet }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.execute(db.sql('agent/addNagadWallet.sql'), [ agentId, paymentType, nagadWallet ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.addAgentRocketInfo = async ({ agentId, paymentType, rocketWallet }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.execute(db.sql('agent/addRocketWallet.sql'), [ agentId, paymentType, rocketWallet ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')
