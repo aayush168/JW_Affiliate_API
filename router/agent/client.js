@@ -13,10 +13,10 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
   try {
     const paymentType = req.body.paymentType;
     const playerSourceType = req.body.playerSourceType;
-    const paymenTypeListResult = await settingService.checkPaymentTypeById(paymentType)
+    const paymentTypeListResult = await settingService.checkPaymentTypeById(paymentType)
     const playerSourceTypeListResult = await settingService.getSourceTypeList()
-    if (paymenTypeListResult.code !== 'common.success') {
-      return res.status(400).send(paymenTypeListResult)
+    if (paymentTypeListResult.code !== 'common.success') {
+      return res.status(400).send(paymentTypeListResult)
     }
     if (playerSourceTypeListResult.list.length === 0) {
       return res.status(422).send({ code: 'code.playerSourceType.unknown', msg: 'Invalid Player Source type.' })
@@ -28,7 +28,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         throw { code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' }
       }
     }
-    if (paymenTypeListResult.list[0].Code === 'player-account') {
+    if (paymentTypeListResult.list[0].Code === 'player-account') {
       const result = await agentService.checkAgentPlayerAccountUsername(req.body.playerAccountUsername);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
@@ -51,85 +51,14 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       return res.status(400).send(result)
     }
     const agentId = result.agentId
-    let response
-    if (paymenTypeListResult.list[0].Code === 'bank-account') {
-      const bankName = req.body.bankName;
-      const accountName = req.body.accountName;
-      const accountNumber = req.body.accountNumber;
-      const accountType = req.body.accountType;
-      const isfc = req.body.isfc;
-      const branch = req.body.branch;
-      if (!bankName) {
-        return res.status(400).json({ code: 'params.bankName.required', msg: 'Bank Name is required.' })
-      }
-      if (!accountName) {
-        return res.status(400).json({ code: 'params.accountName.required', msg: 'Account name is required.' })
-      }
-      if (!accountNumber) {
-        return res.status(400).json({ code: 'params.accountNumber.required', msg: 'Account Number is required.' })
-      }
-      if (!accountType) {
-        return res.status(400).json({ code: 'params.accountType.required', msg: 'Account Type is required.' })
-      }
-      if (!isfc) {
-        return res.status(400).json({ code: 'params.isfc.required', msg: 'ISFC is required.' })
-      }
-      if (!branch) {
-        return res.status(400).json({ code: 'params.branch.required', msg: 'Bank Branch is required.' })
-      }
-      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-      if (!allowedAccountType.includes(accountType)) {
-        throw { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
-      }
-      const payload = {
-        agentId: agentId,
-        paymentType: paymentType,
-        bankName: bankName,
-        accountName: accountName,
-        accountNumber: accountNumber,
-        accountType: accountType,
-        isfc: isfc,
-        branch: branch
-      }
-      response = await agentService.addAgentBankInfo(payload);
-    } else if (paymenTypeListResult.list[0].Code === 'skrill') {
-      const skrillAddress = req.body.skrillAddress
-      if (!skrillAddress) {
-        return res.status(400).json({ code: 'params.skrillId.required', msg: 'Skrill Id is required.' })
-      }
-      const payload = {
-        agentId: agentId,
-        paymentType: paymentType,
-        skrillAddress: skrillAddress
-      }
-      response = await agentService.addAgentSkrillInfo(payload);
-    } else if (paymenTypeListResult.list[0].Code === 'usdt') {
-      const usdtWallet = req.body.usdtWallet
-      if (!usdtWallet) {
-        return res.status(400).json({ code: 'params.usdtWallet.required', msg: 'USDT Wallet Id is required.' })
-      }
-      const payload = {
-        agentId: agentId,
-        paymentType: paymentType,
-        usdtWallet: usdtWallet
-      }
-      response = await agentService.addAgentUsdtWalletInfo(payload);
-    } else if (paymenTypeListResult.list[0].Code === 'player-account') {
-      const playerAccountUsername = req.body.playerAccountUsername
-      if (!playerAccountUsername) {
-        return res.status(400).json({ code: 'params.playerAccount.required', msg: 'Player Account Username is required.' })
-      }
-      const payload = {
-        agentId: agentId,
-        paymentType: paymentType,
-        playerAccountUsername: playerAccountUsername
-      }
-      response = await agentService.addAgentPlayerInfo(payload);
+    const mode = process.env.mode
+    if (mode === 'prod' || mode === 'dev') {
+      addJwPayments(req, res, paymentTypeListResult, agentId, paymentType)
+    } else if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
+      addJwBdtPayments(req, res, paymentTypeListResult, agentId, paymentType)
+    } else {
+      res.status(400).send({ msg: 'Feature not available' })
     }
-    if (response.code !== 'common.success') {
-      return res.status(400).send(response)
-    }
-    res.json(response)
   } catch (err) {
     log.error(err)
     res.status(500).send(err);
@@ -243,7 +172,6 @@ router.get('/player/performance/data', async function (req, res) {
     const startDate = req.query.startDate
     const endDate = req.query.endDate
     const result = await controller.playerPerformance.getPlayerPerformance(agentCode, startDate, endDate, username, page);
-    // const revenueData = await controller.revenue.getEstimateRevenue(agentCode, startDate, endDate, username)
     res.json(result)
   } catch (err) {
     log.error(err)
@@ -264,5 +192,172 @@ router.get('/setting/getList', async function (req, res) {
     res.status(500).send(err);
   }
 });
+
+async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentType) {
+  try {
+    let response
+    if (paymentTypeListResult.list[0].Code === 'bank-account') {
+      const bankName = req.body.bankName;
+      const accountName = req.body.accountName;
+      const accountNumber = req.body.accountNumber;
+      const accountType = req.body.accountType;
+      const isfc = req.body.isfc;
+      const branch = req.body.branch;
+      if (!bankName) {
+        return res.status(400).json({ code: 'params.bankName.required', msg: 'Bank Name is required.' })
+      }
+      if (!accountName) {
+        return res.status(400).json({ code: 'params.accountName.required', msg: 'Account name is required.' })
+      }
+      if (!accountNumber) {
+        return res.status(400).json({ code: 'params.accountNumber.required', msg: 'Account Number is required.' })
+      }
+      if (!accountType) {
+        return res.status(400).json({ code: 'params.accountType.required', msg: 'Account Type is required.' })
+      }
+      if (!isfc) {
+        return res.status(400).json({ code: 'params.isfc.required', msg: 'ISFC is required.' })
+      }
+      if (!branch) {
+        return res.status(400).json({ code: 'params.branch.required', msg: 'Bank Branch is required.' })
+      }
+      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedAccountType.includes(accountType)) {
+        throw { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        bankName: bankName,
+        accountName: accountName,
+        accountNumber: accountNumber,
+        accountType: accountType,
+        isfc: isfc,
+        branch: branch
+      }
+      response = await agentService.addAgentBankInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'skrill') {
+      const skrillAddress = req.body.skrillAddress
+      if (!skrillAddress) {
+        return res.status(400).json({ code: 'params.skrillId.required', msg: 'Skrill Id is required.' })
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        skrillAddress: skrillAddress
+      }
+      response = await agentService.addAgentSkrillInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'usdt') {
+      const usdtWallet = req.body.usdtWallet
+      if (!usdtWallet) {
+        return res.status(400).json({ code: 'params.usdtWallet.required', msg: 'USDT Wallet Id is required.' })
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        usdtWallet: usdtWallet
+      }
+      response = await agentService.addAgentUsdtWalletInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'player-account') {
+      const playerAccountUsername = req.body.playerAccountUsername
+      if (!playerAccountUsername) {
+        return res.status(400).json({ code: 'params.playerAccount.required', msg: 'Player Account Username is required.' })
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        playerAccountUsername: playerAccountUsername
+      }
+      response = await agentService.addAgentPlayerInfo(payload);
+    }
+    if (response.code !== 'common.success') {
+      return res.status(400).send(response)
+    }
+    res.json(response)
+  } catch (err) {
+    throw err;
+  }
+}
+
+async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, paymentType) {
+  try {
+    let response
+    if (paymentTypeListResult.list[0].Code === 'bdt-bank-account') {
+      const bankName = req.body.bankName;
+      const accountName = req.body.accountName;
+      const accountNumber = req.body.accountNumber;
+      const accountType = req.body.accountType;
+      const branch = req.body.branch;
+      if (!bankName) {
+        return res.status(400).json({ code: 'params.bankName.required', msg: 'Bank Name is required.' })
+      }
+      if (!accountName) {
+        return res.status(400).json({ code: 'params.accountName.required', msg: 'Account name is required.' })
+      }
+      if (!accountNumber) {
+        return res.status(400).json({ code: 'params.accountNumber.required', msg: 'Account Number is required.' })
+      }
+      if (!accountType) {
+        return res.status(400).json({ code: 'params.accountType.required', msg: 'Account Type is required.' })
+      }
+      if (!branch) {
+        return res.status(400).json({ code: 'params.branch.required', msg: 'Bank Branch is required.' })
+      }
+      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedAccountType.includes(accountType)) {
+        throw { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        bankName: bankName,
+        accountName: accountName,
+        accountNumber: accountNumber,
+        accountType: accountType,
+        branch: branch
+      }
+      response = await agentService.addAgentBdtBankInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'bkash') {
+      const bkashWallet = req.body.bkashWallet
+      if (!bkashWallet) {
+        return res.status(400).json({ code: 'params.bkashWallet.required', msg: 'Wallet Address is required.' })
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        bkashWallet: bkashWallet
+      }
+      response = await agentService.addAgentBkashInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'nagad') {
+      const nagadWallet = req.body.nagadWallet
+      if (!nagadWallet) {
+        return res.status(400).json({ code: 'params.nagadWallet.required', msg: 'Wallet Address is required.' })
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        nagadWallet: nagadWallet
+      }
+      response = await agentService.addAgentNagadtInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'rocket') {
+      const rocketWallet = req.body.rocketWallet
+      if (!rocketWallet) {
+        return res.status(400).json({ code: 'params.rocketWallet.required', msg: 'Wallet Address is required.' })
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        rocketWallet: rocketWallet
+      }
+      response = await agentService.addAgentRocketInfo(payload);
+    }
+    if (response.code !== 'common.success') {
+      return res.status(400).send(response)
+    }
+    res.json(response)
+  } catch (err) {
+    throw err
+  }
+}
 
 module.exports = router;

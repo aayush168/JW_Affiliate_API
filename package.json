@@ -15,6 +15,7 @@
   "author": "legendDai",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.1066.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
@@ -25,6 +26,7 @@
     "memoizee": "^0.4.15",
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.31",
+    "multer": "^1.4.4",
     "mysql2": "^2.1.0",
     "node-cron": "^3.0.0",
     "request": "^2.88.2",

@@ -7,6 +7,8 @@ const agentAdmin = require(path.join(rootPath, 'router', 'agent', 'admin.js'))
 const agentClient = require(path.join(rootPath, 'router', 'agent', 'client.js'))
 const settingAdmin = require(path.join(rootPath, 'router', 'setting', 'admin.js'))
 const settingClient = require(path.join(rootPath, 'router', 'setting', 'client.js'))
+const advertisementAdmin = require(path.join(rootPath, 'router', 'advertisement', 'admin.js'))
+const advertisementClient = require(path.join(rootPath, 'router', 'advertisement', 'client.js'))
 
 const router = {
   operator: operator,
@@ -15,7 +17,9 @@ const router = {
   agentAdmin: agentAdmin,
   agentClient: agentClient,
   settingAdmin: settingAdmin,
-  settingClient: settingClient
+  settingClient: settingClient,
+  advertisementAdmin: advertisementAdmin,
+  advertisementClient: advertisementClient
 }
 
 module.exports = router

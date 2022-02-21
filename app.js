@@ -15,6 +15,7 @@ const	log = logger.getLogger('app');
 
 const db = require('./db');
 const router = require('./router');
+const s3 = require('./service/awsUpload.js');
 const middlewares = require('./middlewares/errorHandler');
 
 const _PORT = (process.env.httpPort) ? process.env.httpPort : 5999;
@@ -38,9 +39,11 @@ app.use('/role', router.role);
 app.use('/modules', router.modules);
 app.use('/agent', router.agentAdmin);
 app.use('/setting', router.settingAdmin);
+app.use('/advertisement', router.advertisementAdmin);
 
 app.use('/api/v1/agent', router.agentClient);
 app.use('/api/v1/setting', router.settingClient);
+app.use('/api/v1/advertisement', router.advertisementClient);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
@@ -48,6 +51,7 @@ app.use(middlewares.errorHandler);
 async function init() {
   try {
     await db.initialize();
+    await s3.init();
     const date1 = getSettlementDates()
     controller.settlement.getSettlementData(date1.startDate, date1.endDate)
     cron.schedule('0 30 16 2 * *', () => {

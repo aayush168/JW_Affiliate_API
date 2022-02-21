@@ -7,5 +7,9 @@
     "HOURLY": "/service/analysis/getPlayerGamingByHour",
     "DAILY": "/service/analysis/getPlayerGamingByDay",
     "WIN": "/service/analysis/getPlayerWinMultiple"
+  },
+  "awsConfig": {
+    "bucket": "agent-affiliate",
+    "folder": "jwbdtdev"
   }
 }

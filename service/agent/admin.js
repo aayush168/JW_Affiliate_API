@@ -7,7 +7,13 @@ let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 service.getAgentList = async (size, offset, { username, createdAt, status, revenueShareType, playerSourceType, paymentType }) => {
   try {
     let conn = await db.getConn('extra:read')
-    let sql = db.sql('agent/getAgentList.sql')
+    const mode = process.env.mode;
+    let sql
+    if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
+      sql = db.sql('agent/getBdtAgentList.sql')
+    } else if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
+      sql = db.sql('agent/getAgentList.sql')
+    }
     sql = sql.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
     sql = sql.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)

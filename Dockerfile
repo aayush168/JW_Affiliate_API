@@ -11,6 +11,7 @@ RUN npm install
 # Copy app source
 RUN mkdir -p /api/project/logs
 COPY ./config /api/project/config
+COPY ./credentials /api/project/credentials
 COPY ./controller /api/project/controller
 COPY ./dataAPI /api/project/dataAPI
 COPY ./db /api/project/db
@@ -20,6 +21,7 @@ COPY ./router /api/project/router
 COPY ./service /api/project/service
 COPY ./sqlTemplate /api/project/sqlTemplate
 COPY ./utils /api/project/utils
+COPY ./system /api/project/system
 COPY ./validator /api/project/validator
 COPY ./app.js /api/project
 
