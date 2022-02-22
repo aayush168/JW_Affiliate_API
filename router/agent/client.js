@@ -34,6 +34,24 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send(result)
       }
     }
+    if (paymentTypeListResult.list[0].Code === 'bank-account') {
+      const result = await agentService.checkAgentBankAccountNumber(req.body.accountNumber);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
+    if (paymentTypeListResult.list[0].Code === 'skrill') {
+      const result = await agentService.checkAgentSkrillAdress(req.body.skrillAddress);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
+    if (paymentTypeListResult.list[0].Code === 'usdt') {
+      const result = await agentService.checkAgentUsdtAddress(req.body.usdtWallet);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
     const registerAgentPayload = {
       name: req.body.name,
       username: req.body.username,

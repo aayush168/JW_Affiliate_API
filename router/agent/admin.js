@@ -31,7 +31,7 @@ router.get('/getList', async function (req, res) {
 router.put('/update/:id', async function (req, res) {
   try {
     // 0: Disabled, 1: Enabled, 2: In review
-    const allowedStatus = [0, 1, 2]
+    const allowedStatus = [0, 1, 2, 3]
     const id = req.params.id
     if (!id) {
       return res.status(400).json({ code: 'params.status.required', msg: 'Status required' })

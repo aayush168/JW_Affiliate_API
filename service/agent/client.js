@@ -2,7 +2,6 @@ let service = {}
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
-const config = require('../../config/index.js');
 
 service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink }) => {
   try {
@@ -16,6 +15,26 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
     if (agentOCMS.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
+    }
+    const agentMobile = (await conn.query(db.sql('agent/getAgentByMobile.sql'), [ mobile ]))[0]
+    if (agentMobile.length > 0) {
+      return { code: 'code.phone.exist', msg: 'Number is already taken' }
+    }
+    const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
+    if (agentEmail.length > 0) {
+      return { code: 'code.email.exist', msg: 'Email is already taken' }
+    }
+    if (whatsapp) {
+      const agentWhatsapp = (await conn.query(db.sql('agent/getAgentByWhatsapp.sql'), [ whatsapp ]))[0]
+      if (agentWhatsapp.length > 0) {
+        return { code: 'code.whatsapp.exist', msg: 'Whatsapp id is already taken' }
+      }
+    }
+    if (skype) {
+      const agentSkype = (await conn.query(db.sql('agent/getAgentBySkype.sql'), [ skype ]))[0]
+      if (agentSkype.length > 0) {
+        return { code: 'code.skype.exist', msg: 'Skype id is already taken' }
+      }
     }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
@@ -74,6 +93,48 @@ service.checkAgentPlayerAccountUsername = async (playerAccountUsername) => {
     const result1 = (await conn.execute(db.sql('agent/getPlayerAccountByUsername.sql'), [ playerAccountUsername ]))[0]
     if (result1.length > 0) {
       return { code: 'code.playerAccountUsername.exist', msg: 'Player Account already linked to other affiliate account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkAgentBankAccountNumber = async (accountNumber) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.execute(db.sql('agent/getAgentBankAccount.sql'), [ accountNumber ]))[0]
+    if (result.length > 0) {
+      return { code: 'code.accountNumber.exist', msg: 'Bank Account Number is already linked with other account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkAgentSkrillAdress = async (skrillAddress) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.execute(db.sql('agent/getAgentSkrillAddress.sql'), [ skrillAddress ]))[0]
+    if (result.length > 0) {
+      return { code: 'code.skrillAddress.exist', msg: 'Skrill Address is already linked with other account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkAgentUsdtAddress = async (usdtWallet) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.execute(db.sql('agent/getAgentUsdtWallet.sql'), [ usdtWallet ]))[0]
+    if (result.length > 0) {
+      return { code: 'code.usdtWallet.exist', msg: 'USDT Wallet Account is already linked with other account' }
     }
     return { code: 'common.success' }
   } catch (err) {
@@ -156,6 +217,9 @@ service.login = async (username, password) => {
     }
     if (agentData.length === 0 || result[0].Status === 2) {
       return { code: 'code.account.review', user: null }
+    }
+    if (result[0].Status === 3) {
+      return { code: 'code.account.rejected', user: null }
     }
     if (result[0].Status !== 1) {
       return { code: 'code.account.disabled', user: null }
