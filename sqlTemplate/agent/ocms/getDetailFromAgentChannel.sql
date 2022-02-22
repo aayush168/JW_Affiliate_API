@@ -1,3 +1,3 @@
-SELECT Id as OperatorIdx, Username as OperatorID, Code, Name as OperatorName, Status as Active
+SELECT Code
 FROM AgentChannel
 WHERE Username = ?

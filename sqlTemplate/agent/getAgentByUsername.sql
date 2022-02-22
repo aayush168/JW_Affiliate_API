@@ -1,4 +1,4 @@
  
-SELECT * 
+SELECT *
 FROM Agent
 WHERE Username = ?

@@ -11,7 +11,7 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
     let sql
     if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
       sql = db.sql('agent/getBdtAgentList.sql')
-    } else if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
+    } else {
       sql = db.sql('agent/getAgentList.sql')
     }
     sql = sql.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)

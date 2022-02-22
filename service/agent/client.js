@@ -143,39 +143,31 @@ service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')
     let conn1 = await db.getConn('extra:read')
-    let result
     let mode = process.env.mode
-    if (mode && mode.includes('bv')) {
-      result = (await conn1.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
-    } else {
-      result = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
-    }
+    let result = (await conn1.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
     if (result.length === 0) {
-      return { code: 'code.operator.noExist', user: null }
+      return { code: 'code.agent.noExist', user: null }
     }
-    let user = result[0]
+    let agentData
     if (mode && mode.includes('bv')) {
-      const agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
-      user = {
-        ...result[0],
-        ...agentData[0],
-        OperatorPW: result[0].Password,
-        salt1: result[0].Salt1,
-        salt2: result[0].Salt2
-      }
+      agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     } else {
-      user = {
-        ...user,
-        salt1: user.salt
-      }
+      agentData = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
     }
-    if (user.Active !== 1) {
+    if (agentData.length === 0 || result[0].Status === 2) {
+      return { code: 'code.account.review', user: null }
+    }
+    if (result[0].Status !== 1) {
       return { code: 'code.account.disabled', user: null }
     }
-    if (user.OperatorPW !== encrypt.encryptPassword(password, user.salt1, user.salt2)) {
+    let user = {
+      ...result[0],
+      ...agentData[0]
+    }
+    if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.OperatorIdx, username: user.OperatorID, name: user.OperatorName, code: user.Code }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, code: user.Code }}
   } catch (err) {
     console.log(err);
     throw new Error(err);
