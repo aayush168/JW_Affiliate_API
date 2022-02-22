@@ -34,7 +34,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send(result)
       }
     }
-    if (paymentTypeListResult.list[0].Code === 'bank-account') {
+    if (paymentTypeListResult.list[0].Code === 'bank-account' || paymentTypeListResult.list[0].Code === 'bdt-bank-account') {
       const result = await agentService.checkAgentBankAccountNumber(req.body.accountNumber);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
@@ -48,6 +48,24 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
     }
     if (paymentTypeListResult.list[0].Code === 'usdt') {
       const result = await agentService.checkAgentUsdtAddress(req.body.usdtWallet);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
+    if (paymentTypeListResult.list[0].Code === 'bkash') {
+      const result = await agentService.checkAgentBkashAddress(req.body.bkashWallet);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
+    if (paymentTypeListResult.list[0].Code === 'nagad') {
+      const result = await agentService.checkAgentNagadAddress(req.body.nagadWallet);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
+    if (paymentTypeListResult.list[0].Code === 'rocket') {
+      const result = await agentService.checkAgentRocketAddress(req.body.rocketWallet);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }

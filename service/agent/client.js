@@ -143,6 +143,48 @@ service.checkAgentUsdtAddress = async (usdtWallet) => {
   }
 }
 
+service.checkAgentBkashAddress = async (bkashWallet) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.execute(db.sql('agent/getAgentBkashWallet.sql'), [ bkashWallet ]))[0]
+    if (result.length > 0) {
+      return { code: 'code.bkashWallet.exist', msg: 'Bkash Wallet Account is already linked with other account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkAgentNagadAddress = async (nagadWallet) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.execute(db.sql('agent/getAgentNagadWallet.sql'), [ nagadWallet ]))[0]
+    if (result.length > 0) {
+      return { code: 'code.nagadWallet.exist', msg: 'Nagad Wallet Account is already linked with other account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkAgentRocketAddress = async (rocketWallet) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.execute(db.sql('agent/getAgentRocketWallet.sql'), [ rocketWallet ]))[0]
+    if (result.length > 0) {
+      return { code: 'code.rocketWallet.exist', msg: 'Rocket Wallet Account is already linked with other account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.addAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUsername }) => {
   try {
     let conn = await db.getConn('extra:write')
