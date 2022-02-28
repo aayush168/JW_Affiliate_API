@@ -6,7 +6,16 @@ const registrationRules = [
     .isLength({ min: 1 }).withMessage({ code: 'params.name.isEmpty', msg: 'Name is required.' }),
   body('username')
     .exists().withMessage({ code: 'params.username.required', msg: 'Username is required.' })
-    .isLength({ min: 1 }).withMessage({ code: 'params.username.required', msg: 'Username is required.' }),
+    .isLength({ min: 1 }).withMessage({ code: 'params.username.required', msg: 'Username is required.' })
+    .custom(username => {
+      if(username) {
+        let valid = /^[a-zA-Z0-9]*$/.test(username)
+        if (!valid) {
+          throw { code: 'params.username.invalid', msg: 'Invalid Username'}
+        }
+      }
+      return true
+    }),
   body('password')
     .exists().withMessage({ code: 'params.password.required', msg: 'Password is required.' })
     .isLength({ min: 5, max: 50 }).withMessage({ code: 'params.password.invalid', msg: 'Password should be between 5 to 50 characters.' }),
