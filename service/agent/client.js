@@ -251,6 +251,12 @@ service.login = async (username, password) => {
     if (result.length === 0) {
       return { code: 'code.agent.noExist', user: null }
     }
+    if (result[0].Status === 3) {
+      return { code: 'code.account.rejected', user: null }
+    }
+    if (result[0].Status !== 1) {
+      return { code: 'code.account.disabled', user: null }
+    }
     let agentData
     if (mode && mode.includes('bv')) {
       agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
@@ -259,12 +265,6 @@ service.login = async (username, password) => {
     }
     if (agentData.length === 0 || result[0].Status === 2) {
       return { code: 'code.account.review', user: null }
-    }
-    if (result[0].Status === 3) {
-      return { code: 'code.account.rejected', user: null }
-    }
-    if (result[0].Status !== 1) {
-      return { code: 'code.account.disabled', user: null }
     }
     let user = {
       ...result[0],
