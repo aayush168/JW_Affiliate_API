@@ -54,7 +54,7 @@ async function init() {
     await s3.init();
     const date1 = getSettlementDates()
     controller.settlement.getSettlementData(date1.startDate, date1.endDate)
-    cron.schedule('0 30 16 2 * *', () => {
+    cron.schedule('0 30 16 1 * *', () => {
       const date = getSettlementDates()
       log.info(`Monthly Settlement Cronjob started ${date.startDate} to ${date.endDate}`)
       controller.settlement.getSettlementData(date.startDate, date.endDate)
