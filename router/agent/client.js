@@ -89,9 +89,17 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
     const agentId = result.agentId
     const mode = process.env.mode
     if (mode === 'prod' || mode === 'dev') {
-      await addJwPayments(req, res, paymentTypeListResult, agentId, paymentType)
+      const result = await addJwPayments(req, paymentTypeListResult, agentId, paymentType)
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+      res.json(result)
     } else if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
-      await addJwBdtPayments(req, res, paymentTypeListResult, agentId, paymentType)
+      const result = await addJwBdtPayments(req, paymentTypeListResult, agentId, paymentType)
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+      res.json(result)
     } else {
       res.status(400).send({ msg: 'Feature not available' })
     }
@@ -229,7 +237,7 @@ router.get('/setting/getList', async function (req, res) {
   }
 });
 
-async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentType) {
+async function addJwPayments (req, paymentTypeListResult, agentId, paymentType) {
   try {
     let response
     if (paymentTypeListResult.list[0].Code === 'bank-account') {
@@ -240,26 +248,26 @@ async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentT
       const isfc = req.body.isfc;
       const branch = req.body.branch;
       if (!bankName) {
-        return res.status(400).json({ code: 'params.bankName.required', msg: 'Bank Name is required.' })
+        return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
       }
       if (!accountName) {
-        return res.status(400).json({ code: 'params.accountName.required', msg: 'Account name is required.' })
+        return { code: 'params.accountName.required', msg: 'Account name is required.' }
       }
       if (!accountNumber) {
-        return res.status(400).json({ code: 'params.accountNumber.required', msg: 'Account Number is required.' })
+        return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
       }
       if (!accountType) {
-        return res.status(400).json({ code: 'params.accountType.required', msg: 'Account Type is required.' })
+        return { code: 'params.accountType.required', msg: 'Account Type is required.' }
       }
       if (!isfc) {
-        return res.status(400).json({ code: 'params.isfc.required', msg: 'ISFC is required.' })
+        return { code: 'params.isfc.required', msg: 'ISFC is required.' }
       }
       if (!branch) {
-        return res.status(400).json({ code: 'params.branch.required', msg: 'Bank Branch is required.' })
+        return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
       let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
       if (!allowedAccountType.includes(accountType)) {
-        throw { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+        return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {
         agentId: agentId,
@@ -275,7 +283,7 @@ async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentT
     } else if (paymentTypeListResult.list[0].Code === 'skrill') {
       const skrillAddress = req.body.skrillAddress
       if (!skrillAddress) {
-        return res.status(400).json({ code: 'params.skrillId.required', msg: 'Skrill Id is required.' })
+        return { code: 'params.skrillId.required', msg: 'Skrill Id is required.' }
       }
       const payload = {
         agentId: agentId,
@@ -286,7 +294,7 @@ async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentT
     } else if (paymentTypeListResult.list[0].Code === 'usdt') {
       const usdtWallet = req.body.usdtWallet
       if (!usdtWallet) {
-        return res.status(400).json({ code: 'params.usdtWallet.required', msg: 'USDT Wallet Id is required.' })
+        return { code: 'params.usdtWallet.required', msg: 'USDT Wallet Id is required.' }
       }
       const payload = {
         agentId: agentId,
@@ -297,7 +305,7 @@ async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentT
     } else if (paymentTypeListResult.list[0].Code === 'player-account') {
       const playerAccountUsername = req.body.playerAccountUsername
       if (!playerAccountUsername) {
-        return res.status(400).json({ code: 'params.playerAccount.required', msg: 'Player Account Username is required.' })
+        return { code: 'params.playerAccount.required', msg: 'Player Account Username is required.' }
       }
       const payload = {
         agentId: agentId,
@@ -307,15 +315,15 @@ async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentT
       response = await agentService.addAgentPlayerInfo(payload);
     }
     if (response.code !== 'common.success') {
-      return res.status(400).send(response)
+      return { code: 'params.unknown.error', msg: 'Unknown Error' }
     }
-    return res.json(response)
+    return response
   } catch (err) {
     throw err;
   }
 }
 
-async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, paymentType) {
+async function addJwBdtPayments (req, paymentTypeListResult, agentId, paymentType) {
   try {
     let response
     if (paymentTypeListResult.list[0].Code === 'bdt-bank-account') {
@@ -325,23 +333,23 @@ async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, payme
       const accountType = req.body.accountType;
       const branch = req.body.branch;
       if (!bankName) {
-        return res.status(400).json({ code: 'params.bankName.required', msg: 'Bank Name is required.' })
+        return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
       }
       if (!accountName) {
-        return res.status(400).json({ code: 'params.accountName.required', msg: 'Account name is required.' })
+        return { code: 'params.accountName.required', msg: 'Account name is required.' }
       }
       if (!accountNumber) {
-        return res.status(400).json({ code: 'params.accountNumber.required', msg: 'Account Number is required.' })
+        return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
       }
       if (!accountType) {
-        return res.status(400).json({ code: 'params.accountType.required', msg: 'Account Type is required.' })
+        return { code: 'params.accountType.required', msg: 'Account Type is required.' }
       }
       if (!branch) {
-        return res.status(400).json({ code: 'params.branch.required', msg: 'Bank Branch is required.' })
+        return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
       let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
       if (!allowedAccountType.includes(accountType)) {
-        throw { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+        return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {
         agentId: agentId,
@@ -356,7 +364,7 @@ async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, payme
     } else if (paymentTypeListResult.list[0].Code === 'bkash') {
       const bkashWallet = req.body.bkashWallet
       if (!bkashWallet) {
-        return res.status(400).json({ code: 'params.bkashWallet.required', msg: 'Wallet Address is required.' })
+        return { code: 'params.bkashWallet.required', msg: 'Wallet Address is required.' }
       }
       const payload = {
         agentId: agentId,
@@ -367,7 +375,7 @@ async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, payme
     } else if (paymentTypeListResult.list[0].Code === 'nagad') {
       const nagadWallet = req.body.nagadWallet
       if (!nagadWallet) {
-        return res.status(400).json({ code: 'params.nagadWallet.required', msg: 'Wallet Address is required.' })
+        return { code: 'params.nagadWallet.required', msg: 'Wallet Address is required.' }
       }
       const payload = {
         agentId: agentId,
@@ -378,7 +386,7 @@ async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, payme
     } else if (paymentTypeListResult.list[0].Code === 'rocket') {
       const rocketWallet = req.body.rocketWallet
       if (!rocketWallet) {
-        return res.status(400).json({ code: 'params.rocketWallet.required', msg: 'Wallet Address is required.' })
+        return { code: 'params.rocketWallet.required', msg: 'Wallet Address is required.' }
       }
       const payload = {
         agentId: agentId,
@@ -388,9 +396,9 @@ async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, payme
       response = await agentService.addAgentRocketInfo(payload);
     }
     if (response.code !== 'common.success') {
-      return res.status(400).send(response)
+      return { code: 'params.unknown.error', msg: 'Unknown Error' }
     }
-    return res.json(response)
+    return response
   } catch (err) {
     throw err
   }
