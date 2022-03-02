@@ -89,9 +89,9 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
     const agentId = result.agentId
     const mode = process.env.mode
     if (mode === 'prod' || mode === 'dev') {
-      addJwPayments(req, res, paymentTypeListResult, agentId, paymentType)
+      await addJwPayments(req, res, paymentTypeListResult, agentId, paymentType)
     } else if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
-      addJwBdtPayments(req, res, paymentTypeListResult, agentId, paymentType)
+      await addJwBdtPayments(req, res, paymentTypeListResult, agentId, paymentType)
     } else {
       res.status(400).send({ msg: 'Feature not available' })
     }
@@ -309,7 +309,7 @@ async function addJwPayments (req, res, paymentTypeListResult, agentId, paymentT
     if (response.code !== 'common.success') {
       return res.status(400).send(response)
     }
-    res.json(response)
+    return res.json(response)
   } catch (err) {
     throw err;
   }
@@ -390,7 +390,7 @@ async function addJwBdtPayments (req, res, paymentTypeListResult, agentId, payme
     if (response.code !== 'common.success') {
       return res.status(400).send(response)
     }
-    res.json(response)
+    return res.json(response)
   } catch (err) {
     throw err
   }
