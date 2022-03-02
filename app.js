@@ -50,6 +50,9 @@ app.use(middlewares.errorHandler);
 
 async function init() {
   try {
+    if (!process.env.mode) {
+      throw { msg: 'mode should be set' }
+    }
     await db.initialize();
     await s3.init();
     const date1 = getSettlementDates()

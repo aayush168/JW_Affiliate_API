@@ -25,7 +25,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
     for (let i = 0; i < playerSourceType.length; i++) {
       const sourceType = playerSourceType[i];
       if (!allowedPlayerSourceType.includes(sourceType)) {
-        throw { code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' }
+        return res.status(400).send({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' })
       }
     }
     if (paymentTypeListResult.list[0].Code === 'player-account') {
