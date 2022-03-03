@@ -1,5 +1,6 @@
 UPDATE Agent
 SET
-  Status = ?
+  Status = ?,
+  Remark = ?
 WHERE Id = ?
   

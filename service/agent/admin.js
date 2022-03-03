@@ -35,7 +35,7 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
   }
 }
 
-service.updateAgentStatus = async (status, id) => {
+service.updateAgentStatus = async (status, id, remark) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -43,7 +43,7 @@ service.updateAgentStatus = async (status, id) => {
     if (agent.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
     }
-    await conn1.execute(db.sql('agent/updateAgentStatus.sql'), [ status, id ])
+    await conn1.execute(db.sql('agent/updateAgentStatus.sql'), [ status, remark, id ])
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

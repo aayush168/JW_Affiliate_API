@@ -15,7 +15,7 @@ router.get('/getList', async function (req, res) {
     const params = {
       username: req.query.username ? req.query.username : '',
       createdAt: req.query.createdAt ? req.query.createdAt : '',
-      status: parseInt(req.query.status) === 0 || parseInt(req.query.status) === 1 ? parseInt(req.query.status) : '',
+      status: parseInt(req.query.status) === 0 || parseInt(req.query.status) === 1 || parseInt(req.query.status) === 2 || parseInt(req.query.status) === 3 ? parseInt(req.query.status) : '',
       revenueShareType: parseInt(req.query.revenueShareType) ? parseInt(req.query.revenueShareType) : '',
       playerSourceType: parseInt(req.query.playerSourceType) ? parseInt(req.query.playerSourceType) : '',
       paymentType: parseInt(req.query.paymentType) ? parseInt(req.query.paymentType) : req.query.paymentType
@@ -30,17 +30,21 @@ router.get('/getList', async function (req, res) {
 
 router.put('/update/:id', async function (req, res) {
   try {
-    // 0: Disabled, 1: Enabled, 2: In review
+    // 0: Disabled, 1: Enabled, 2: In review 3: Rejected
     const allowedStatus = [0, 1, 2, 3]
     const id = req.params.id
+    let remark = ''
     if (!id) {
       return res.status(400).json({ code: 'params.status.required', msg: 'Status required' })
     }
     const status = parseInt(req.body.status);
+    if (status === 3 && req.body.remark) {
+      remark = req.body.remark
+    }
     if (!allowedStatus.includes(status)) {
       return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid status' })
     }
-    const result = await agentService.updateAgentStatus(status, id);
+    const result = await agentService.updateAgentStatus(status, id, remark);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
