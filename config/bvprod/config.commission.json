@@ -25,5 +25,6 @@
       "maxRevenue": 0,
       "rate": 0.5
     }
-  ]
+  ],
+  "calculationInfo": "<h4>Calculation</h4><br><p>( Revenue - Promotion Cost - 5% Platform fee ) = Net Revenue</p><p>( Net Revenue * Sharing percentage ) = Total Income</p>"
 }
