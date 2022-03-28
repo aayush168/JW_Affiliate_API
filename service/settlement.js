@@ -126,6 +126,9 @@ function getTotalPromotion (promotionSummary, otherBonus) {
 
 async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername) {
   let data = [];
+  if (process.env.mode && process.env.mode.includes('ape')) {
+    return data;
+  }
   let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name });
   let keys = _.keys(agentGroupBy);
   for (let i = 0; i < keys.length; i++) {
