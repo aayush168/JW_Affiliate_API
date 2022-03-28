@@ -16,7 +16,10 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username);
-  let bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
+  let bonusAmount = 0;
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
+  }
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   let earning = calculateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));

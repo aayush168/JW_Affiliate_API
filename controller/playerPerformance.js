@@ -14,13 +14,16 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     promotion: 0,
     revenue: 0
   };
+  let bonusData;
+  let totalBonusData;
   let betData = await playerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let accData = await playerPerformanceService.getAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
-  let bonusData = await playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
-
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    bonusData = await playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
+    totalBonusData = await playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
+  }
   let totalBetData = await playerPerformanceService.getTotalBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let totalAccData = await playerPerformanceService.getTotalAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
-  let totalBonusData = await playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
 
   _.each(betData, function(item){
     let obj = {
@@ -52,31 +55,36 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       data.push(obj);
     }
   });
-
-  _.each(bonusData, function (item) {
-    let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
-    if (obj) {
-      obj.deposit = parseFloat(obj.deposit);
-      obj.withdraw = parseFloat(obj.withdraw);
-      obj.promotion = parseFloat(obj.promotion) + parseFloat(item.Amount);
-    } else {
-      obj = {
-        name: item.Username,
-        turnover: 0,
-        netwin: 0,
-        deposit: 0,
-        withdraw: 0,
-        promotion: parseFloat(item.Amount)
-      };
-      data.push(obj);
-    }
-  })
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    _.each(bonusData, function (item) {
+      let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
+      if (obj) {
+        obj.deposit = parseFloat(obj.deposit);
+        obj.withdraw = parseFloat(obj.withdraw);
+        obj.promotion = parseFloat(obj.promotion) + parseFloat(item.Amount);
+      } else {
+        obj = {
+          name: item.Username,
+          turnover: 0,
+          netwin: 0,
+          deposit: 0,
+          withdraw: 0,
+          promotion: parseFloat(item.Amount)
+        };
+        data.push(obj);
+      }
+    })
+  } 
 
   total.turnover = parseFloat(totalBetData.Turnover);
   total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalAccData.Deposit);
   total.withdraw = parseFloat(totalAccData.Withdraw);
-  total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
+  } else {
+    total.promotion = parseFloat(totalAccData.Promotion);
+  }
   total.earning = calculateEstimateEarning(parseFloat(data.length), parseFloat(total.netwin), parseFloat(total.promotion))
   let totalCount = data.length;
   if (data.length > 0) {

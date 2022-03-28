@@ -35,6 +35,9 @@ async function getCarriedRevenue (startDate, memberUsername) {
   return result;
 }
 async function getOtherBonus (startDate, endDate, memberUsername) {
+  if (process.env.mode && process.env.mode.includes('ape')) {
+    return []
+  }
   const result =  await mGetOtherBonus(`${startDate} 00:00:00`, `${endDate} 23:59:59`, memberUsername);
   return result
 }
