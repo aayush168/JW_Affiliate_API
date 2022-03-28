@@ -19,13 +19,22 @@ async function init () {
   try {
     await db.initialize();
     log.info(`Migration Started`)
-    // Migration for JW, SI, JWBDT
-    // const result = await fetchAgentData();
-    // await addAgentDataLabs(result.list)
+    // Migration for JW, SI, JWBDT, GameApe
+    const result = await fetchAgentData();
+    const updatedAgentData = result.list.map(x => {
+      const agentData = {
+        ...x,
+        Password: 'ape1111'
+      }
+      return {
+        ...addPayloadData(agentData)
+      }
+    })
+    await addAgentDataLabs(updatedAgentData)
 
     // Migration for BV
-    const result = await fetchAgentDataBV();
-    await addAgentDataLabsBV(result)
+    // const result = await fetchAgentDataBV();
+    // await addAgentDataLabsBV(result)
     log.info(`Migration Successful`)
   } catch (err) {
     console.log('migration script error :', err)

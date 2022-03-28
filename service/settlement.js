@@ -51,7 +51,10 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
     let carriedRevenue = [];
     let conn = await db.getConn('jw');
-    let xconn = await db.getConn('extra1:read');
+    let xconn;
+    if (process.env.mode && !process.env.mode.includes('ape')) {
+      xconn = await db.getConn('extra1:read');
+    }
     let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
       getNetWinSummary(conn, startDate), getPromotionSummary(conn, startDate), getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
     ]);
