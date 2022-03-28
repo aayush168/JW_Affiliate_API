@@ -42,22 +42,27 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     let memberUsername = _.pluck(agentMember, 'Username');
     let memberUsers = _.chunk(memberUsername, 50000);
     let totalBonus = {};
-    for (var i = 0; i < memberUsers.length; i++) {
-      let users = memberUsers[i];
-      let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
-        users, startDateTime,
-        users, startDateTime,
-        users, startDateTime,
-        users, startDateTime,
-        users, startDateTime,
-        users, startDateTime
-      ]}))[0];
-      _.each(bonus, function (x) {
-        totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);
-      });
+    if (process.env.mode && !process.env.mode.includes('ape')) {
+      for (var i = 0; i < memberUsers.length; i++) {
+        let users = memberUsers[i];
+        let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
+          users, startDateTime,
+          users, startDateTime,
+          users, startDateTime,
+          users, startDateTime,
+          users, startDateTime,
+          users, startDateTime
+        ]}))[0];
+        _.each(bonus, function (x) {
+          totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);
+        });
+      }
     }
-    totalBonus = Object.keys(totalBonus).map(x => { return { Date: x, Promotion: totalBonus[x]  } });
-    let promotionCarried = Object.values([ ...totalBonus, ...promotionSummary]).reduce(function (prev, next) {
+    if (Object.keys(totalBonus).length > 0) {
+      totalBonus = Object.keys(totalBonus).map(x => { return { Date: x, Promotion: totalBonus[x]  } });
+    }
+    const data = process.env.mode.includes('ape') ? [...promotionSummary] : [ ...totalBonus, ...promotionSummary]
+    let promotionCarried = Object.values(data).reduce(function (prev, next) {
       prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
       return prev;
     }, {});

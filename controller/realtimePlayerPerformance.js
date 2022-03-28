@@ -13,17 +13,21 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
     promotion: 0,
     loyaltyPoint: 0
   };
+  let bonusData;
+  let totalBonusData;
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    bonusData = await realtimePlayerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
+    totalBonusData = await realtimePlayerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
+  }
   let betData = await realtimePlayerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let depositData = await realtimePlayerPerformanceService.getDepositData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let withdrawData = await realtimePlayerPerformanceService.getWithdrawData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let promotionData = await realtimePlayerPerformanceService.getPromotionData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
-  let bonusData = await realtimePlayerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
 
   let totalBetData = await realtimePlayerPerformanceService.getTotalBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let totalDepositData = await realtimePlayerPerformanceService.getTotalDepositData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let totalWithdrawData = await realtimePlayerPerformanceService.getTotalWithdrawData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let totalPromotionData = await realtimePlayerPerformanceService.getTotalPromotionData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
-  let totalBonusData = await realtimePlayerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   _.each(betData, function(item){
     let obj = {
       name: item.Username,
@@ -91,30 +95,35 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
       data.push(obj);
     }
   });
-
-  _.each(bonusData, function (item) {
-    let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
-    if (obj) {
-      obj.promotion = parseFloat(obj.promotion) + parseFloat(item.Amount);
-    } else {
-      obj = {
-        name: item.Username,
-        turnover: 0,
-        netwin: 0,
-        deposit: 0,
-        withdraw: 0,
-        promotion: parseFloat(item.Amount),
-        loyaltyPoint: 0
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    _.each(bonusData, function (item) {
+      let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
+      if (obj) {
+        obj.promotion = parseFloat(obj.promotion) + parseFloat(item.Amount);
+      } else {
+        obj = {
+          name: item.Username,
+          turnover: 0,
+          netwin: 0,
+          deposit: 0,
+          withdraw: 0,
+          promotion: parseFloat(item.Amount),
+          loyaltyPoint: 0
+        }
+        data.push(obj);
       }
-      data.push(obj);
-    }
-  });
+    });
+  }
   
   total.turnover = parseFloat(totalBetData.Turnover);
   total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalDepositData.Amount);
   total.withdraw = parseFloat(totalWithdrawData.Amount);
-  total.promotion = parseFloat(totalPromotionData.Amount) + parseFloat(totalBonusData);
+  if (process.env.mode && !process.env.mode.includes('ape')) {
+    total.promotion = parseFloat(totalPromotionData.Amount) + parseFloat(totalBonusData);
+  } else {
+    total.promotion = parseFloat(totalPromotionData.Amount);
+  }
   total.loyaltyPoint = parseFloat(totalPromotionData.LoyaltyPoint);
   let totalCount = data.length;
   if (data.length > 0) {
