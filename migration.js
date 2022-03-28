@@ -10,7 +10,7 @@ const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('migration');
 
 let migrationData
-if (mode === 'bvprod') {
+if (mode === 'bvprod_thb') {
   migrationData = require(path.join(rootPath, 'config', mode, `config.migration.json`));
 }
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
@@ -18,13 +18,14 @@ let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 async function init () {
   try {
     await db.initialize();
+    log.info(`Migration Started`)
     // Migration for JW, SI, JWBDT
-    const result = await fetchAgentData();
-    await addAgentDataLabs(result.list)
+    // const result = await fetchAgentData();
+    // await addAgentDataLabs(result.list)
 
     // Migration for BV
-    // const result = await fetchAgentDataBV();
-    // await addAgentDataLabsBV(result)
+    const result = await fetchAgentDataBV();
+    await addAgentDataLabsBV(result)
     log.info(`Migration Successful`)
   } catch (err) {
     console.log('migration script error :', err)
