@@ -1,0 +1,54 @@
+{
+  "extra:read": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"paymentgatewaydb-cluster-1.cluster-ro-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
+    "database":"affiliate_bvprod_php",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "timezone": "+07:00",
+    "pool":{
+      "max":100
+    }
+  },
+  "extra:write": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"paymentgatewaydb-cluster-1.cluster-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
+    "database":"affiliate_bvprod_php",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "timezone": "+07:00",
+    "pool":{
+      "max":100
+    }
+  },
+  "jw": {
+    "user":"ocmsuser_bv",
+    "password":"cjiCFsoFuwDaZUuovxSI7cA3",
+    "server":"dbr.betnokia.com",
+    "database":"bv0a_ocms_v2",
+    "requestTimeout":10000,
+    "connectionTimeout":10000,
+    "port":3306,
+    "timezone": "+07:00",
+    "pool":{
+        "max":100
+    }
+  },
+  "extra1:read": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"paymentgatewaydb-cluster-1.cluster-ro-cga5r2yblrb4.ap-southeast-1.rds.amazonaws.com",
+    "database":"betvisaextra_php",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "timezone": "+07:00",
+    "pool":{
+      "max":100
+    }
+  }
+}
