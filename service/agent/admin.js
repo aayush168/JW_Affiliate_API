@@ -8,9 +8,12 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
   try {
     let conn = await db.getConn('extra:read')
     const mode = process.env.mode;
+    
     let sql
     if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
       sql = db.sql('agent/getBdtAgentList.sql')
+    } else if (mode.includes('bvprod') || mode.includes('bvdev')) {
+      sql = db.sql('agent/getBvAgentList.sql')
     } else {
       sql = db.sql('agent/getAgentList.sql')
     }
