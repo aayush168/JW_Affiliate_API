@@ -242,6 +242,17 @@ service.addAgentRocketInfo = async ({ agentId, paymentType, rocketWallet }) => {
   }
 }
 
+service.addAgentBvBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, branch }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.execute(db.sql('agent/addBvBankInfo.sql'), [ agentId, paymentType, bankName, accountName, accountNumber, branch ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')
