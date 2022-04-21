@@ -11,5 +11,6 @@
   "awsConfig": {
     "bucket": "agent-affiliate",
     "folder": "bvprod_idr"
-  }
+  },
+  "currency": "IDR"
 }

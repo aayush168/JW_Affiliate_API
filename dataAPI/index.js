@@ -12,7 +12,8 @@ service.getTurnoverData = async function (startDate, endDate, recall = false) {
       endDate: endDate
     },
     headers: {
-      authorization: config.app["TOKEN"]
+      authorization: config.app["TOKEN"],
+      "ocms-currency": config.app.currency ? config.app.currency : ''
     },
     json: true,
     simple: false,

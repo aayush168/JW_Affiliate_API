@@ -11,5 +11,6 @@
   "awsConfig": {
     "bucket": "agent-affiliate",
     "folder": "bvprod_php"
-  }
+  },
+  "currency": "PHP"
 }

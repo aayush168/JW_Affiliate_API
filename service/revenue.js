@@ -64,7 +64,16 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     if (Object.keys(totalBonus).length > 0) {
       totalBonus = Object.keys(totalBonus).map(x => { return { Date: x, Promotion: totalBonus[x]  } });
     }
-    const data = process.env.mode.includes('ape') ? [...promotionSummary] : [ ...totalBonus, ...promotionSummary]
+    let data;
+    if (process.env.mode.includes('ape') || Object.keys(totalBonus).length === 0) {
+      data = [...promotionSummary];
+    } else {
+      if (Object.keys(totalBonus).length > 0) {
+        data = [ ...totalBonus, ...promotionSummary];
+      } else {
+        data = [...promotionSummary];
+      }
+    }
     let promotionCarried = Object.values(data).reduce(function (prev, next) {
       prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
       return prev;
