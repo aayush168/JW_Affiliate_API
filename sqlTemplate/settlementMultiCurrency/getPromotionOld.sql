@@ -12,6 +12,12 @@ FROM
   mt.Type = 7 AND
   REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(mt.AgentCode, '-', 2)), '-', 1)) != ''
   UNION ALL
+  SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(m.AgentCode, '-', 2)), '-', 1)) AS AgentId, u.Amount
+  FROM PromotionWalletTrans u
+  JOIN Member AS m ON m.Id = u.MemberId
+  WHERE m.Status != 2 AND u.CreateTime >= ? AND u.CreateTime <= ? AND u.Type=7 AND u.Status = 1
+  AND REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(m.AgentCode, '-', 2)), '-', 1)) != ''
+  UNION ALL
   SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(m.AgentCode, '-', 2)), '-', 1)) AS AgentId, (u.Amount * -1) AS Amount
   FROM PromotionWalletTrans u
   JOIN Member AS m ON m.Id = u.MemberId
