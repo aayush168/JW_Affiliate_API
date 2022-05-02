@@ -73,6 +73,26 @@ service.updatePassword = async (password, id) => {
   }
 }
 
+service.updateUsername = async (username, id) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let operator = (await conn.execute(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (operator.length === 0) {
+      return { code: "code.agent.noExist", msg: "Agent Not Found" }
+    }
+    const agent = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
+    if (agent.length > 0) {
+      return { code: 'code.username.exist', msg: 'Username is already taken' }
+    }
+    await conn1.execute(db.sql('agent/updateUsername.sql'), [ username, id ])
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.getAgentRegisteredToday = async () => {
   try {
     let conn = await db.getConn('extra:read')

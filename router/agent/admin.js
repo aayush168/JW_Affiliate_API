@@ -76,6 +76,27 @@ router.put('/updatePassword/:id', async function (req, res) {
   }
 })
 
+router.put('/updateUsername/:id', async function (req, res) {
+  try {
+    const id = req.params.id
+    if (!id) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    const username = req.body.username
+    if (!username) {
+      return res.status(400).json({ code: 'params.username.required', msg: 'New Username is required.' })
+    }
+    const result = await agentService.updateUsername(username, id);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
 router.get('/getAgentRegisteredToday', async function (req, res) {
   try {
     const result = await agentService.getAgentRegisteredToday();
