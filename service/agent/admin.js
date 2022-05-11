@@ -4,7 +4,7 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 let moment = require('moment-timezone');
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 
-service.getAgentList = async (size, offset, { username, createdAt, status, revenueShareType, playerSourceType, paymentType }) => {
+service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, revenueShareType, playerSourceType, paymentType }) => {
   try {
     let conn = await db.getConn('extra:read')
     const mode = process.env.mode;
@@ -17,7 +17,9 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
     } else {
       sql = db.sql('agent/getAgentList.sql')
     }
-    sql = sql.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
+    sql = sql.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
+    sql = sql.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
+    sql = sql.replace('${Mobile}', (mobile === '') ? '' : ` AND a.Mobile LIKE "%${mobile}%"`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
     sql = sql.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)
     sql = sql.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
@@ -25,7 +27,9 @@ service.getAgentList = async (size, offset, { username, createdAt, status, reven
     const result = (await conn.query({ sql: sql, values: [ `%${username}%`, offset, size ]}));
 
     let sqlCount = db.sql('agent/getAgentListCount.sql')
-    sqlCount = sqlCount.replace('${RevenueShareType}', (revenueShareType === '') ? '' : ` AND a.RevenueShareType = ${revenueShareType}`)
+    sqlCount = sqlCount.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
+    sqlCount = sqlCount.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
+    sqlCount = sqlCount.replace('${Mobile}', (mobile === '') ? '' : ` AND a.Mobile LIKE "%${mobile}%"`)
     sqlCount = sqlCount.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
     sqlCount = sqlCount.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)
     sqlCount = sqlCount.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)

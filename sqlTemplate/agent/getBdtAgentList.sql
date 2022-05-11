@@ -2,7 +2,9 @@ SELECT a.Id, a.Name, a.Username, a.UnhashedPassword, a.Mobile, a.Whatsapp, a.Sky
 FROM Agent AS a
 LEFT JOIN AgentPaymentInfo AS ap ON ap.agentId = a.Id
 WHERE a.Username LIKE ?
-${RevenueShareType}
+${Name}
+${Email}
+${Mobile}
 ${Status}
 ${CreatedAt}
 ${PaymentTypeId}
