@@ -1,4 +1,4 @@
  
-SELECT AccountNumber 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE AccountNumber = ?

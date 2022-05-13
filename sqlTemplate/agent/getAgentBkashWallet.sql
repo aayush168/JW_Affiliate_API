@@ -1,4 +1,4 @@
  
-SELECT BkashAddress 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE BkashAddress = ?

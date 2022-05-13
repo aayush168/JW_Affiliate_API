@@ -34,7 +34,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send(result)
       }
     }
-    if (paymentTypeListResult.list[0].Code === 'bank-account' || paymentTypeListResult.list[0].Code === 'bdt-bank-account') {
+    if (paymentTypeListResult.list[0].Code.includes('bank-account')) {
       const result = await agentService.checkAgentBankAccountNumber(req.body.accountNumber);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)

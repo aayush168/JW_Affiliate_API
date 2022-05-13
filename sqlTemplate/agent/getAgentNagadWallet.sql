@@ -1,4 +1,4 @@
  
-SELECT NagadAddress 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE NagadAddress = ?

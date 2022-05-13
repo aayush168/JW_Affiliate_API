@@ -1,3 +1,3 @@
-SELECT RocketAddress 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE RocketAddress = ?

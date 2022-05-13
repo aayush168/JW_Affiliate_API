@@ -1,4 +1,4 @@
  
-SELECT USDTAddress 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE USDTAddress = ?

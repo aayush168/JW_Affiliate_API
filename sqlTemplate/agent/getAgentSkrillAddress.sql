@@ -1,4 +1,4 @@
  
-SELECT SkrillAddress 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE SkrillAddress = ?

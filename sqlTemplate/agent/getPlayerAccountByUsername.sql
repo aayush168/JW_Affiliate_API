@@ -1,4 +1,4 @@
  
-SELECT PlayerAccountUsername 
+SELECT * 
 FROM AgentPaymentInfo
 WHERE PlayerAccountUsername = ?
