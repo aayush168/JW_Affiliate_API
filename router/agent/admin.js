@@ -11,8 +11,8 @@ const settingService = require(path.join(rootPath, 'service', 'setting', 'admin.
 
 router.get('/getList', async function (req, res) {
   try {
-    let size = req.query.size ? parseInt(req.query.size) : 20;
-    let page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const size = req.query.size ? parseInt(req.query.size) : 20;
+    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
     const params = {
       username: req.query.username ? req.query.username : '',
       name: req.query.name ? req.query.name : '',
@@ -75,7 +75,6 @@ router.put('/updateProfile/:id', async function (req, res) {
       otherSourceLink: otherSourceLink,
       remark: remark
     }
-    console.log(id, 'test');
     const result = await agentService.updateAgentProfile(payload, id);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
@@ -161,48 +160,6 @@ router.put('/updatePayment/:id', async function (req, res) {
     } else {
       res.status(400).send({ msg: 'Feature not available' })
     }
-  } catch (err) {
-    log.error(err)
-    res.status(500).send(err)
-  }
-})
-
-router.put('/updatePassword/:id', async function (req, res) {
-  try {
-    const id = req.params.id
-    if (!id) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
-    const password = req.body.password
-    if (!password) {
-      return res.status(400).json({ code: 'params.password.required', msg: 'New password is required.' })
-    }
-    const result = await agentService.updatePassword(password, id);
-    if (result.code !== 'common.success') {
-      return res.status(400).send(result)
-    }
-    res.json(result)
-  } catch (err) {
-    log.error(err)
-    res.status(500).send(err)
-  }
-})
-
-router.put('/updateUsername/:id', async function (req, res) {
-  try {
-    const id = req.params.id
-    if (!id) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
-    const username = req.body.username
-    if (!username) {
-      return res.status(400).json({ code: 'params.username.required', msg: 'New Username is required.' })
-    }
-    const result = await agentService.updateUsername(username, id);
-    if (result.code !== 'common.success') {
-      return res.status(400).send(result)
-    }
-    res.json(result)
   } catch (err) {
     log.error(err)
     res.status(500).send(err)
