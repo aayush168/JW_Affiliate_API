@@ -11,5 +11,6 @@
   "awsConfig": {
     "bucket": "agent-affiliate",
     "folder": "gameape_prod_thb"
-  }
+  },
+  "currency": "THB"
 }
