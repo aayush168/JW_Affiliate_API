@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_php"
   },
-  "currency": "PHP"
+  "currency": "PHP",
+  "agentIdOCMS": "764"
 }

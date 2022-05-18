@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_bdt"
   },
-  "currency": "BDT"
+  "currency": "BDT",
+  "agentIdOCMS": "655"
 }

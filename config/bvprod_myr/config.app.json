@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_myr"
   },
-  "currency": "MYR"
+  "currency": "MYR",
+  "agentIdOCMS": "654"
 }

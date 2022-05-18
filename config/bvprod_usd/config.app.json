@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_usd"
   },
-  "currency": "USD"
+  "currency": "USD",
+  "agentIdOCMS": "658"
 }

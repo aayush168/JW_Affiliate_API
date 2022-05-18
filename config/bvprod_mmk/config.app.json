@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_mmk"
   },
-  "currency": "MMK"
+  "currency": "MMK",
+  "agentIdOCMS": "763"
 }

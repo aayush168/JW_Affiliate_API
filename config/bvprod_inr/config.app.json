@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_inr"
   },
-  "currency": "INR"
+  "currency": "INR",
+  "agentIdOCMS": "653"
 }

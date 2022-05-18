@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_thb"
   },
-  "currency": "THB"
+  "currency": "THB",
+  "agentIdOCMS": "597"
 }

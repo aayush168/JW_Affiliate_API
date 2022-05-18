@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_idr"
   },
-  "currency": "IDR"
+  "currency": "IDR",
+  "agentIdOCMS": "657"
 }

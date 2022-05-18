@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod"
   },
-  "currency": "VND"
+  "currency": "VND",
+  "agentIdOCMS": "0"
 }

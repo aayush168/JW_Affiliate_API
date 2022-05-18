@@ -12,5 +12,6 @@
     "bucket": "agent-affiliate",
     "folder": "bvprod_mxn"
   },
-  "currency": "MXN"
+  "currency": "MXN",
+  "agentIdOCMS": "656"
 }
