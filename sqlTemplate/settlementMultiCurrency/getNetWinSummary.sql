@@ -8,3 +8,4 @@ FROM (
   GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(m.AgentCode, '-', 2)), '-', 1)), DATE_FORMAT(smbd.AccountingDate, '%Y-%m')
 ) AS r
 JOIN AgentChannel AS a ON a.Id = r.AgentId
+WHERE a.AgentId = ?

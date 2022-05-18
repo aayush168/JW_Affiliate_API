@@ -2,6 +2,12 @@ let service = {};
 let path = require('path');
 let _ = require('underscore');
 let db = require(path.join(rootPath, 'db', 'index.js'));
+let config = require(path.join(rootPath, 'config', 'index.js'));
+let ocmsAgentId
+
+if (process.env.mode && process.env.mode.includes('bvprod')) {
+  ocmsAgentId = parseInt(config.app.agentIdOCMS)
+}
 
 service.getMemberUsername = async function (endDate) {
   try {
@@ -161,7 +167,7 @@ async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername
 
 function getMemberUsername (conn, endDate) {
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberUsername.sql'), values: [ endDate ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberUsername.sql'), values: [ endDate, ocmsAgentId ] });
   } else {
     return conn.query({ sql: db.sql('settlement/getMemberUsername.sql'), values: [ endDate ] });
   }
@@ -169,7 +175,7 @@ function getMemberUsername (conn, endDate) {
 
 function getBetData(conn, startDate, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate, ocmsAgentId ] });
   } else {
     return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
   }
@@ -177,15 +183,15 @@ function getBetData(conn, startDate, endDate){
 
 function getPromotion(conn, startDate, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotion.sql'), values: [ startDate, endDate, ocmsAgentId ] });
   } else {
-    return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
+    return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate ] });
   }
 }
 
 function getMembers(conn, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate, ocmsAgentId ] });
   } else {
     return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ endDate ] });
   }
@@ -193,7 +199,7 @@ function getMembers(conn, endDate){
 
 function getNetWinSummary(conn, startDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getNetWinSummary.sql'), values: [ startDate ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getNetWinSummary.sql'), values: [ startDate, ocmsAgentId ] });
   } else {
     return conn.query({ sql: db.sql('settlement/getNetWinSummary.sql'), values: [ startDate ] });
   }
@@ -201,7 +207,7 @@ function getNetWinSummary(conn, startDate){
 
 function getPromotionSummary (conn, startDate) {
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
   } else {
     return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
   }

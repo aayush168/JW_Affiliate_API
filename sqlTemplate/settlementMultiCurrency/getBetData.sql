@@ -9,4 +9,5 @@ AND REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(smbd.AgentCode, '-', 2)), '-
 GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(smbd.AgentCode, '-', 2)), '-', 1))
 ) AS r
 JOIN AgentChannel AS a ON a.Id = r.AgentId
+WHERE a.AgentId = ?
 

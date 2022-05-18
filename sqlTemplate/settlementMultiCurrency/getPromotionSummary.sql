@@ -38,3 +38,4 @@ FROM (
   GROUP BY r.AgentId, r.Date
 ) AS f
 JOIN AgentChannel AS a ON a.Id = f.AgentId
+WHERE a.AgentId = ?

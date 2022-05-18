@@ -15,3 +15,4 @@ FROM
 GROUP BY rr.AgentId
 ) AS r
 JOIN AgentChannel AS a ON a.Id = r.AgentId
+WHERE a.AgentId = ?

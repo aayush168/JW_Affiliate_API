@@ -6,6 +6,7 @@ FROM Member
 WHERE REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) != ''
 AND Status != 2
 AND AddTime <= ?
+AND AgentId = ?
 GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1))
 ) AS r
 JOIN AgentChannel AS a ON a.Id = r.AgentId
