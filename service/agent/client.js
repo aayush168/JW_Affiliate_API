@@ -3,7 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
 
-service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink }) => {
+service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress }) => {
   try {
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
@@ -39,7 +39,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.execute(db.sql('agent/addAgent.sql'), [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink ])
+    const result = await conn1.execute(db.sql('agent/addAgent.sql'), [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress ])
     const agentId = result[0].insertId
     return { code: 'common.success', agentId: agentId }
   } catch (err) {

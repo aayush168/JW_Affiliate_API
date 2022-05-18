@@ -70,6 +70,8 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send(result)
       }
     }
+    let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    ipAddress = ipAddress.split(':').reverse()[0];
     const registerAgentPayload = {
       name: req.body.name,
       username: req.body.username,
@@ -80,7 +82,8 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       email: req.body.email,
       revenueShareType: req.body.revenueShareType,
       playerSourceType: playerSourceType.toString(),
-      otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null
+      otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null,
+      ipAddress: ipAddress
     }
     const result = await agentService.addAgent(registerAgentPayload);
     if (result.code !== 'common.success') {

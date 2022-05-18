@@ -113,7 +113,7 @@ service.addAgent = async (name, username, password) => {
     } else {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
     }
-    if (agentOCMS.length > 0) {
+    if (agentOCMS.length > 0 && agent.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
     const salt1 = encrypt.getSalt(10)
