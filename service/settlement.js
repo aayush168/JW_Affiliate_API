@@ -185,7 +185,7 @@ function getPromotion(conn, startDate, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotion.sql'), values: [ startDate, endDate, ocmsAgentId ] });
   } else {
-    return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate ] });
+    return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
   }
 }
 
