@@ -77,7 +77,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   } 
 
   total.turnover = parseFloat(totalBetData.Turnover);
-  if (process.env.mode && !process.env.mode.includes('bv')) {
+  if (process.env.mode && process.env.mode.includes('bv')) {
     total.netwin = parseFloat(totalBetData.NetWin) * .95;
   } else {
     total.netwin = parseFloat(totalBetData.NetWin);
