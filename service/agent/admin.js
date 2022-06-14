@@ -108,7 +108,7 @@ service.addAgent = async (name, username, password) => {
     }
     let mode = process.env.mode
     let agentOCMS
-    if (mode && mode.includes('bv')) {
+    if (mode && mode.includes('bv') || mode.includes('ape')) {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     } else {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];

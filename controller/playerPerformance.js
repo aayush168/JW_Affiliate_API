@@ -77,7 +77,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   } 
 
   total.turnover = parseFloat(totalBetData.Turnover);
-  if (process.env.mode && process.env.mode.includes('bv')) {
+  if (process.env.mode && process.env.mode.includes('bv') || process.env.mode.includes('ape')) {
     total.netwin = parseFloat(totalBetData.NetWin) * .95;
   } else {
     total.netwin = parseFloat(totalBetData.NetWin);
@@ -106,9 +106,6 @@ function calculateEstimateEarning(members, netwin, promotion) {
   let revenue = netwin + promotion;
   if (revenue < 0) {
     revenue = Math.abs(revenue)
-    if (process.env.mode.includes('bv')) {
-      console.log('test');
-    }
   } else {
     return 0
   }
