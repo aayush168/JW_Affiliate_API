@@ -197,6 +197,18 @@ router.get('/settlement/getList', async function (req, res) {
           value: 'members'
         },
         {
+          label: 'Total Members',
+          value: 'totalMembers'
+        },
+        {
+          label: 'First Deposit Members',
+          value: 'firstDeposit'
+        },
+        {
+          label: 'Active Members',
+          value: 'activeMembers'
+        },
+        {
           label: 'Turnover',
           value: 'turnover'
         },

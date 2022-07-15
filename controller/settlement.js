@@ -6,6 +6,9 @@ let _CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7;
 let settlementService = require(path.join(rootPath, 'service', 'settlement.js'));
 let mGetMemberUsername = memoize(settlementService.getMemberUsername, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetMembers = memoize(settlementService.getMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mGetTotalMembers = memoize(settlementService.getTotalMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mGetFirstDepositMembers = memoize(settlementService.getFirstDepositMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mGetActiveMembers = memoize(settlementService.getActiveMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetPromotion = memoize(settlementService.getPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
@@ -16,6 +19,23 @@ async function getMembers (endDate) {
   const result = await mGetMembers(`${endDate} 23:59:59`)
   return result;
 }
+
+async function getTotalMembers () {
+  const result = await mGetTotalMembers()
+  return result;
+}
+
+async function getFirstDepositMembers (startDate, endDate) {
+  const result = await mGetFirstDepositMembers(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+  return result;
+}
+
+async function getActiveMembers (startDate, endDate) {
+  const result = await mGetActiveMembers(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+  return result;
+}
+
+
 async function getBetData (startDate, endDate) {
   const result = await mGetBetData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
   return result;
@@ -34,6 +54,7 @@ async function getCarriedRevenue (startDate, memberUsername) {
   const result = await mGetCarriedRevenue(`${startDate} 00:00:00`, memberUsername);
   return result;
 }
+
 async function getOtherBonus (startDate, endDate, memberUsername) {
   if (process.env.mode && process.env.mode.includes('ape')) {
     return []
@@ -45,11 +66,14 @@ async function getOtherBonus (startDate, endDate, memberUsername) {
 controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
-  let [ members, betData, promotionData, memberUsername ] = await Promise.all([
+  let [ members, betData, promotionData, memberUsername, firstDepositMembers, activeUsers, totalUsers ] = await Promise.all([
     getMembers(endDate),
     getBetData(startDate, endDate),
     getPromotion(startDate, endDate),
-    getMemberUsername(endDate)
+    getMemberUsername(endDate),
+    getFirstDepositMembers(startDate, endDate),
+    getActiveMembers(startDate, endDate),
+    getTotalMembers()
   ]);
   let [ carriedRevenue, otherBonus ] = await Promise.all([
     getCarriedRevenue(startDate, memberUsername),
@@ -63,7 +87,22 @@ controller.getSettlementData = async function (startDate, endDate) {
       revenue: 0,
       carried: 0,
       level: '',
-      earning: 0
+      earning: 0,
+      firstDeposit: 0,
+      activeMembers: 0,
+      totalMembers: 0
+    }
+    let firstDeposit = _.find(firstDepositMembers, function(i){ return (item.Name === i.Name) ? true : false; });
+    if (firstDeposit) {
+      data.firstDeposit = firstDeposit.Count;
+    }
+    let activeMembers = _.find(activeUsers, function(i){ return (item.Name === i.Name) ? true : false; });
+    if (activeMembers) {
+      data.activeMembers = activeMembers.Count;
+    }
+    let totalMembers = _.find(totalUsers, function(i){ return (item.Name === i.Name) ? true : false; });
+    if (totalMembers) {
+      data.totalMembers = totalMembers.Count;
     }
     let carried = _.find(carriedRevenue, function(i){ return (item.Name === i.Name) ? true : false; });
     let bet = _.find(betData, function (i) { return (item.Name === i.Name ) ? true : false; });

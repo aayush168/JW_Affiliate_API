@@ -20,6 +20,39 @@ service.getMemberUsername = async function (endDate) {
   }
 }
 
+service.getFirstDepositMembers = async function (startDate, endDate) {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await getFirstDepositMembers(conn, startDate, endDate)
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+service.getTotalMembers = async function () {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await getTotalMembers(conn)
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+service.getActiveMembers = async function (startDate, endDate) {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await getActiveMembers(conn, startDate, endDate)
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 service.getBetData = async function (startDate, endDate) {
   try {
     let conn = await db.getConn('jw');
@@ -173,11 +206,35 @@ function getMemberUsername (conn, endDate) {
   }
 }
 
+function getTotalMembers (conn) {
+  if (process.env.mode && process.env.mode.includes('bvprod')) {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getTotalRegisteredMembers.sql'), values: [ ocmsAgentId ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getTotalRegisteredMembers.sql') });
+  }
+}
+
 function getBetData(conn, startDate, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate, ocmsAgentId ] });
   } else {
     return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
+  }
+}
+
+function getFirstDepositMembers(conn, startDate, endDate){
+  if (process.env.mode && process.env.mode.includes('bvprod')) {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getFirstDepositMembers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getFirstDepositMembers.sql'), values: [ startDate, endDate ] });
+  }
+}
+
+function getActiveMembers(conn, startDate, endDate){
+  if (process.env.mode && process.env.mode.includes('bvprod')) {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getActiveUsers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getActiveUsers.sql'), values: [ startDate, endDate ] });
   }
 }
 
