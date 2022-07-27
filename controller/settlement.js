@@ -1,14 +1,18 @@
 let path = require('path');
 let _ = require('underscore');
 let memoize = require('memoizee');
+
 let config = require(path.join(rootPath, 'config', 'index.js'));
 let _CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7;
+
 let settlementService = require(path.join(rootPath, 'service', 'settlement.js'));
 let mGetMemberUsername = memoize(settlementService.getMemberUsername, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetMembers = memoize(settlementService.getMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetTotalMembers = memoize(settlementService.getTotalMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetFirstDepositMembers = memoize(settlementService.getFirstDepositMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
-let mGetActiveMembers = memoize(settlementService.getActiveMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+
+let mGetMemberDeposits = memoize(settlementService.getMemberDeposits, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+
 let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetPromotion = memoize(settlementService.getPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
@@ -30,11 +34,10 @@ async function getFirstDepositMembers (startDate, endDate) {
   return result;
 }
 
-async function getActiveMembers (startDate, endDate) {
-  const result = await mGetActiveMembers(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+async function getMemberDeposits (startDate, endDate) {
+  const result = await mGetMemberDeposits(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
   return result;
 }
-
 
 async function getBetData (startDate, endDate) {
   const result = await mGetBetData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
@@ -66,15 +69,16 @@ async function getOtherBonus (startDate, endDate, memberUsername) {
 controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
-  let [ members, betData, promotionData, memberUsername, firstDepositMembers, activeUsers, totalUsers ] = await Promise.all([
+  let [ members, betData, promotionData, memberUsername, firstDepositMembers, totalUsers, memberDeposits ] = await Promise.all([
     getMembers(endDate),
     getBetData(startDate, endDate),
     getPromotion(startDate, endDate),
     getMemberUsername(endDate),
     getFirstDepositMembers(startDate, endDate),
-    getActiveMembers(startDate, endDate),
-    getTotalMembers()
+    getTotalMembers(),
+    getMemberDeposits(startDate, endDate)
   ]);
+  
   let [ carriedRevenue, otherBonus ] = await Promise.all([
     getCarriedRevenue(startDate, memberUsername),
     getOtherBonus(startDate, endDate, memberUsername)
@@ -90,13 +94,15 @@ controller.getSettlementData = async function (startDate, endDate) {
       earning: 0,
       firstDeposit: 0,
       activeMembers: 0,
-      totalMembers: 0
+      totalMembers: 0,
+      memberDeposit: 0,
+      deduction: 0
     }
     let firstDeposit = _.find(firstDepositMembers, function(i){ return (item.Name === i.Name) ? true : false; });
     if (firstDeposit) {
       data.firstDeposit = firstDeposit.Count;
     }
-    let activeMembers = _.find(activeUsers, function(i){ return (item.Name === i.Name) ? true : false; });
+    let activeMembers = _.find(betData, function(i){ return (item.Name === i.Name) ? true : false; });
     if (activeMembers) {
       data.activeMembers = activeMembers.Count;
     }
@@ -104,12 +110,19 @@ controller.getSettlementData = async function (startDate, endDate) {
     if (totalMembers) {
       data.totalMembers = totalMembers.Count;
     }
+    let depositMembers = _.find(memberDeposits, function(i){ return (item.Name === i.Name) ? true : false; });
+    if (depositMembers) {
+      data.memberDeposit = parseFloat(depositMembers.Deposit);
+    }
     let carried = _.find(carriedRevenue, function(i){ return (item.Name === i.Name) ? true : false; });
     let bet = _.find(betData, function (i) { return (item.Name === i.Name ) ? true : false; });
     let promotion = _.find(promotionData, function(i){ return (item.Name === i.Name) ? true : false; });
     let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
     data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
     data.revenue = (bet) ? parseFloat(bet.Revenue) : 0;
+    if (process.env.mode && process.env.mode.includes('bvprod') && data.revenue && data.revenue < 0) {
+      data.deduction = .05 * data.revenue;
+    }
     let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
     data.operationCost = data.revenue * operationCost;
     let promotionAmount = (promotion) ? parseFloat(promotion.Amount) : 0;

@@ -23,7 +23,18 @@ service.getMemberUsername = async function (endDate) {
 service.getFirstDepositMembers = async function (startDate, endDate) {
   try {
     let conn = await db.getConn('jw');
-    let result = await getFirstDepositMembers(conn, startDate, endDate)
+    let result = await getFirstDepositMembers(conn, startDate, endDate);
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+service.getMemberDeposits = async function (startDate, endDate) {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await getMemberDeposits(conn, startDate, endDate)
     return result[0];
   } catch (err) {
     console.log(err);
@@ -35,17 +46,6 @@ service.getTotalMembers = async function () {
   try {
     let conn = await db.getConn('jw');
     let result = await getTotalMembers(conn)
-    return result[0];
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-}
-
-service.getActiveMembers = async function (startDate, endDate) {
-  try {
-    let conn = await db.getConn('jw');
-    let result = await getActiveMembers(conn, startDate, endDate)
     return result[0];
   } catch (err) {
     console.log(err);
@@ -230,11 +230,11 @@ function getFirstDepositMembers(conn, startDate, endDate){
   }
 }
 
-function getActiveMembers(conn, startDate, endDate){
+function getMemberDeposits(conn, startDate, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getActiveUsers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberDeposits.sql'), values: [ startDate, endDate, ocmsAgentId ] });
   } else {
-    return conn.query({ sql: db.sql('settlement/getActiveUsers.sql'), values: [ startDate, endDate ] });
+    return conn.query({ sql: db.sql('settlement/getMemberDeposits.sql'), values: [ startDate, endDate ] });
   }
 }
 

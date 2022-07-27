@@ -231,7 +231,15 @@ router.get('/settlement/getList', async function (req, res) {
         {
           label: 'Earning',
           value: 'earning'
-        }
+        },
+        {
+          label: 'Member Deposits',
+          value: 'memberDeposit'
+        },
+        {
+          label: 'Deduction',
+          value: 'deduction'
+        },
       ]
       const json2csvParser = new Parser({ fields });
       const csv = json2csvParser.parse(result.affiliates);
