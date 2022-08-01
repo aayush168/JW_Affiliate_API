@@ -87,14 +87,15 @@ controller.getSettlementData = async function (startDate, endDate) {
     let data = {
       name: item.Name,
       members: parseInt(item.Count),
+      totalMembers: 0,
+      firstDeposit: 0,
+      activeMembers: 0,
       turnover: 0,
       revenue: 0,
+      promotion: 0,
       carried: 0,
       level: '',
       earning: 0,
-      firstDeposit: 0,
-      activeMembers: 0,
-      totalMembers: 0,
       memberDeposit: 0,
       deduction: 0
     }
