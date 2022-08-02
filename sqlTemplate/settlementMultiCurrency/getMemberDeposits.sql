@@ -1,13 +1,11 @@
-SELECT a.Name, r.Deposit
+SELECT a.Name, r.Deposit, r.Promotion
 FROM
 (
-SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(smid.AgentCode, '-', 2)), '-', 1)) AS AgentId, IFNULL(SUM(smid.Deposit + smid.HandDeposit + smid.OnlineDeposit), 0) AS Deposit
+SELECT smid.AgentCode, IFNULL(SUM(smid.Deposit + smid.HandDeposit + smid.OnlineDeposit), 0) AS Deposit, IFNULL(SUM(smid.PromotionAmount) - SUM(smid.RefundPromotionAmount), 0) AS Promotion
 FROM SummaryMemberInfoDaily AS smid
 JOIN Member AS m ON m.Id = smid.MemberId
 WHERE smid.AccountingDate >= ? AND smid.AccountingDate <= ?
-AND REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(smid.AgentCode, '-', 2)), '-', 1)) != ''
-GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(smid.AgentCode, '-', 2)), '-', 1))
+GROUP BY smid.AgentCode
 ) AS r
-JOIN AgentChannel AS a ON a.Id = r.AgentId
+JOIN AgentChannel AS a ON a.Code = r.AgentCode
 WHERE a.AgentId = ?
-

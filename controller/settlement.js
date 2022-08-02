@@ -83,6 +83,7 @@ controller.getSettlementData = async function (startDate, endDate) {
     getCarriedRevenue(startDate, memberUsername),
     getOtherBonus(startDate, endDate, memberUsername)
   ])
+  console.log(members.length, 'member length');
   _.each(members, function (item) {
     let data = {
       name: item.Name,
@@ -112,12 +113,13 @@ controller.getSettlementData = async function (startDate, endDate) {
       data.totalMembers = totalMembers.Count;
     }
     let depositMembers = _.find(memberDeposits, function(i){ return (item.Name === i.Name) ? true : false; });
+    let promotion
     if (depositMembers) {
       data.memberDeposit = parseFloat(depositMembers.Deposit);
+      promotion = depositMembers.Promotion;
     }
     let carried = _.find(carriedRevenue, function(i){ return (item.Name === i.Name) ? true : false; });
     let bet = _.find(betData, function (i) { return (item.Name === i.Name ) ? true : false; });
-    let promotion = _.find(promotionData, function(i){ return (item.Name === i.Name) ? true : false; });
     let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
     data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
     data.revenue = (bet) ? parseFloat(bet.Revenue) : 0;
@@ -126,8 +128,12 @@ controller.getSettlementData = async function (startDate, endDate) {
     }
     let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
     data.operationCost = data.revenue * operationCost;
-    let promotionAmount = (promotion) ? parseFloat(promotion.Amount) : 0;
+    let promotionAmount = (promotion) ? parseFloat(promotion) : 0;
     let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0;
+    if (item.Name === 'shariaff') {
+      console.log(promotionAmount, 'promotion amount');
+      console.log(bonusAmount, 'bonus amount');
+    }
     data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
     data.carried = (carried) ? ((carried.Revenue < 0) ? parseFloat(carried.Revenue) : 0) : 0;
     let result = calculateEarning(data.members, data.revenue, data.promotion, data.carried);
