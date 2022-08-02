@@ -75,10 +75,10 @@ service.getPromotion = async function(startDate, endDate){
   }
 };
 
-service.getMembers = async function (endDate) {
+service.getMembers = async function (startDate, endDate) {
   try {
     let conn = await db.getConn('jw');
-    let result = await getMembers(conn, endDate);
+    let result = await getMembers(conn, startDate, endDate);
     return result[0];
   } catch (err) {
     console.log(err);
@@ -246,11 +246,11 @@ function getPromotion(conn, startDate, endDate){
   }
 }
 
-function getMembers(conn, endDate){
+function getMembers(conn, startDate, endDate){
   if (process.env.mode && process.env.mode.includes('bvprod')) {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate, ocmsAgentId ] });
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
   } else {
-    return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ endDate ] });
+    return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ startDate, endDate ] });
   }
 }
 

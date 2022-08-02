@@ -19,8 +19,8 @@ let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitiv
 let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
 
-async function getMembers (endDate) {
-  const result = await mGetMembers(`${endDate} 23:59:59`)
+async function getMembers (startDate, endDate) {
+  const result = await mGetMembers(`${startDate} 00:00:00`, `${endDate} 23:59:59`)
   return result;
 }
 
@@ -70,7 +70,7 @@ controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
   let [ members, betData, promotionData, memberUsername, firstDepositMembers, totalUsers, memberDeposits ] = await Promise.all([
-    getMembers(endDate),
+    getMembers(startDate, endDate),
     getBetData(startDate, endDate),
     getPromotion(startDate, endDate),
     getMemberUsername(endDate),
@@ -78,12 +78,10 @@ controller.getSettlementData = async function (startDate, endDate) {
     getTotalMembers(),
     getMemberDeposits(startDate, endDate)
   ]);
-  
   let [ carriedRevenue, otherBonus ] = await Promise.all([
     getCarriedRevenue(startDate, memberUsername),
     getOtherBonus(startDate, endDate, memberUsername)
   ])
-  console.log(members.length, 'member length');
   _.each(members, function (item) {
     let data = {
       name: item.Name,
@@ -129,11 +127,7 @@ controller.getSettlementData = async function (startDate, endDate) {
     let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
     data.operationCost = data.revenue * operationCost;
     let promotionAmount = (promotion) ? parseFloat(promotion) : 0;
-    let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0;
-    if (item.Name === 'shariaff') {
-      console.log(promotionAmount, 'promotion amount');
-      console.log(bonusAmount, 'bonus amount');
-    }
+    let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0
     data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
     data.carried = (carried) ? ((carried.Revenue < 0) ? parseFloat(carried.Revenue) : 0) : 0;
     let result = calculateEarning(data.members, data.revenue, data.promotion, data.carried);
