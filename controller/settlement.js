@@ -14,7 +14,6 @@ let mGetFirstDepositMembers = memoize(settlementService.getFirstDepositMembers, 
 let mGetMemberDeposits = memoize(settlementService.getMemberDeposits, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
 let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
-let mGetPromotion = memoize(settlementService.getPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
@@ -43,10 +42,6 @@ async function getBetData (startDate, endDate) {
   const result = await mGetBetData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
   return result;
 }
-async function getPromotion (startDate, endDate) {
-  const result = await mGetPromotion(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
-  return result;
-}
 
 async function getMemberUsername (endDate) {
   let result = await mGetMemberUsername(`${endDate} 23:59:59`);
@@ -69,10 +64,9 @@ async function getOtherBonus (startDate, endDate, memberUsername) {
 controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
-  let [ members, betData, promotionData, memberUsername, firstDepositMembers, totalUsers, memberDeposits ] = await Promise.all([
+  let [ members, betData, memberUsername, firstDepositMembers, totalUsers, memberDeposits ] = await Promise.all([
     getMembers(startDate, endDate),
     getBetData(startDate, endDate),
-    getPromotion(startDate, endDate),
     getMemberUsername(endDate),
     getFirstDepositMembers(startDate, endDate),
     getTotalMembers(),

@@ -5,6 +5,7 @@ let _CACHE_MAX_AGE = 60000;
 let revenueService = require(path.join(rootPath, 'service', 'revenue.js'));
 let memberService = require(path.join(rootPath, 'service', 'member.js'));
 let mEnableMembers = memoize(memberService.getPlayersCount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mActiveMembers = memoize(memberService.getActivePlayersCount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mCurrentBetData = memoize(revenueService.getCurrentBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mCarriedRevenue = memoize(revenueService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mCurrentPromotion = memoize(revenueService.getCurrentPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
@@ -13,6 +14,7 @@ let controller = {};
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
   let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', username, 0);
+  let activePlayerCount = await mActiveMembers(`${agentCode}%`, start, end);
   let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username);
@@ -23,7 +25,7 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   let earning = calculateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
-  return { members: parseFloat(enableMembers.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning };
+  return { members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning };
 };
 
 function calculateEarning(members, revenue, carried, promotion) {
@@ -47,6 +49,9 @@ function calculateEarning(members, revenue, carried, promotion) {
       earning = netRevenue * commission[1]['rate'];
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
+    }
+    if (process.env.mode && process.env.mode.includes('bvprod') && earning && earning > 0) {
+      return .95 * earning;
     }
     return earning;
   }

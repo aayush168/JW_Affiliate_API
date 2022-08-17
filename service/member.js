@@ -41,6 +41,20 @@ service.getPlayersCount = async function(agentCode, start, end, username, status
   }
 };
 
+service.getActivePlayersCount = async function(agentCode, start, end){
+  try{
+    let conn = await db.getConn('jw');
+    let result = await getActivePlayersCount(conn, `${agentCode}%`, start, end);
+    if(result[0].length === 0){
+      return null;
+    }
+    return result[0][0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
 function getPlayers(conn, agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end, index){
   let sql = db.sql('member/getPlayers.sql');
   sql = sql.replace('$start', index);
@@ -49,6 +63,10 @@ function getPlayers(conn, agentCode, cUsername, username, cStatus, status, cStar
 
 function getPlayersCount(conn, agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end){
   return conn.execute(db.sql('member/getPlayersCount.sql'), [agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end]);
+}
+
+function getActivePlayersCount(conn, agentCode, start, end){
+  return conn.execute(db.sql('member/getActivePlayersCount.sql'), [agentCode, start, end]);
 }
 
 module.exports = service;
