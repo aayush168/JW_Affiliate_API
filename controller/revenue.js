@@ -38,6 +38,9 @@ function calculateEarning(members, revenue, carried, promotion) {
   let commission = config.commission.level;
   if (commission.length === 1) {
     earning = netRevenue * commission[0]['rate'];
+    if (process.env.mode && process.env.mode.includes('bvprod') && earning && earning > 0) {
+      return .95 * earning;
+    }
     return earning;
   }
   if (commission.length === 4) {

@@ -159,6 +159,9 @@ function calculateEarning(members, revenue, promotion, carried){
   }
   
   earning = netRevenue * percentage;
+  if (process.env.mode && process.env.mode.includes('bvprod') && earning && earning > 0) {
+    earning = .95 * earning;
+  }
   return { earning: earning, percentage: percentage };
 }
 
