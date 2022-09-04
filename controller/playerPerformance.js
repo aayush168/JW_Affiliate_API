@@ -75,13 +75,8 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       }
     })
   } 
-
   total.turnover = parseFloat(totalBetData.Turnover);
-  if (process.env.mode && process.env.mode.includes('bv')) {
-    total.netwin = parseFloat(totalBetData.NetWin) * .95;
-  } else {
-    total.netwin = parseFloat(totalBetData.NetWin);
-  }
+  total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalAccData.Deposit);
   total.withdraw = parseFloat(totalAccData.Withdraw);
   if (process.env.mode && !process.env.mode.includes('ape')) {
