@@ -45,7 +45,7 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
     let obj = _.find(data, function(i){ return (i.name === item.Username) ? true : false });
     if(obj){
       obj.deposit = parseFloat(item.Amount);
-    }else{
+    } else {
       obj = {
         name: item.Username.slice(0, 3).concat('*******'),
         turnover: 0,

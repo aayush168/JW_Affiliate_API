@@ -132,12 +132,16 @@ controller.getSettlementData = async function (startDate, endDate) {
   return { affiliates: affiliates }
 }
 
-function calculateEarning(members, revenue, promotion, carried){
-  if((revenue - promotion) <= 0){
+function calculateEarning(members, revenue, promotion, carried) {
+  let revenueData = revenue
+  if ((revenueData - promotion) <= 0) {
     return { earning: 0, percentage: 0 };
   }
-  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
-  let netRevenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
+  if (process.env.mode && process.env.mode.includes('bvprod') && revenueData > 0) {
+    revenueData = revenueData * .95;
+  }
+  let operationCost = parseFloat(revenueData) < 0 ? 0 : config.commission.operationCost;
+  let netRevenue = parseFloat(revenueData) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenueData) * operationCost);
   let earning = 0;
   let percentage = 0;
   let commission = config.commission.level;
@@ -159,9 +163,6 @@ function calculateEarning(members, revenue, promotion, carried){
   }
   
   earning = netRevenue * percentage;
-  if (process.env.mode && process.env.mode.includes('bvprod') && earning && earning > 0) {
-    earning = .95 * earning;
-  }
   return { earning: earning, percentage: percentage };
 }
 

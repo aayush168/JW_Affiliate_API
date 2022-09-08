@@ -7,5 +7,5 @@ JOIN Member AS m ON m.Id = smid.MemberId
 WHERE smid.AccountingDate >= ? AND smid.AccountingDate <= ?
 GROUP BY smid.AgentCode
 ) AS r
-JOIN AgentChannel AS a ON a.Code = r.AgentCode
+JOIN Agent AS a ON a.Code = r.AgentCode
 
