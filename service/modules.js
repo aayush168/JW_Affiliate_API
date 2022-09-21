@@ -6,7 +6,7 @@ let _ = require('underscore');
 service.getModuleListByRole = async (roleId) => {
   try {
     let conn = await db.getConn('extra:read')
-    let result = (await conn.execute(db.sql('modules/getModuleAuthorityListByRoleId.sql'), [ roleId ]))[0]
+    let result = (await conn.query({ sql: db.sql('modules/getModuleAuthorityListByRoleId.sql'), values: [ roleId ]}))[0]
     result = result.map(x => x.Name)
     return { code: 'common.success', list: result }
   } catch (err) {
@@ -18,8 +18,8 @@ service.getModuleListByRole = async (roleId) => {
 service.getModuleList = async (roleId) => {
   try {
     let conn = await db.getConn('extra:read')
-    let moduleList = (await conn.execute(db.sql('modules/getModuleList.sql')))[0]
-    let allowAccess = (await conn.execute(db.sql('modules/getAllowedAccessModules.sql'), [ roleId ]))[0]
+    let moduleList = (await conn.query({ sql: db.sql('modules/getModuleList.sql')}))[0]
+    let allowAccess = (await conn.query({ sql: db.sql('modules/getAllowedAccessModules.sql'), values: [ roleId ]}))[0]
     allowAccess = allowAccess.map(x => x.ModuleId)
     moduleList = treeViewArray(moduleList, 'ParentIdx')
     return { list: moduleList, allowAccess: allowAccess }
@@ -32,7 +32,7 @@ service.getModuleList = async (roleId) => {
 service.setModuleAuthority = async (roleId, moduleItems) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('modules/removeModuleAuthority.sql'), [ roleId ])
+    await conn.query({ sql: db.sql('modules/removeModuleAuthority.sql'), values: [ roleId ]})
     if (moduleItems.length > 0) {
       let insertData = _.reduce(moduleItems, function (prev, next) {
         return prev + `(${roleId}, ${next}), \n`

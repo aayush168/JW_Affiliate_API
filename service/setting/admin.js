@@ -31,11 +31,11 @@ service.updatePaymentType = async (status, id) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
-    let paymentType = (await conn.execute(db.sql('setting/admin/getPaymentTypeById.sql'), [ id ]))[0];
+    let paymentType = (await conn.query({ sql: db.sql('setting/admin/getPaymentTypeById.sql'), values: [ id ]}))[0];
     if (paymentType.length === 0) {
       return { code: "code.paymentType.noExist", msg: "Payment Type Not Found" }
     }
-    await conn1.execute(db.sql('setting/admin/updatePaymentType.sql'), [ status, id ])
+    await conn1.query({ sql: db.sql('setting/admin/updatePaymentType.sql'), values: [ status, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -58,11 +58,11 @@ service.updatePlayerSource = async (status, id) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
-    let paymentType = (await conn.execute(db.sql('setting/admin/getPlayerSourceById.sql'), [ id ]))[0];
+    let paymentType = (await conn.query({ sql: db.sql('setting/admin/getPlayerSourceById.sql'), values: [ id ]}))[0];
     if (paymentType.length === 0) {
       return { code: "code.playerSource.noExist", msg: "Player Source Not Found" }
     }
-    await conn1.execute(db.sql('setting/admin/updatePlayerSource.sql'), [ status, id ])
+    await conn1.query({ sql: db.sql('setting/admin/updatePlayerSource.sql'), values: [ status, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

@@ -58,15 +58,15 @@ service.getActivePlayersCount = async function(agentCode, start, end){
 function getPlayers(conn, agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end, index){
   let sql = db.sql('member/getPlayers.sql');
   sql = sql.replace('$start', index);
-  return conn.execute(sql, [agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end]);
+  return conn.query({ sql: sql, values: [agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end]});
 }
 
 function getPlayersCount(conn, agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end){
-  return conn.execute(db.sql('member/getPlayersCount.sql'), [agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end]);
+  return conn.query({ sql: db.sql('member/getPlayersCount.sql'), values: [agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end]});
 }
 
 function getActivePlayersCount(conn, agentCode, start, end){
-  return conn.execute(db.sql('member/getActivePlayersCount.sql'), [agentCode, start, end]);
+  return conn.query({ sql: db.sql('member/getActivePlayersCount.sql'), values: [agentCode, start, end]});
 }
 
 module.exports = service;

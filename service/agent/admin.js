@@ -60,7 +60,7 @@ service.updateAgentProfile = async ({ name, username, password, mobile, email, w
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const agentPassword = encrypt.encryptPassword(password, salt1, salt2);
-    await conn1.execute(db.sql('agent/updateAgentProfile.sql'), [ name, username, password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, id ])
+    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ name, username, password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -76,7 +76,7 @@ service.updateAgentStatus = async (status, id, remark) => {
     if (agent.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
     }
-    await conn1.execute(db.sql('agent/updateAgentStatus.sql'), [ status, remark, id ])
+    await conn1.query({ sql: db.sql('agent/updateAgentStatus.sql'), values: [ status, remark, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -89,7 +89,7 @@ service.getAgentRegisteredToday = async () => {
     let conn = await db.getConn('extra:read')
     const start = moment().format('YYYY-MM-DD 00:00:00')
     const end = moment().format('YYYY-MM-DD 23:59:59')
-    const result = (await conn.execute(db.sql('agent/getAgentRegisteredCount.sql'), [start, end]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentRegisteredCount.sql'), values: [start, end]}))[0]
     return { code: 'common.success', detail: result[0] }
   } catch (err) {
     console.log(err);
@@ -119,7 +119,7 @@ service.addAgent = async (name, username, password) => {
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    await conn1.execute(db.sql('agent/addAgentManual.sql'), [ name, username, password, encryptPassword, salt1, salt2 ])
+    await conn1.query({ sql: db.sql('agent/addAgentManual.sql'), values: [ name, username, password, encryptPassword, salt1, salt2 ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -131,7 +131,7 @@ service.addAgent = async (name, username, password) => {
 service.updateAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, ifsc, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateBankInfo.sql'), [ bankName, accountName, accountNumber, accountType, ifsc, branch, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateBankInfo.sql'), values: [ bankName, accountName, accountNumber, accountType, ifsc, branch, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -143,7 +143,7 @@ service.updateAgentBankInfo = async ({ agentId, paymentType, bankName, accountNa
 service.updateAgentSkrillInfo = async ({ agentId, paymentType, skrillAddress }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateSkrillAddress.sql'), [ skrillAddress, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateSkrillAddress.sql'), values: [ skrillAddress, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -154,7 +154,7 @@ service.updateAgentSkrillInfo = async ({ agentId, paymentType, skrillAddress }) 
 service.updateAgentUsdtWalletInfo = async ({ agentId, paymentType, usdtWallet }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateUsdtWallet.sql'), [ usdtWallet, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateUsdtWallet.sql'), values: [ usdtWallet, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -165,7 +165,7 @@ service.updateAgentUsdtWalletInfo = async ({ agentId, paymentType, usdtWallet })
 service.updateAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUsername }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updatePlayerAccount.sql'), [ playerAccountUsername, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updatePlayerAccount.sql'), values: [ playerAccountUsername, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -177,7 +177,7 @@ service.updateAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUser
 service.updateAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateBdtBankInfo.sql'), [ bankName, accountName, accountNumber, accountType, branch, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateBdtBankInfo.sql'), values: [ bankName, accountName, accountNumber, accountType, branch, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -189,7 +189,7 @@ service.updateAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accoun
 service.updateAgentBkashInfo = async ({ agentId, paymentType, bkashWallet }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateBkashWallet.sql'), [ bkashWallet, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateBkashWallet.sql'), values: [ bkashWallet, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -200,7 +200,7 @@ service.updateAgentBkashInfo = async ({ agentId, paymentType, bkashWallet }) => 
 service.updateAgentNagadtInfo = async ({ agentId, paymentType, nagadWallet }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateNagadWallet.sql'), [ nagadWallet, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateNagadWallet.sql'), values: [ nagadWallet, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -211,7 +211,7 @@ service.updateAgentNagadtInfo = async ({ agentId, paymentType, nagadWallet }) =>
 service.updateAgentRocketInfo = async ({ agentId, paymentType, rocketWallet }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateRocketWallet.sql'), [ rocketWallet, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateRocketWallet.sql'), values: [ rocketWallet, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -222,7 +222,7 @@ service.updateAgentRocketInfo = async ({ agentId, paymentType, rocketWallet }) =
 service.updateAgentBvBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.execute(db.sql('agent/updateBvBankInfo.sql'), [ bankName, accountName, accountNumber, branch, paymentType, agentId ])
+    await conn.query({ sql: db.sql('agent/updateBvBankInfo.sql'), values: [ bankName, accountName, accountNumber, branch, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -234,14 +234,14 @@ service.checkAgentPlayerAccountUsername = async (playerAccountUsername, agentId)
   try {
     let jwconn = await db.getConn('jw');
     let conn = await db.getConn('extra:read');
-    const result1 = (await conn.execute(db.sql('agent/getPlayerAccountByUsername.sql'), [ playerAccountUsername ]))[0]
+    const result1 = (await conn.query({ sql: db.sql('agent/getPlayerAccountByUsername.sql'), values: [ playerAccountUsername ]}))[0]
     if (result1.length > 0) {
       if (result1[0].AgentId === agentId && result1[0].PlayerAccountUsername === playerAccountUsername) {
         return { code: 'common.success' }
       }
       return { code: 'code.playerAccountUsername.exist', msg: 'Player Account already linked to other affiliate account' }
     }
-    const result = (await jwconn.execute(db.sql('agent/ocms/getPlayerAccountByUsername.sql'), [ playerAccountUsername ]))[0]
+    const result = (await jwconn.query({ sql: db.sql('agent/ocms/getPlayerAccountByUsername.sql'), values: [ playerAccountUsername ]}))[0]
     if (result.length === 0) {
       return { code: 'code.playerAccountUsername.invalid', msg: 'Invalid Player Account Username' }
     }
@@ -255,7 +255,7 @@ service.checkAgentPlayerAccountUsername = async (playerAccountUsername, agentId)
 service.checkAgentBankAccountNumber = async (accountNumber, agentId) => {
   try {
     let conn = await db.getConn('extra:read');
-    const result = (await conn.execute(db.sql('agent/getAgentBankAccount.sql'), [ accountNumber ]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentBankAccount.sql'), values: [ accountNumber ]}))[0]
     if (result.length > 0) {
       if (result[0].AgentId === agentId && result[0].AccountNumber === accountNumber) {
         return { code: 'common.success' }
@@ -272,7 +272,7 @@ service.checkAgentBankAccountNumber = async (accountNumber, agentId) => {
 service.checkAgentSkrillAdress = async (skrillAddress, agentId) => {
   try {
     let conn = await db.getConn('extra:read');
-    const result = (await conn.execute(db.sql('agent/getAgentSkrillAddress.sql'), [ skrillAddress ]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentSkrillAddress.sql'), values: [ skrillAddress ]}))[0]
     if (result.length > 0) {
       if (result[0].AgentId === agentId && result[0].SkrillAddress === skrillAddress) {
         return { code: 'common.success' }
@@ -289,7 +289,7 @@ service.checkAgentSkrillAdress = async (skrillAddress, agentId) => {
 service.checkAgentUsdtAddress = async (usdtWallet, agentId) => {
   try {
     let conn = await db.getConn('extra:read');
-    const result = (await conn.execute(db.sql('agent/getAgentUsdtWallet.sql'), [ usdtWallet ]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentUsdtWallet.sql'), values: [ usdtWallet ]}))[0]
     if (result.length > 0) {
       if (result[0].AgentId === agentId && result[0].USDTAddress === usdtWallet) {
         return { code: 'common.success' }
@@ -306,7 +306,7 @@ service.checkAgentUsdtAddress = async (usdtWallet, agentId) => {
 service.checkAgentBkashAddress = async (bkashWallet, agentId) => {
   try {
     let conn = await db.getConn('extra:read');
-    const result = (await conn.execute(db.sql('agent/getAgentBkashWallet.sql'), [ bkashWallet ]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentBkashWallet.sql'), values: [ bkashWallet ]}))[0]
     if (result.length > 0) {
       if (result[0].AgentId === agentId && result[0].BkashAddress === bkashWallet) {
         return { code: 'common.success' }
@@ -323,7 +323,7 @@ service.checkAgentBkashAddress = async (bkashWallet, agentId) => {
 service.checkAgentNagadAddress = async (nagadWallet, agentId) => {
   try {
     let conn = await db.getConn('extra:read');
-    const result = (await conn.execute(db.sql('agent/getAgentNagadWallet.sql'), [ nagadWallet ]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentNagadWallet.sql'), values: [ nagadWallet ]}))[0]
     if (result.length > 0) {
       if (result[0].AgentId === agentId && result[0].NagadAddress === nagadWallet) {
         return { code: 'common.success' }
@@ -340,7 +340,7 @@ service.checkAgentNagadAddress = async (nagadWallet, agentId) => {
 service.checkAgentRocketAddress = async (rocketWallet, agentId) => {
   try {
     let conn = await db.getConn('extra:read');
-    const result = (await conn.execute(db.sql('agent/getAgentRocketWallet.sql'), [ rocketWallet ]))[0]
+    const result = (await conn.query({ sql: db.sql('agent/getAgentRocketWallet.sql'), values: [ rocketWallet ]}))[0]
     if (result.length > 0) {
       if (result[0].AgentId === agentId && result[0].RocketAddress === rocketWallet) {
         return { code: 'common.success' }
