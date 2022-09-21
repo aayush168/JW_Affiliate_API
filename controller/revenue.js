@@ -14,6 +14,7 @@ let controller = {};
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
   let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', username, 0);
+  let newMembers = await mEnableMembers(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
   let activePlayerCount = await mActiveMembers(`${agentCode}%`, start, end);
   let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
@@ -25,7 +26,7 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   let earning = calculateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
-  return { members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning };
+  return { members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning, totalMembers: parseFloat(enableMembers.TotalCount), newMembers: newMembers.TotalCount };
 };
 
 function calculateEarning(members, revenue, carried, promotion) {
