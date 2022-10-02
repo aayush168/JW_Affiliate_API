@@ -104,6 +104,9 @@ function calculateEstimateEarning(members, netwin, promotion) {
   } else {
     return 0
   }
+  if (process.env.mode && process.env.mode.includes('bvprod')) {
+    revenue = revenue * .95;
+  }
   let earning = 0
   let commission = config.commission.level;
   if (commission.length === 1) {
