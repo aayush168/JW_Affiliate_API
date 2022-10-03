@@ -19,7 +19,7 @@ let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true,
 let controller = {};
 
 async function getMembers (startDate, endDate) {
-  const result = await mGetMembers(`${startDate} 00:00:00`, `${endDate} 23:59:59`)
+  const result = await mGetMembers(`${endDate} 23:59:59`)
   return result;
 }
 
@@ -65,7 +65,7 @@ controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
   let [ members, betData, memberUsername, firstDepositMembers, totalUsers, memberDeposits ] = await Promise.all([
-    getMembers(startDate, endDate),
+    getMembers(endDate),
     getBetData(startDate, endDate),
     getMemberUsername(endDate),
     getFirstDepositMembers(startDate, endDate),
