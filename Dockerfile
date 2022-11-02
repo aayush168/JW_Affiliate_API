@@ -1,11 +1,11 @@
-FROM node:8.11.0-alpine
+FROM --platform=linux/amd64 node:8.11.0-alpine
 
 # Create app directory
 RUN mkdir -p /api/project
 WORKDIR /api/project
 
 # Install app dependencies
-COPY package.json /api/project
+COPY package*.json /api/project
 RUN npm install
 
 # Copy app source
