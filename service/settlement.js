@@ -53,6 +53,17 @@ service.getTotalMembers = async function () {
   }
 }
 
+service.getMembersCountByDate = async function (startDate, endDate) {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await getMembersByDate(conn, startDate, endDate)
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 service.getBetData = async function (startDate, endDate) {
   try {
     let conn = await db.getConn('jw');
@@ -203,6 +214,14 @@ function getMemberUsername (conn, endDate) {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberUsername.sql'), values: [ endDate, ocmsAgentId ] });
   } else {
     return conn.query({ sql: db.sql('settlement/getMemberUsername.sql'), values: [ endDate ] });
+  }
+}
+
+function getMembersByDate (conn, startDate, endDate) {
+  if (process.env.mode && process.env.mode.includes('bvprod')) {
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembersByDate.sql'), values: [ startDate, endDate, ocmsAgentId ] });
+  } else {
+    return conn.query({ sql: db.sql('settlement/getMembersByDate.sql'), values: [ startDate, endDate ] });
   }
 }
 

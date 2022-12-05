@@ -13,6 +13,8 @@ let mGetFirstDepositMembers = memoize(settlementService.getFirstDepositMembers, 
 
 let mGetMemberDeposits = memoize(settlementService.getMemberDeposits, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
+let mGetMemberByDate = memoize(settlementService.getMembersCountByDate, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+
 let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
@@ -20,6 +22,11 @@ let controller = {};
 
 async function getMembers (startDate, endDate) {
   const result = await mGetMembers(`${endDate} 23:59:59`)
+  return result;
+}
+
+async function getMembersbyDate (startDate, endDate) {
+  const result = await mGetMemberByDate(`${startDate} 00:00:00`, `${endDate} 23:59:59`)
   return result;
 }
 
@@ -64,13 +71,14 @@ async function getOtherBonus (startDate, endDate, memberUsername) {
 controller.getSettlementData = async function (startDate, endDate) {
   let affiliates = [];
 
-  let [ members, betData, memberUsername, firstDepositMembers, totalUsers, memberDeposits ] = await Promise.all([
+  let [ members, betData, memberUsername, firstDepositMembers, totalUsers, memberDeposits, memberCount ] = await Promise.all([
     getMembers(endDate),
     getBetData(startDate, endDate),
     getMemberUsername(endDate),
     getFirstDepositMembers(startDate, endDate),
     getTotalMembers(),
-    getMemberDeposits(startDate, endDate)
+    getMemberDeposits(startDate, endDate),
+    getMembersbyDate(startDate, endDate)
   ]);
   let [ carriedRevenue, otherBonus ] = await Promise.all([
     getCarriedRevenue(startDate, memberUsername),
@@ -79,7 +87,7 @@ controller.getSettlementData = async function (startDate, endDate) {
   _.each(members, function (item) {
     let data = {
       name: item.Name,
-      members: parseInt(item.Count),
+      members: 0,
       totalMembers: 0,
       firstDeposit: 0,
       activeMembers: 0,
@@ -99,6 +107,10 @@ controller.getSettlementData = async function (startDate, endDate) {
     let activeMembers = _.find(betData, function(i){ return (item.Name === i.Name) ? true : false; });
     if (activeMembers) {
       data.activeMembers = activeMembers.Count;
+    }
+    let memberCountData = _.find(memberCount, function(i){ return (item.Name === i.Name) ? true : false; });
+    if (memberCountData) {
+      data.members = memberCountData.Count;
     }
     let totalMembers = _.find(totalUsers, function(i){ return (item.Name === i.Name) ? true : false; });
     if (totalMembers) {
