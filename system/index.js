@@ -23,4 +23,18 @@ service.getParameter = async function(code) {
   }
 }
 
+service.getAuthToken = async function () {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await conn.query({sql: db.sql('system/getAPIToken.sql'), values: []});
+    if (result[0].length === 0) {
+      throw new Error("auth token not found.");
+    }
+    return result[0][0].Token;
+  } catch (error) {
+    log.error(error);
+    throw error;
+  }
+}
+
 module.exports = service

@@ -9,8 +9,8 @@
   },
   "awsConfig": {
     "bucket": "agent-affiliate",
-    "folder": "bvprod_php"
+    "folder": "bvprod_jw_vnd"
   },
-  "currency": "PHP",
-  "agentIdOCMS": "764"
+  "currency": "VND",
+  "agentIdOCMS": "5174"
 }

@@ -2,6 +2,10 @@ let service = {};
 let path = require('path');
 let rp = require('request-promise');
 let config = require(path.join(rootPath, 'config', 'index.js'));
+let memoize = require('memoizee');
+let _CACHE_MAX_AGE = 300000;
+let system = require(path.join(rootPath, 'system', 'index.js'));
+let mAuthToken = memoize(system.getAuthToken, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
 service.getTurnoverData = async function (startDate, endDate, recall = false) {
   let options = {
@@ -12,8 +16,8 @@ service.getTurnoverData = async function (startDate, endDate, recall = false) {
       endDate: endDate
     },
     headers: {
-      authorization: config.app["TOKEN"],
-      "ocms-currency": config.app.currency ? config.app.currency : ''
+      authorization: await mAuthToken(),
+      "ocms-currency": config.app.currency || ''
     },
     json: true,
     simple: false,
