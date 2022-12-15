@@ -253,6 +253,17 @@ service.addAgentBvBankInfo = async ({ agentId, paymentType, bankName, accountNam
   }
 }
 
+service.addAgent12BetBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.query({ sql: db.sql('agent/add12BetBankInfo.sql'), values: [ agentId, paymentType, bankName, accountName, accountNumber ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')

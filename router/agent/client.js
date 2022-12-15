@@ -109,6 +109,12 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send(result)
       }
       res.json(result)
+    } else if (mode.includes('12betkh')) {
+      const result = await add12BetPayments(req, paymentTypeListResult, agentId, paymentType)
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+      res.json(result)
     } else {
       res.status(400).send({ msg: 'Feature not available' })
     }
@@ -442,6 +448,40 @@ async function addBvPayments (req, paymentTypeListResult, agentId, paymentType) 
         branch: branch
       }
       response = await agentService.addAgentBvBankInfo(payload);
+    }
+    if (response.code !== 'common.success') {
+      return { code: 'params.unknown.error', msg: 'Unknown Error' }
+    }
+    return response
+  } catch (err) {
+    throw err;
+  }
+}
+
+async function add12BetPayments (req, paymentTypeListResult, agentId, paymentType) {
+  try {
+    let response
+    if (paymentTypeListResult.list[0].Code === 'bank-account') {
+      const bankName = req.body.bankName;
+      const accountName = req.body.accountName;
+      const accountNumber = req.body.accountNumber;
+      if (!bankName) {
+        return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
+      }
+      if (!accountName) {
+        return { code: 'params.accountName.required', msg: 'Account name is required.' }
+      }
+      if (!accountNumber) {
+        return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        bankName: bankName,
+        accountName: accountName,
+        accountNumber: accountNumber,
+      }
+      response = await agentService.addAgent12BetBankInfo(payload);
     }
     if (response.code !== 'common.success') {
       return { code: 'params.unknown.error', msg: 'Unknown Error' }

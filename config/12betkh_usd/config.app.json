@@ -1,0 +1,15 @@
+{
+  "DOMAIN": {
+    "DATA_API": "https://admin.apewizar.com"
+  },
+  "API_URL": {
+    "HOURLY": "/service/analysis/getPlayerGamingByHour",
+    "DAILY": "/service/analysis/getPlayerGamingByDay",
+    "WIN": "/service/analysis/getPlayerWinMultiple"
+  },
+  "awsConfig": {
+    "bucket": "agent-affiliate",
+    "folder": "12betkh_usd"
+  },
+  "currency": "USD"
+}
