@@ -12,7 +12,9 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     deposit: 0,
     withdraw: 0,
     promotion: 0,
-    revenue: 0
+    revenue: 0,
+    firstDeposit: 0,
+    firstDepositCount: 0
   };
   let bonusData;
   let totalBonusData;
@@ -24,6 +26,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   }
   let totalBetData = await playerPerformanceService.getTotalBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let totalAccData = await playerPerformanceService.getTotalAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
+  let firstDepositData = await playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`);
 
   _.each(betData, function(item){
     let obj = {
@@ -79,6 +82,8 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalAccData.Deposit);
   total.withdraw = parseFloat(totalAccData.Withdraw);
+  total.firstDeposit = parseFloat(firstDepositData.Deposit)
+  total.firstDepositCount = parseInt(firstDepositData.Count)
   if (process.env.mode && !process.env.mode.includes('ape')) {
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {

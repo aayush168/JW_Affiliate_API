@@ -42,6 +42,17 @@ service.getAccData = async function(agentCode, startDateTime, endDateTime, usern
   }
 };
 
+service.getFirstDepositData = async function(agentCode, startDateTime, endDateTime){
+  try{
+    const conn = await db.getConn('jw');
+    let result = await getFirstDepositData(conn, agentCode, startDateTime, endDateTime)
+    return result[0][0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
 service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, username){
   let conn;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
@@ -124,6 +135,11 @@ function getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername,
 function getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
   return conn.query({ sql: db.sql('playerPerformance/getAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
 }
+
+function getFirstDepositData(conn, agentCode, startDateTime, endDateTime){
+  return conn.query({ sql: db.sql('playerPerformance/getFirstDepositData.sql'), values: [agentCode, startDateTime, endDateTime] });
+}
+
 
 function getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
   return conn.query({ sql: db.sql('playerPerformance/getTotalAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
