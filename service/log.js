@@ -5,7 +5,7 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 service.addLog = async ({type, operatorId, agentUsername, actionData, actionCode}) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.query({ sql: db.sql('log/addLog.sql'), values: [operatorId, agentUsername, type, actionData, actionCode]});
+    await conn.query({ sql: db.sql('log/addLog.sql'), values: [operatorId, agentUsername, type, JSON.stringify(actionData), actionCode]});
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
