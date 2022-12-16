@@ -1,0 +1,16 @@
+{
+  "DOMAIN": {
+    "DATA_API": "https://admin.betnokia.com"
+  },
+  "API_URL": {
+    "HOURLY": "/service/analysis/getPlayerGamingByHour",
+    "DAILY": "/service/analysis/getPlayerGamingByDay",
+    "WIN": "/service/analysis/getPlayerWinMultiple"
+  },
+  "awsConfig": {
+    "bucket": "agent-affiliate",
+    "folder": "bvprod_pkr"
+  },
+  "currency": "PKR",
+  "agentIdOCMS": "2872"
+}
