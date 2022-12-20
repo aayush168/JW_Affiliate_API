@@ -12,7 +12,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
     let sql
     if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
       sql = db.sql('agent/getBdtAgentList.sql')
-    } else if (mode.includes('bvprod') || mode.includes('bvdev')) {
+    } else if (mode.includes('bvprod') || mode.includes('12betkh')) {
       sql = db.sql('agent/getBvAgentList.sql')
     } else {
       sql = db.sql('agent/getAgentList.sql')
@@ -240,6 +240,17 @@ service.updateAgentBvBankInfo = async ({ agentId, paymentType, bankName, account
   try {
     let conn = await db.getConn('extra:write')
     await conn.query({ sql: db.sql('agent/updateBvBankInfo.sql'), values: [ bankName, accountName, accountNumber, branch, paymentType, agentId ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.update12BetBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    await conn.query({ sql: db.sql('agent/update12BetBankInfo.sql'), values: [ bankName, accountName, accountNumber, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

@@ -461,7 +461,7 @@ async function addBvPayments (req, paymentTypeListResult, agentId, paymentType) 
 async function add12BetPayments (req, paymentTypeListResult, agentId, paymentType) {
   try {
     let response
-    if (paymentTypeListResult.list[0].Code === 'bank-account') {
+    if (paymentTypeListResult.list[0].Code === '12bet-bank-account') {
       const bankName = req.body.bankName;
       const accountName = req.body.accountName;
       const accountNumber = req.body.accountNumber;
