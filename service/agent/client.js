@@ -295,7 +295,7 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, code: user.Code }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, code: user.Code, accountType: user.AccountType }}
   } catch (err) {
     console.log(err);
     throw new Error(err);

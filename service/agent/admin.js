@@ -4,7 +4,7 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 let moment = require('moment-timezone');
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 
-service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, revenueShareType, playerSourceType, paymentType }) => {
+service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, revenueShareType, playerSourceType, paymentType, accountType }) => {
   try {
     let conn = await db.getConn('extra:read')
     const mode = process.env.mode;
@@ -23,6 +23,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
     sql = sql.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)
     sql = sql.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
+    sql = sql.replace('${AccountType}', (accountType === '') ? '' : `AND a.AccountType = ${accountType}`)
     sql = sql.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType) > 0`)
     const result = (await conn.query({ sql: sql, values: [ `%${username}%`, offset, size ]}));
 
@@ -33,6 +34,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
     sqlCount = sqlCount.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
     sqlCount = sqlCount.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt}"`)
     sqlCount = sqlCount.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
+    sqlCount = sqlCount.replace('${AccountType}', (accountType === '') ? '' : `AND a.AccountType = ${accountType}`)
     sqlCount = sqlCount.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType)`)
     const rowCount = (await conn.query({ sql: sqlCount, values: [ `%${username}%` ]}))[0];
     return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
@@ -127,6 +129,21 @@ service.addAgent = async (name, username, password) => {
   }
 }
 
+service.updateAgentAccountType = async ({ accountType, agentId }) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let agent = (await conn.query(db.sql('agent/getAgentById.sql'), [ agentId ]))[0];
+    if (agent.length === 0) {
+      return { code: "code.agent.noExist", msg: "Agent Not Found" }
+    }
+    await conn1.query({ sql: db.sql('agent/updateAccountType.sql'), values: [ accountType, agentId ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
 
 service.updateAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, ifsc, branch }) => {
   try {

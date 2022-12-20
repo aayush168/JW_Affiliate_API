@@ -21,6 +21,7 @@ router.get('/getList', async function (req, res) {
       createdAt: req.query.createdAt ? req.query.createdAt : '',
       status: parseInt(req.query.status) === 0 || parseInt(req.query.status) === 1 || parseInt(req.query.status) === 2 || parseInt(req.query.status) === 3 ? parseInt(req.query.status) : '',
       playerSourceType: parseInt(req.query.playerSourceType) ? parseInt(req.query.playerSourceType) : '',
+      accountType: parseInt(req.query.accountType) ? parseInt(req.query.accountType) : '',
       paymentType: parseInt(req.query.paymentType) ? parseInt(req.query.paymentType) : req.query.paymentType
     }
     const result = await agentService.getAgentList(size, page, params);
@@ -76,6 +77,36 @@ router.put('/updateProfile/:id', async function (req, res) {
       remark: remark
     }
     const result = await agentService.updateAgentProfile(payload, id);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
+router.put('/updateAccountType', async function (req, res) {
+  try {
+    // 1: Normal, 2: Blacklisted 
+    const allowedAccountType = [1, 2]
+    const agentId = req.body.agentId
+    const accountType = req.body.accountType
+    if (!agentId) {
+      return res.status(400).json({ code: 'params.id.required', msg: 'Id is required' })
+    }
+    if (!accountType) {
+      return res.status(400).json({ code: 'params.type.required', msg: 'Invalid Account Type' })
+    }
+    if (!allowedAccountType.includes(accountType)) {
+      return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid Account Type' })
+    }
+    const payload = {
+      agentId: agentId,
+      accountType: accountType
+    }
+    const result = await agentService.updateAgentAccountType(payload);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
