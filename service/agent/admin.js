@@ -3,16 +3,16 @@ const path = require('path');
 let db = require(path.join(rootPath, 'db', 'index.js'));
 let moment = require('moment-timezone');
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
+const mode = process.env.mode;
 
 service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, revenueShareType, playerSourceType, paymentType, accountType }) => {
   try {
     let conn = await db.getConn('extra:read')
-    const mode = process.env.mode;
     
     let sql
-    if (mode === 'jwbdtprod' || mode === 'jwbdtdev') {
+    if (mode === 'jwbdtprod') {
       sql = db.sql('agent/getBdtAgentList.sql')
-    } else if (mode.includes('bvprod') || mode.includes('12betkh')) {
+    } else if (mode.includes('bvprod') || mode.includes('12betkh') || mode.includes('apeprod')) {
       sql = db.sql('agent/getBvAgentList.sql')
     } else {
       sql = db.sql('agent/getAgentList.sql')

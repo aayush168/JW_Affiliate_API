@@ -11,5 +11,6 @@
     "bucket": "agent-affiliate",
     "folder": "gameape_prod_php"
   },
-  "currency": "PHP"
+  "currency": "PHP",
+  "agentIdOCMS": "65"
 }

@@ -19,8 +19,9 @@ let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAg
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
+const mode = process.env.mode
 
-async function getMembers (startDate, endDate) {
+async function getMembers (endDate) {
   const result = await mGetMembers(`${endDate} 23:59:59`)
   return result;
 }
@@ -61,7 +62,7 @@ async function getCarriedRevenue (startDate, memberUsername) {
 }
 
 async function getOtherBonus (startDate, endDate, memberUsername) {
-  if (process.env.mode && process.env.mode.includes('ape')) {
+  if (mode && mode.includes('ape')) {
     return []
   }
   const result =  await mGetOtherBonus(`${startDate} 00:00:00`, `${endDate} 23:59:59`, memberUsername);
@@ -127,7 +128,7 @@ controller.getSettlementData = async function (startDate, endDate) {
     let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
     data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
     data.revenue = (bet) ? parseFloat(bet.Revenue) : 0;
-    if (process.env.mode && process.env.mode.includes('bvprod') && data.revenue && data.revenue < 0) {
+    if (mode && mode.includes('bvprod') && data.revenue && data.revenue < 0) {
       data.deduction = .05 * data.revenue;
     }
     let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
@@ -149,7 +150,7 @@ function calculateEarning(members, revenue, promotion, carried) {
   if ((revenueData - promotion) <= 0) {
     return { earning: 0, percentage: 0 };
   }
-  if (process.env.mode && process.env.mode.includes('bvprod') && revenueData > 0) {
+  if (mode && mode.includes('bvprod') && revenueData > 0) {
     revenueData = revenueData * .95;
   }
   let operationCost = parseFloat(revenueData) < 0 ? 0 : config.commission.operationCost;

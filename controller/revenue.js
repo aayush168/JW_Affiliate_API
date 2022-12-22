@@ -11,6 +11,8 @@ let mCarriedRevenue = memoize(revenueService.getCarriedRevenue, { primitive: tru
 let mCurrentPromotion = memoize(revenueService.getCurrentPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mBonusAmount = memoize(revenueService.getBonusAmount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
+const mode = process.env.mode
+
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
   let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', username, 0);
@@ -20,7 +22,7 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username);
   let bonusAmount = 0;
-  if (process.env.mode && !process.env.mode.includes('ape')) {
+  if (mode && !mode.includes('ape')) {
     bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   }
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
@@ -39,7 +41,7 @@ function calculateEarning(members, revenue, carried, promotion) {
   let commission = config.commission.level;
   if (commission.length === 1) {
     earning = netRevenue * commission[0]['rate'];
-    if (process.env.mode && process.env.mode.includes('bvprod') && earning && earning > 0) {
+    if (mode && mode.includes('bvprod') && earning && earning > 0) {
       return .95 * earning;
     }
     return earning;
@@ -54,7 +56,7 @@ function calculateEarning(members, revenue, carried, promotion) {
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
     }
-    if (process.env.mode && process.env.mode.includes('bvprod') && earning && earning > 0) {
+    if (mode && mode.includes('bvprod') && earning && earning > 0) {
       return .95 * earning;
     }
     return earning;

@@ -3,6 +3,7 @@ let _ = require('underscore');
 let playerPerformanceService = require(path.join(rootPath, 'service', 'playerPerformance.js'));
 let config = require(path.join(rootPath, 'config', 'index.js'));
 let controller = {};
+const mode = process.env.mode
 
 controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index){
   let data = [];
@@ -20,7 +21,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   let totalBonusData;
   let betData = await playerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   let accData = await playerPerformanceService.getAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
-  if (process.env.mode && !process.env.mode.includes('ape')) {
+  if (mode && !mode.includes('ape')) {
     bonusData = await playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
     totalBonusData = await playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username);
   }
@@ -58,7 +59,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       data.push(obj);
     }
   });
-  if (process.env.mode && !process.env.mode.includes('ape')) {
+  if (mode && !mode.includes('ape')) {
     _.each(bonusData, function (item) {
       let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
       if (obj) {
@@ -84,7 +85,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
-  if (process.env.mode && !process.env.mode.includes('ape')) {
+  if (mode && !mode.includes('ape')) {
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);
@@ -109,7 +110,7 @@ function calculateEstimateEarning(members, netwin, promotion) {
   } else {
     return 0
   }
-  if (process.env.mode && process.env.mode.includes('bvprod')) {
+  if (mode && mode.includes('bvprod')) {
     revenue = revenue * .95;
   }
   let earning = 0

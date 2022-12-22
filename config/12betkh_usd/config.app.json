@@ -11,5 +11,6 @@
     "bucket": "agent-affiliate",
     "folder": "12betkh_usd"
   },
-  "currency": "USD"
+  "currency": "USD",
+  "agentIdOCMS": "310"
 }
