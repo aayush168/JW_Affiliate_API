@@ -47,6 +47,7 @@ router.put('/updateProfile/:id', async function (req, res) {
     const playerSourceType = req.body.playerSourceType
     const status = req.body.status
     const remark = req.body.remark
+    const telegram = req.body.telegram
     const otherSourceLink = req.body.otherSourceLink
     if (!id) {
       return res.status(400).json({ code: 'params.id.required', msg: 'Unknown Error' })
@@ -74,7 +75,8 @@ router.put('/updateProfile/:id', async function (req, res) {
       playerSourceType: playerSourceType.toString(),
       status: status,
       otherSourceLink: otherSourceLink,
-      remark: remark
+      remark: remark,
+      telegram: telegram
     }
     const result = await agentService.updateAgentProfile(payload, id);
     if (result.code !== 'common.success') {

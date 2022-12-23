@@ -45,7 +45,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
 }
 
 
-service.updateAgentProfile = async ({ name, username, password, mobile, email, whatsapp, skype, playerSourceType, otherSourceLink, status, remark }, id) => {
+service.updateAgentProfile = async ({ name, username, password, mobile, email, whatsapp, skype, playerSourceType, otherSourceLink, status, remark, telegram }, id) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -62,7 +62,7 @@ service.updateAgentProfile = async ({ name, username, password, mobile, email, w
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const agentPassword = encrypt.encryptPassword(password, salt1, salt2);
-    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ name, username, password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, id ]})
+    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ name, username, password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, telegram, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -110,7 +110,7 @@ service.addAgent = async (name, username, password) => {
     }
     let mode = process.env.mode
     let agentOCMS
-    if (mode && mode.includes('bv') || mode.includes('ape')) {
+    if (mode && mode.includes('bv') || mode.includes('ape') || mode.includes('12bet')) {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     } else {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];

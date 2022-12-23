@@ -83,7 +83,8 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       revenueShareType: req.body.revenueShareType,
       playerSourceType: playerSourceType.toString(),
       otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null,
-      ipAddress: ipAddress
+      ipAddress: ipAddress,
+      telegram: req.body.telegram ? req.body.telegram : null,
     }
     const result = await agentService.addAgent(registerAgentPayload);
     if (result.code !== 'common.success') {

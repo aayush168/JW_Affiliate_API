@@ -13,6 +13,7 @@ SET
   PlayerSourceType = ?,
   OtherSourceLink = ?,
   Status = ?,
-  Remark = ?
+  Remark = ?,
+  Telegram = ?
 WHERE Id = ?
   

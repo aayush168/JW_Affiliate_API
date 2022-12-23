@@ -3,7 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
 
-service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress }) => {
+service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram }) => {
   try {
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
@@ -36,10 +36,16 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
         return { code: 'code.skype.exist', msg: 'Skype id is already taken' }
       }
     }
+    if (telegram) {
+      const agentTelegram = (await conn.query(db.sql('agent/getAgentByTelegram.sql'), [ telegram ]))[0]
+      if (agentTelegram.length > 0) {
+        return { code: 'code.telegram.exist', msg: 'Telegram id is already taken' }
+      }
+    }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress ]})
+    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram ]})
     const agentId = result[0].insertId
     return { code: 'common.success', agentId: agentId }
   } catch (err) {
@@ -277,7 +283,7 @@ service.login = async (username, password) => {
       return { code: 'code.account.rejected', user: null }
     }
     let agentData
-    if (mode && (mode.includes('bv') || mode.includes('ape'))) {
+    if (mode && (mode.includes('bv') || mode.includes('ape') || mode.includes('12bet'))) {
       agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     } else {
       agentData = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
