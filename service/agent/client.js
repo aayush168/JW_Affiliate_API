@@ -54,10 +54,10 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
   }
 }
 
-service.addAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, isfc, branch }) => {
+service.addAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, isfc, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.query({ sql: db.sql('agent/addBankInfo.sql'), values: [ agentId, paymentType, bankName, accountName, accountNumber, accountType, isfc, branch ]})
+    await conn.query({ sql: db.sql('agent/addBankInfo.sql'), values: [ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, isfc, branch ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -203,10 +203,10 @@ service.addAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUsernam
 }
 
 
-service.addAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, branch }) => {
+service.addAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.query({ sql: db.sql('agent/addBdtBankInfo.sql'), values: [ agentId, paymentType, bankName, accountName, accountNumber, accountType, branch ]})
+    await conn.query({ sql: db.sql('agent/addBdtBankInfo.sql'), values: [ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, branch ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

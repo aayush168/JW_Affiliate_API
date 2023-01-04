@@ -92,7 +92,7 @@ router.put('/updateProfile/:id', async function (req, res) {
 router.put('/updateAccountType', async function (req, res) {
   try {
     // 1: Normal, 2: Blacklisted 
-    const allowedAccountType = [1, 2]
+    const allowedBankAccountType = [1, 2]
     const agentId = req.body.agentId
     const accountType = req.body.accountType
     if (!agentId) {
@@ -101,7 +101,7 @@ router.put('/updateAccountType', async function (req, res) {
     if (!accountType) {
       return res.status(400).json({ code: 'params.type.required', msg: 'Invalid Account Type' })
     }
-    if (!allowedAccountType.includes(accountType)) {
+    if (!allowedBankAccountType.includes(accountType)) {
       return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid Account Type' })
     }
     const payload = {
@@ -325,7 +325,7 @@ async function updateJwPayments (req, paymentTypeListResult, agentId, paymentTyp
       const bankName = req.body.bankName;
       const accountName = req.body.accountName;
       const accountNumber = req.body.accountNumber;
-      const accountType = req.body.accountType;
+      const bankAccountType = req.body.bankAccountType;
       const ifsc = req.body.ifsc;
       const branch = req.body.branch;
       if (!bankName) {
@@ -337,8 +337,8 @@ async function updateJwPayments (req, paymentTypeListResult, agentId, paymentTyp
       if (!accountNumber) {
         return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
       }
-      if (!accountType) {
-        return { code: 'params.accountType.required', msg: 'Account Type is required.' }
+      if (!bankAccountType) {
+        return { code: 'params.bankAccountType.required', msg: 'Bank Account Type is required.' }
       }
       if (!ifsc) {
         return { code: 'params.ifsc.required', msg: 'IFSC is required.' }
@@ -346,8 +346,8 @@ async function updateJwPayments (req, paymentTypeListResult, agentId, paymentTyp
       if (!branch) {
         return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
-      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-      if (!allowedAccountType.includes(accountType)) {
+      let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedBankAccountType.includes(accountType)) {
         return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {
@@ -356,7 +356,7 @@ async function updateJwPayments (req, paymentTypeListResult, agentId, paymentTyp
         bankName: bankName,
         accountName: accountName,
         accountNumber: accountNumber,
-        accountType: accountType,
+        bankAccountType: bankAccountType,
         ifsc: ifsc,
         branch: branch
       }
@@ -411,7 +411,7 @@ async function updateBdtPayments (req, paymentTypeListResult, agentId, paymentTy
       const bankName = req.body.bankName;
       const accountName = req.body.accountName;
       const accountNumber = req.body.accountNumber;
-      const accountType = req.body.accountType;
+      const bankAccountType = req.body.bankAccountType;
       const branch = req.body.branch;
       if (!bankName) {
         return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
@@ -422,14 +422,14 @@ async function updateBdtPayments (req, paymentTypeListResult, agentId, paymentTy
       if (!accountNumber) {
         return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
       }
-      if (!accountType) {
-        return { code: 'params.accountType.required', msg: 'Account Type is required.' }
+      if (!bankAccountType) {
+        return { code: 'params.bankAccountType.required', msg: 'Bank Account Type is required.' }
       }
       if (!branch) {
         return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
-      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-      if (!allowedAccountType.includes(accountType)) {
+      let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedBankAccountType.includes(accountType)) {
         return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {
@@ -438,7 +438,7 @@ async function updateBdtPayments (req, paymentTypeListResult, agentId, paymentTy
         bankName: bankName,
         accountName: accountName,
         accountNumber: accountNumber,
-        accountType: accountType,
+        bankAccountType: bankAccountType,
         branch: branch
       }
       response = await agentService.updateAgentBdtBankInfo(payload);
@@ -557,6 +557,5 @@ async function update12BetkhPayments (req, paymentTypeListResult, agentId, payme
     throw err;
   }
 }
-
 
 module.exports = router;

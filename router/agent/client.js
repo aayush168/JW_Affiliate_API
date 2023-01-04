@@ -260,7 +260,7 @@ async function addJwPayments (req, paymentTypeListResult, agentId, paymentType) 
       const bankName = req.body.bankName;
       const accountName = req.body.accountName;
       const accountNumber = req.body.accountNumber;
-      const accountType = req.body.accountType;
+      const bankAccountType = req.body.bankAccountType;
       const isfc = req.body.isfc;
       const branch = req.body.branch;
       if (!bankName) {
@@ -272,8 +272,8 @@ async function addJwPayments (req, paymentTypeListResult, agentId, paymentType) 
       if (!accountNumber) {
         return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
       }
-      if (!accountType) {
-        return { code: 'params.accountType.required', msg: 'Account Type is required.' }
+      if (!bankAccountType) {
+        return { code: 'params.bankAccountType.required', msg: 'Account Type is required.' }
       }
       if (!isfc) {
         return { code: 'params.isfc.required', msg: 'ISFC is required.' }
@@ -281,9 +281,9 @@ async function addJwPayments (req, paymentTypeListResult, agentId, paymentType) 
       if (!branch) {
         return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
-      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-      if (!allowedAccountType.includes(accountType)) {
-        return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+      let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedBankAccountType.includes(bankAccountType)) {
+        return { code: 'params.bankAccountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {
         agentId: agentId,
@@ -291,7 +291,7 @@ async function addJwPayments (req, paymentTypeListResult, agentId, paymentType) 
         bankName: bankName,
         accountName: accountName,
         accountNumber: accountNumber,
-        accountType: accountType,
+        bankAccountType: bankAccountType,
         isfc: isfc,
         branch: branch
       }
@@ -346,7 +346,7 @@ async function addJwBdtPayments (req, paymentTypeListResult, agentId, paymentTyp
       const bankName = req.body.bankName;
       const accountName = req.body.accountName;
       const accountNumber = req.body.accountNumber;
-      const accountType = req.body.accountType;
+      const bankAccountType = req.body.bankAccountType;
       const branch = req.body.branch;
       if (!bankName) {
         return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
@@ -357,15 +357,15 @@ async function addJwBdtPayments (req, paymentTypeListResult, agentId, paymentTyp
       if (!accountNumber) {
         return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
       }
-      if (!accountType) {
-        return { code: 'params.accountType.required', msg: 'Account Type is required.' }
+      if (!bankAccountType) {
+        return { code: 'params.bankAccountType.required', msg: 'Account Type is required.' }
       }
       if (!branch) {
         return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
-      let allowedAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-      if (!allowedAccountType.includes(accountType)) {
-        return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+      let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedBankAccountType.includes(bankAccountType)) {
+        return { code: 'params.bankAccountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {
         agentId: agentId,
@@ -373,7 +373,7 @@ async function addJwBdtPayments (req, paymentTypeListResult, agentId, paymentTyp
         bankName: bankName,
         accountName: accountName,
         accountNumber: accountNumber,
-        accountType: accountType,
+        bankAccountType: bankAccountType,
         branch: branch
       }
       response = await agentService.addAgentBdtBankInfo(payload);

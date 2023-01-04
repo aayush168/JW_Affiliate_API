@@ -3,7 +3,7 @@ SET
   BankName = ?,
   AccountName = ?,
   AccountNumber = ?,
-  AccountType = ?,
+  BankAccountType = ?,
   IFSC = ?,
   Branch = ?,
   PaymentTypeId= ?

@@ -5,7 +5,7 @@ let moment = require('moment-timezone');
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 const mode = process.env.mode;
 
-service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, revenueShareType, playerSourceType, paymentType, accountType }) => {
+service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, playerSourceType, paymentType, accountType }) => {
   try {
     let conn = await db.getConn('extra:read')
     
@@ -145,10 +145,10 @@ service.updateAgentAccountType = async ({ accountType, agentId }) => {
   }
 }
 
-service.updateAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, ifsc, branch }) => {
+service.updateAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, ifsc, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.query({ sql: db.sql('agent/updateBankInfo.sql'), values: [ bankName, accountName, accountNumber, accountType, ifsc, branch, paymentType, agentId ]})
+    await conn.query({ sql: db.sql('agent/updateBankInfo.sql'), values: [ bankName, accountName, accountNumber, bankAccountType, ifsc, branch, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -191,10 +191,10 @@ service.updateAgentPlayerInfo = async ({ agentId, paymentType, playerAccountUser
 }
 
 
-service.updateAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, accountType, branch }) => {
+service.updateAgentBdtBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
-    await conn.query({ sql: db.sql('agent/updateBdtBankInfo.sql'), values: [ bankName, accountName, accountNumber, accountType, branch, paymentType, agentId ]})
+    await conn.query({ sql: db.sql('agent/updateBdtBankInfo.sql'), values: [ bankName, accountName, accountNumber, bankAccountType, branch, paymentType, agentId ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
