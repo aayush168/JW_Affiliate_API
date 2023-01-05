@@ -43,18 +43,20 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ,agentCode, startDateTime, `%${username}%` ,agentCode, startDateTime, `%${username}%` ]}))[0];
     let agentMember = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ]}))[0];
     let memberUsername = _.pluck(agentMember, 'Username');
+    let memberId = _.pluck(agentMember, 'MemberId');
     let memberUsers = _.chunk(memberUsername, 50000);
     let totalBonus = {};
     if (process.env.mode && !process.env.mode.includes('ape')) {
       for (var i = 0; i < memberUsers.length; i++) {
         let users = memberUsers[i];
+        let usersId = memberId[i];
         let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
+          usersId, startDateTime,
+          usersId, startDateTime,
           users, startDateTime,
-          users, startDateTime,
-          users, startDateTime,
-          users, startDateTime,
-          users, startDateTime,
-          users, startDateTime
+          usersId, startDateTime,
+          usersId, startDateTime,
+          usersId, startDateTime
         ]}))[0];
         _.each(bonus, function (x) {
           totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);
@@ -107,17 +109,19 @@ service.getBonusAmount = async function (agentCode, startDateTime, endDateTime, 
     let xconn = await db.getConn('extra1:read');
     let agentMember = (await conn.query({sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ]}))[0];
     let memberUsername = _.pluck(agentMember, 'Username');
+    let memberId = _.pluck(agentMember, 'MemberId');
     let totalBonus = 0;
     let memberUsers = _.chunk(memberUsername, 50000);
     for (var i = 0; i < memberUsers.length; i++) {
       let users = memberUsers[i];
+      let usersId = memberId[i];
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime
       ] }))[0][0];
       totalBonus = parseFloat(totalBonus) + parseFloat(bonus.TotalAmount);
     }

@@ -73,17 +73,19 @@ service.getBonusData = async function (agentCode, startDateTime, endDateTime, us
     let cUsername = (username === "" || _.isUndefined(username)) ? 1 : 0;
     let agentPlayer = (await conn.query({ sql: db.sql('realtimePlayer/getAgentPlayer.sql'), values: [ agentCode, cUsername, username ] }))[0];
     let memberUsername = _.pluck(agentPlayer, 'Username');
+    let memberId = _.pluck(agentPlayer, 'MemberId');
     let bonusData = [];
     let memberUser = _.chunk(memberUsername, 50000);
     for (var i = 0; i < memberUser.length; i++) {
       let users = memberUser[i];
+      let usersId = memberId[i];
       let result = (await xconn.query({ sql: db.sql('memberBonus/getBonusData.sql'), values: [
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime
       ] }))[0];
       if (result.length !== 0) {
         bonusData.push(result);
@@ -103,17 +105,19 @@ service.getTotalBonusData = async function (agentCode, startDateTime, endDateTim
     let cUsername = (username === "" || _.isUndefined(username)) ? 1 : 0;
     let agentPlayer = (await conn.query({ sql: db.sql('realtimePlayer/getAgentPlayer.sql'), values: [ agentCode, cUsername, username ] }))[0];
     let memberUsername = _.pluck(agentPlayer, 'Username');
+    let memberId = _.pluck(agentPlayer, 'MemberId');
     let totalBonus = 0;
     let memberUsers = _.chunk(memberUsername, 50000);
     for (var i = 0; i < memberUsers.length; i++) {
       let users = memberUsers[i];
+      let usersId = memberId[i];
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime,
-        users, startDateTime, endDateTime
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime
       ] }))[0][0];
       totalBonus = parseFloat(totalBonus) + parseFloat(bonus.TotalAmount);
     }

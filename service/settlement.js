@@ -148,17 +148,19 @@ service.getOtherBonus = async function (startDate, endDate, memberUsername) {
   for (let i = 0; i < keys.length; i++) {
     let agent = keys[i];
     let agentPlayers = _.pluck(agentGroupBy[agent], 'Username');
+    let agentPlayersId = _.pluck(agentGroupBy[agent], 'MemberId');
     let bonusAmount = 0;
     let agentPlayer = _.chunk(agentPlayers, 50000);
     for (var j = 0; j < agentPlayer.length; j++) {
       let agPlayer = agentPlayer[j]
+      let agPlayerId = agentPlayersId[j]
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
+        agPlayerId, startDate, endDate,
+        agPlayerId, startDate, endDate,
         agPlayer, startDate, endDate,
-        agPlayer, startDate, endDate,
-        agPlayer, startDate, endDate,
-        agPlayer, startDate, endDate,
-        agPlayer, startDate, endDate,
-        agPlayer, startDate, endDate
+        agPlayerId, startDate, endDate,
+        agPlayerId, startDate, endDate,
+        agPlayerId, startDate, endDate
       ] }))[0];
       bonusAmount = parseFloat(bonusAmount) + parseFloat(bonus[0].TotalAmount);
     }
@@ -188,17 +190,19 @@ async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername
   for (let i = 0; i < keys.length; i++) {
     let agent = keys[i];
     let agentPlayers = _.pluck(agentGroupBy[agent], 'Username');
+    let agentPlayersId = _.pluck(agentGroupBy[agent], 'MemberId');
     let totalBonus = {};
     let agentPlayer = _.chunk(agentPlayers, 50000);
     for (let j = 0; j < agentPlayer.length; j++) {
       let agPlayer = agentPlayer[j];
+      let agPlayerId = agentPlayersId[j];
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
+        agPlayerId, startDateTime,
+        agPlayerId, startDateTime,
         agPlayer, startDateTime,
-        agPlayer, startDateTime,
-        agPlayer, startDateTime,
-        agPlayer, startDateTime,
-        agPlayer, startDateTime,
-        agPlayer, startDateTime
+        agPlayerId, startDateTime,
+        agPlayerId, startDateTime,
+        agPlayerId, startDateTime
       ]}))[0];
       _.each(bonus, function (x) {
         totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);

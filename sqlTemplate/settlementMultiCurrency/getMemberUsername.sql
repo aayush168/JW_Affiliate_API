@@ -1,6 +1,6 @@
-SELECT a.Name, r.Username
+SELECT a.Name, r.Username, r.MemberId
 FROM (
-SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) AS AgentId, Username
+SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) AS AgentId, Username, Id AS MemberId
 FROM Member
 WHERE REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) != ''
 AND Status != 2
