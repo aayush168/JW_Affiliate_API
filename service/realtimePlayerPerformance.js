@@ -121,9 +121,10 @@ service.getBonusData = async function (agentCode, startDateTime, endDateTime, us
     let memberId = _.pluck(agentPlayer, 'MemberId');
     let bonusData = [];
     let memberUser = _.chunk(memberUsername, 50000);
+    let memberIds = _.chunk(memberId, 50000);
     for (var i = 0; i < memberUser.length; i++) {
       let users = memberUser[i];
-      let usersId = memberId[i];
+      let usersId = memberIds[i];
       let result = (await xconn.query({ sql: db.sql('memberBonus/getBonusData.sql'), values: [
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
@@ -153,9 +154,10 @@ service.getTotalBonusData = async function (agentCode, startDateTime, endDateTim
     let memberId = _.pluck(agentPlayer, 'MemberId');
     let totalBonus = 0;
     let memberUsers = _.chunk(memberUsername, 50000);
+    let memberIds = _.chunk(memberId, 50000);
     for (var i = 0; i < memberUsers.length; i++) {
       let users = memberUsers[i];
-      let usersId = memberId[i];
+      let usersId = memberIds[i];
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,

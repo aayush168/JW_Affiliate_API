@@ -45,11 +45,12 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     let memberUsername = _.pluck(agentMember, 'Username');
     let memberId = _.pluck(agentMember, 'MemberId');
     let memberUsers = _.chunk(memberUsername, 50000);
+    let memberIds = _.chunk(memberId, 50000);
     let totalBonus = {};
     if (process.env.mode && !process.env.mode.includes('ape')) {
       for (var i = 0; i < memberUsers.length; i++) {
         let users = memberUsers[i];
-        let usersId = memberId[i];
+        let usersId = memberIds[i];
         let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
           usersId, startDateTime,
           usersId, startDateTime,
@@ -112,9 +113,10 @@ service.getBonusAmount = async function (agentCode, startDateTime, endDateTime, 
     let memberId = _.pluck(agentMember, 'MemberId');
     let totalBonus = 0;
     let memberUsers = _.chunk(memberUsername, 50000);
+    let memberIds = _.chunk(memberId, 50000);
     for (var i = 0; i < memberUsers.length; i++) {
       let users = memberUsers[i];
-      let usersId = memberId[i];
+      let usersId = memberIds[i];
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,

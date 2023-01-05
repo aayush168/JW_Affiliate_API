@@ -151,9 +151,10 @@ service.getOtherBonus = async function (startDate, endDate, memberUsername) {
     let agentPlayersId = _.pluck(agentGroupBy[agent], 'MemberId');
     let bonusAmount = 0;
     let agentPlayer = _.chunk(agentPlayers, 50000);
+    let agentPlayersIds = _.chunk(agentPlayersId, 50000);
     for (var j = 0; j < agentPlayer.length; j++) {
       let agPlayer = agentPlayer[j]
-      let agPlayerId = agentPlayersId[j]
+      let agPlayerId = agentPlayersIds[j]
       let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
         agPlayerId, startDate, endDate,
         agPlayerId, startDate, endDate,
