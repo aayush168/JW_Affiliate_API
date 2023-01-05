@@ -218,77 +218,84 @@ router.get('/getAgentRegisteredToday', async function (req, res) {
 
 router.get('/settlement/getList', async function (req, res) {
   try {
-    const size = req.query.size ? parseInt(req.query.size) : 20;
-    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
-    const startDate = req.query.startDate
-    const endDate = req.query.endDate
-    const type = req.query.type
-    const result = await controller.settlement.getSettlementData(startDate, endDate)
-    if (type === 'search') {
-      res.json(result)
+    if (!global.fetchingSettlement) {
+      global.fetchingSettlement = true;
+      const size = req.query.size ? parseInt(req.query.size) : 20;
+      const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+      const startDate = req.query.startDate
+      const endDate = req.query.endDate
+      const type = req.query.type
+      const result = await controller.settlement.getSettlementData(startDate, endDate)
+      if (type === 'search') {
+        res.json(result)
+      } else {
+        let fields = [
+          {
+            label: 'Username',
+            value: 'name'
+          },
+          {
+            label: 'Members',
+            value: 'members'
+          },
+          {
+            label: 'Total Members',
+            value: 'totalMembers'
+          },
+          {
+            label: 'First Deposit Members',
+            value: 'firstDeposit'
+          },
+          {
+            label: 'Active Members',
+            value: 'activeMembers'
+          },
+          {
+            label: 'Turnover',
+            value: 'turnover'
+          },
+          {
+            label: 'Revenue',
+            value: 'revenue'
+          },
+          {
+            label: 'Promotion',
+            value: 'promotion'
+          },
+          {
+            label: 'Carried Negative Revenue',
+            value: 'carried'
+          },
+          {
+            label: 'Reached Level',
+            value: 'level'
+          },
+          {
+            label: 'Earning',
+            value: 'earning'
+          },
+          {
+            label: 'Member Deposits',
+            value: 'memberDeposit'
+          },
+          {
+            label: 'Deduction',
+            value: 'deduction'
+          },
+        ]
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(result.affiliates);
+        res.attachment(`settlement_detail_report_${moment(startDate).format('YYYYMMDD')}_${moment(endDate).format('YYYYMMDD')}.csv`)
+        res.status(200).send(csv)
+      }
     } else {
-      let fields = [
-        {
-          label: 'Username',
-          value: 'name'
-        },
-        {
-          label: 'Members',
-          value: 'members'
-        },
-        {
-          label: 'Total Members',
-          value: 'totalMembers'
-        },
-        {
-          label: 'First Deposit Members',
-          value: 'firstDeposit'
-        },
-        {
-          label: 'Active Members',
-          value: 'activeMembers'
-        },
-        {
-          label: 'Turnover',
-          value: 'turnover'
-        },
-        {
-          label: 'Revenue',
-          value: 'revenue'
-        },
-        {
-          label: 'Promotion',
-          value: 'promotion'
-        },
-        {
-          label: 'Carried Negative Revenue',
-          value: 'carried'
-        },
-        {
-          label: 'Reached Level',
-          value: 'level'
-        },
-        {
-          label: 'Earning',
-          value: 'earning'
-        },
-        {
-          label: 'Member Deposits',
-          value: 'memberDeposit'
-        },
-        {
-          label: 'Deduction',
-          value: 'deduction'
-        },
-      ]
-      const json2csvParser = new Parser({ fields });
-      const csv = json2csvParser.parse(result.affiliates);
-      res.attachment(`settlement_detail_report_${moment(startDate).format('YYYYMMDD')}_${moment(endDate).format('YYYYMMDD')}.csv`)
-      res.status(200).send(csv)
+      return res.status(400).json({ code: 'code.report.queue', msg: 'Settlement is being processed. Please try again after some time' })
     }
   } catch (err) {
     log.error(err)
     res.status(500).send(err);
+  } finally {
+    this.fetchingSettlement = false;
   }
 })
 

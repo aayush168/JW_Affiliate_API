@@ -137,7 +137,6 @@ controller.getSettlementData = async function (startDate, endDate) {
       let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0
       data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
       data.carried = (carried) ? ((carried.Revenue < 0) ? parseFloat(carried.Revenue) : 0) : 0;
-      console.log(data.totalMembers, 'total members test');
       let result = calculateEarning(data.totalMembers, data.revenue, data.promotion, data.carried);
       data.level = (result.percentage === 0.1) ? 'Level 1 (10%)' : (result.percentage === 0.2) ? 'Level 2 (20%)' : (result.percentage === 0.3) ? 'Level 3 (30%)' : (result.percentage === 0.35) ? 'Level 4 (35%)' : '';
       data.earning = result.earning;
@@ -145,6 +144,7 @@ controller.getSettlementData = async function (startDate, endDate) {
     })
     return { affiliates: affiliates }
   } catch (err) {
+    global.fetchingSettlement = false
     console.log('settlement err: ', err)
   }
 }

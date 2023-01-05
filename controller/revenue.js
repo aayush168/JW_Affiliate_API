@@ -15,12 +15,14 @@ const mode = process.env.mode
 
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
-  let enableMembers = await mEnableMembers(`${agentCode}%`, '', '', username, 0);
-  let newMembers = await mEnableMembers(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`);
-  let activePlayerCount = await mActiveMembers(`${agentCode}%`, start, end);
-  let currentPromotion = await mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
-  let currentBetData = await mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
-  let carriedRevenue = await mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username);
+  let [enableMembers, newMembers, activePlayerCount, currentPromotion, currentBetData, carriedRevenue] = await Promise.all([
+    mEnableMembers(`${agentCode}%`, '', '', username, 0),
+    mEnableMembers(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`),
+    mActiveMembers(`${agentCode}%`, start, end),
+    mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
+    mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
+    mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username),
+  ])
   let bonusAmount = 0;
   if (mode && !mode.includes('ape')) {
     bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);

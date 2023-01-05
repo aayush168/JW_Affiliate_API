@@ -1,4 +1,5 @@
 global.rootPath = __dirname;
+global.fetchingSettlement = false;
 
 const path = require('path');
 const express = require('express');
@@ -58,7 +59,7 @@ async function init() {
     await s3.init();
     const date1 = getSettlementDates()
     controller.settlement.getSettlementData(date1.startDate, date1.endDate)
-    cron.schedule('0 30 16 1 * *', () => {
+    cron.schedule('0 30 13 1 * *', () => {
       const date = getSettlementDates()
       log.info(`Monthly Settlement Cronjob started ${date.startDate} to ${date.endDate}`)
       controller.settlement.getSettlementData(date.startDate, date.endDate)
