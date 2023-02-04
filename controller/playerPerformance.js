@@ -115,7 +115,7 @@ function calculateEstimateEarning(members, netwin, promotion) {
   } else {
     return 0
   }
-  if (mode && mode.includes('bvprod')) {
+  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
     revenue = revenue * .95;
   }
   let earning = 0

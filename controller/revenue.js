@@ -43,7 +43,7 @@ function calculateEarning(members, revenue, carried, promotion) {
   let commission = config.commission.level;
   if (commission.length === 1) {
     earning = netRevenue * commission[0]['rate'];
-    if (mode && mode.includes('bvprod') && earning && earning > 0) {
+    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
       return .95 * earning;
     }
     return earning;
@@ -58,7 +58,7 @@ function calculateEarning(members, revenue, carried, promotion) {
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
     }
-    if (mode && mode.includes('bvprod') && earning && earning > 0) {
+    if (mode && mode.includes('bvprod') || mode.includes('ape') && earning && earning > 0) {
       return .95 * earning;
     }
     return earning;

@@ -12,7 +12,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
     let sql
     if (mode === 'jwbdtprod') {
       sql = db.sql('agent/getBdtAgentList.sql')
-    } else if (mode.includes('bvprod') || mode.includes('12betkh') || mode.includes('apeprod')) {
+    } else if (mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
       sql = db.sql('agent/getBvAgentList.sql')
     } else {
       sql = db.sql('agent/getAgentList.sql')
@@ -110,7 +110,7 @@ service.addAgent = async (name, username, password) => {
     }
     let mode = process.env.mode
     let agentOCMS
-    if (mode && mode.includes('bv') || mode.includes('ape') || mode.includes('12bet')) {
+    if (mode && mode.includes('bv') || mode.includes('ape') || mode.includes('12betkh')) {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     } else {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
