@@ -4,26 +4,20 @@
     {
       "members": 5,
       "minRevenue": 1,
-      "maxRevenue": 500000,
-      "rate": 0.35
-    },
-    {
-      "members": 10,
-      "minRevenue": 500001,
-      "maxRevenue": 1000000,
+      "maxRevenue": 400000,
       "rate": 0.40
     },
     {
-      "members": 30,
-      "minRevenue": 1000001,
-      "maxRevenue": 3000000,
+      "members": 5,
+      "minRevenue": 400001,
+      "maxRevenue": 4000000,
       "rate": 0.45
     },
     {
-      "members": 50,
-      "minRevenue": 3000001,
+      "members": 5,
+      "minRevenue": 4000001,
       "maxRevenue": 0,
-      "rate": 0.5
+      "rate": 0.50
     }
   ],
   "calculationInfo": "<h4>Calculation</h4><br><p>( (Revenue - 5% Platform fee) - Promotion Cost ) = Net Revenue</p><p>( Net Revenue * Sharing percentage ) = Total Income</p>"
