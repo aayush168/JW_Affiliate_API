@@ -154,11 +154,8 @@ function calculateEarning(members, revenue, promotion, carried) {
   if ((revenueData - promotion) <= 0) {
     return { earning: 0, percentage: 0 };
   }
-  if (mode && mode.includes('bvprod') && revenueData > 0) {
+  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && revenueData > 0) {
     revenueData = revenueData * .95;
-  }
-  if (mode && mode.includes('ape') || mode.includes('12betkh') && revenueData > 0) {
-    revenueData = (parseFloat(revenueData) - parseFloat(promotion)) * .95;
   }
   let operationCost = parseFloat(revenueData) < 0 ? 0 : config.commission.operationCost;
   let netRevenue = parseFloat(revenueData) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenueData) * operationCost);
