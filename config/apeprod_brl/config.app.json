@@ -9,7 +9,7 @@
   },
   "awsConfig": {
     "bucket": "agent-affiliate",
-    "folder": "gameape_prod_php"
+    "folder": "gameape_prod_brl"
   },
   "currency": "BRL",
   "agentIdOCMS": "279"
