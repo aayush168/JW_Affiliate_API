@@ -188,6 +188,14 @@ function calculateEarning(members, revenue, promotion, carried) {
       percentage = commission[0]['rate'];
     }
   }
+
+  if (commission.length === 2) {
+    if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
+      percentage = commission[1]['rate'];
+    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
+      percentage = commission[0]['rate'];
+    }
+  }
   
   earning = netRevenue * percentage;
   return { earning: earning, percentage: percentage };

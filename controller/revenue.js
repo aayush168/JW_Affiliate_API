@@ -58,7 +58,31 @@ function calculateEarning(members, revenue, carried, promotion) {
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
     }
-    if (mode && mode.includes('bvprod') || mode.includes('ape') && earning && earning > 0) {
+    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
+      return .95 * earning;
+    }
+    return earning;
+  }
+  if (commission.length === 3) {
+    if (members >= commission[2]['members'] && netRevenue >= commission[2]['minRevenue']) {
+      earning = netRevenue * commission[2]['rate'];
+    } else if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
+      earning = netRevenue * commission[1]['rate'];
+    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
+      earning = netRevenue * commission[0]['rate'];
+    }
+    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
+      return .95 * earning;
+    }
+    return earning;
+  }
+  if (commission.length === 2) {
+    if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
+      earning = netRevenue * commission[1]['rate'];
+    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
+      earning = netRevenue * commission[0]['rate'];
+    }
+    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
       return .95 * earning;
     }
     return earning;

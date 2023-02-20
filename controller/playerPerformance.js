@@ -124,12 +124,33 @@ function calculateEstimateEarning(members, netwin, promotion) {
     earning = revenue * commission[0]['rate'];
     return earning;
   }
+
   if (commission.length === 4) {
     if (members >= commission[3]['members'] && revenue >= commission[3]['minRevenue']) {
       earning = revenue * commission[3]['rate'];
     } else if (members >= commission[2]['members'] && revenue >= commission[2]['minRevenue']) {
       earning = revenue * commission[2]['rate'];
     } else if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
+      earning = revenue * commission[1]['rate'];
+    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
+      earning = revenue * commission[0]['rate'];
+    }
+    return earning;
+  }
+
+  if (commission.length === 3) {
+    if (members >= commission[2]['members'] && revenue >= commission[2]['minRevenue']) {
+      earning = revenue * commission[2]['rate'];
+    } else if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
+      earning = revenue * commission[1]['rate'];
+    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
+      earning = revenue * commission[0]['rate'];
+    }
+    return earning;
+  }
+
+  if (commission.length === 2) {
+    if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
       earning = revenue * commission[1]['rate'];
     } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
       earning = revenue * commission[0]['rate'];
