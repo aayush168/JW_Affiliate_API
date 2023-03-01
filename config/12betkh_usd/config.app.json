@@ -8,7 +8,7 @@
     "WIN": "/service/analysis/getPlayerWinMultiple"
   },
   "awsConfig": {
-    "bucket": "agent-affiliate",
+    "bucket": "agent-affiliate-s3",
     "folder": "12betkh_usd"
   },
   "currency": "USD",
