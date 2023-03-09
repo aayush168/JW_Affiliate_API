@@ -37,15 +37,16 @@ function calculateEarning(members, revenue, carried, promotion) {
   if ((revenue - promotion) <= 0) {
     return 0;
   }
-  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
-  let netRevenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
+  let netRevenue = revenue
+  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
+    netRevenue = .95 * netRevenue;
+  }
+  let operationCost = parseFloat(netRevenue) < 0 ? 0 : config.commission.operationCost;
+  netRevenue = parseFloat(netRevenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(netRevenue) * operationCost);
   let earning = 0;
   let commission = config.commission.level;
   if (commission.length === 1) {
     earning = netRevenue * commission[0]['rate'];
-    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
-      return .95 * earning;
-    }
     return earning;
   }
   if (commission.length === 4) {
@@ -58,9 +59,6 @@ function calculateEarning(members, revenue, carried, promotion) {
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
     }
-    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
-      return .95 * earning;
-    }
     return earning;
   }
   if (commission.length === 3) {
@@ -71,9 +69,6 @@ function calculateEarning(members, revenue, carried, promotion) {
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
     }
-    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
-      return .95 * earning;
-    }
     return earning;
   }
   if (commission.length === 2) {
@@ -81,9 +76,6 @@ function calculateEarning(members, revenue, carried, promotion) {
       earning = netRevenue * commission[1]['rate'];
     } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
       earning = netRevenue * commission[0]['rate'];
-    }
-    if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && earning && earning > 0) {
-      return .95 * earning;
     }
     return earning;
   }

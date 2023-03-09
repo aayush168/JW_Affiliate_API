@@ -109,15 +109,15 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
 };
 
 function calculateEstimateEarning(members, netwin, promotion) {
-  let revenue = netwin + promotion;
-  if (revenue < 0) {
-    revenue = Math.abs(revenue)
-  } else {
+  if (netwin + promotion > 0) {
+    // company winning so no calculation
     return 0
   }
+  let revenue = Math.abs(netwin);
   if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
     revenue = revenue * .95;
   }
+  revenue = revenue - promotion
   let earning = 0
   let commission = config.commission.level;
   if (commission.length === 1) {
