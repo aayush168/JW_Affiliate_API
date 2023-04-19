@@ -308,4 +308,15 @@ service.login = async (username, password) => {
   }
 }
 
+service.getDomainList = async (agentId) => {
+  try {
+    let conn = await db.getConn('jw')
+    let result = (await conn.query({ sql: db.sql('agent/ocms/getDomainUrl.sql'), values: [ agentId ] }))[0];
+    return { code: 'common.success', list: result }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service;

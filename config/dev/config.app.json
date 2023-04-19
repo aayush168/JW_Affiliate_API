@@ -10,5 +10,6 @@
   "awsConfig": {
     "bucket": "agent-affiliate-s3",
     "folder": "dev"
-  }
+  },
+  "agentCompanyId": "0"
 }

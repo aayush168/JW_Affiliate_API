@@ -253,6 +253,19 @@ router.get('/setting/getList', async function (req, res) {
   }
 });
 
+router.get('/domain/getList', async function (req, res) {
+  try {
+    const agentCompanyId = parseInt(config.app.agentCompanyId);
+    const blockedDomain = config.app.blockedDomain
+    const result = await agentService.getDomainList(agentCompanyId, blockedDomain);
+    result.list = result.list.filter(x => !blockedDomain.includes(x.Domain))
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+});
+
 async function addJwPayments (req, paymentTypeListResult, agentId, paymentType) {
   try {
     let response
