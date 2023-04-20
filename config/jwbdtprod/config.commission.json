@@ -1,29 +1,11 @@
 {
-  "operationCost": 0,
+  "operationCost": 0.18,
   "level": [
     {
       "members": 5,
       "minRevenue": 1,
-      "maxRevenue": 500000,
-      "rate": 0.1
-    },
-    {
-      "members": 10,
-      "minRevenue": 500001,
-      "maxRevenue": 1000000,
-      "rate": 0.2
-    },
-    {
-      "members": 20,
-      "minRevenue": 1000001,
-      "maxRevenue": 2000000,
-      "rate": 0.3
-    },
-    {
-      "members": 30,
-      "minRevenue": 2000001,
       "maxRevenue": 0,
-      "rate": 0.35
+      "rate": 0.5
     }
   ],
   "calculationInfo": ""
