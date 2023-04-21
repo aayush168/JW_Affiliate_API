@@ -354,7 +354,7 @@ async function updateJwPayments (req, paymentTypeListResult, agentId, paymentTyp
         return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
       }
       let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
-      if (!allowedBankAccountType.includes(accountType)) {
+      if (!allowedBankAccountType.includes(bankAccountType)) {
         return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
       }
       const payload = {

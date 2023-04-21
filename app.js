@@ -42,6 +42,7 @@ app.use('/agent', router.agentAdmin);
 app.use('/setting', router.settingAdmin);
 app.use('/advertisement', router.advertisementAdmin);
 app.use('/log', router.log);
+app.use('/credit', router.credit);
 
 app.use('/api/v1/agent', router.agentClient);
 app.use('/api/v1/setting', router.settingClient);

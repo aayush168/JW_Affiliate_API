@@ -120,7 +120,7 @@ service.getTotalBonusData = async function (agentCode, startDateTime, endDateTim
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime
-      ] }))[0][0];
+      ]}))[0][0];
       totalBonus = parseFloat(totalBonus) + parseFloat(bonus.TotalAmount);
     }
     return totalBonus;
