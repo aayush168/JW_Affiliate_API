@@ -1,7 +1,7 @@
 {
   "domain": "admin.ibetplus.net",
   "accounts": {
-    "createAffAgent": {
+    "createAgent": {
       "username": "jwbdt_affbot",
       "password": "Welcome12"
     }

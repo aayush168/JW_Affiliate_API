@@ -54,7 +54,7 @@ async function login () {
       password: account.password
     },
     headers: {
-      "ocms-currency": config.setting.currency
+      "ocms-currency": config.app.currency
     },
     json: true
   };
@@ -72,7 +72,7 @@ async function checkToken (authorization, refreshToken) {
     headers: {
       authorization: authorization,
       refreshtoken: refreshToken,
-      "ocms-currency": config.setting.currency
+      "ocms-currency": config.app.currency
     },
     url: `https://${config.ocms.domain}${config.ocms.path.checkTokens}`,
     body: {},
@@ -107,13 +107,41 @@ service.createAgent = async function (agentUsername) {
         name: `aff${agentUsername}`,
         negativeProfitRatio: 0,
         sensitiveField: [],
-        state: 1 // 1 Enabled
+        state: null
       },
       json: true
     }
     let response = await rp(options);
     if (response.code !== 'common.success') {
-      throw `Agent ${account.agentUsername} username account creation failed with error response: ${response}`
+      throw `Agent account could not be created`
+    }
+    let options1 = {
+      method: 'PUT',
+      url: `https://${config.ocms.domain}${config.ocms.path.createAgent}`,
+      headers: {
+        authorization: tokens.AUTHORIZATION_TOKEN,
+        refreshtoken: tokens.REFRESH_TOKEN,
+        "ocms-currency": config.app.currency || ''
+      },
+      body: {
+        agentId: response.data.agentId,
+        agentUsername: agentUsername,
+        billingCycle: "month",   // month and isoWeek for weekly Option available
+        effectiveMember: {BetAmount: 0, Deposit: 0},
+        fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
+        isIgnoringCalculateRefundNetwin: true,
+        layerLimit: 5,
+        memo: "Affiliate Id",
+        name: `aff${agentUsername}`,
+        negativeProfitRatio: 0,
+        sensitiveField: [],
+        state: 1
+      },
+      json: true
+    }
+    const res = await rp(options1);
+    if (res.code !== 'common.success') {
+      throw `Agent status could not be updated`
     }
     return
   })

@@ -1,7 +1,7 @@
 {
   "domain": "admin.jeet55.net",
   "accounts": {
-    "createAffAgent": {
+    "createAgent": {
       "username": "jw_affbot",
       "password": "Welcome12"
     }

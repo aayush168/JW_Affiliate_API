@@ -1,8 +1,8 @@
 {
   "domain": "jwv2admin.gpms365.net",
   "accounts": {
-    "createAffAgent": {
-      "username": "jwdev_affbot",
+    "createAgent": {
+      "username": "jw_affbot",
       "password": "Welcome12"
     }
   },

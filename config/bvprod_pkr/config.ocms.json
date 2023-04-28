@@ -1,7 +1,7 @@
 {
   "domain": "admin.betnokia.com",
   "accounts": {
-    "createAffAgent": {
+    "createAgent": {
       "username": "bv_affbot_pkr",
       "password": "Welcome12"
     }

@@ -1,7 +1,7 @@
 {
   "domain": "admin.s99thai.net",
   "accounts": {
-    "createAffAgent": {
+    "createAgent": {
       "username": "si_affbot",
       "password": "Welcome12"
     }

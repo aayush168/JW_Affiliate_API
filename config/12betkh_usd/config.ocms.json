@@ -1,7 +1,7 @@
 {
   "domain": "admin.apewizar.com",
   "accounts": {
-    "createAffAgent": {
+    "createAgent": {
       "username": "12b_affbot_usd",
       "password": "Welcome12"
     }
