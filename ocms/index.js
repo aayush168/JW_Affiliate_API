@@ -1,14 +1,11 @@
 let AUTHORIZATION_TOKEN = null;
 let REFRESH_TOKEN = null;
-let BOT_ACCOUNT = process.env.jobName;
+let BOT_ACCOUNT = 'createAgent';
 let path = require('path');
-let delay = require('delay');
 let config = require(path.join(rootPath, 'config', 'index.js'));
-let system = require(path.join(rootPath, 'system', 'index.js'));
 let rp = require('request-promise');
 let AsyncLock = require('async-lock');
 let lock = new AsyncLock();
-let db = require(path.join(rootPath, 'db', 'index.js'));
 let service = {};
 let account = config.ocms.accounts[BOT_ACCOUNT];
 
@@ -85,6 +82,41 @@ async function checkToken (authorization, refreshToken) {
   }
   let response = await rp(options);
   return response;
+}
+
+service.createAgent = async function (agentUsername) {
+  await lock.acquire('getTokens', async function () {
+    let tokens = await getTokens();
+    let options = {
+      method: 'POST',
+      url: `https://${config.ocms.domain}${config.ocms.path.createAgent}`,
+      headers: {
+        authorization: tokens.AUTHORIZATION_TOKEN,
+        refreshtoken: tokens.REFRESH_TOKEN,
+        "ocms-currency": config.app.currency || ''
+      },
+      body: {
+        agentId: null,
+        agentUsername: agentUsername,
+        billingCycle: "month",   // month and isoWeek for weekly Option available
+        effectiveMember: {BetAmount: 0, Deposit: 0},
+        fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
+        isIgnoringCalculateRefundNetwin: true,
+        layerLimit: 5,
+        memo: "Affiliate Id",
+        name: `aff${agentUsername}`,
+        negativeProfitRatio: 0,
+        sensitiveField: [],
+        state: 1 // 1 Enabled
+      },
+      json: true
+    }
+    let response = await rp(options);
+    if (response.code !== 'common.success') {
+      throw `Agent ${account.agentUsername} username account creation failed with error response: ${response}`
+    }
+    return
+  })
 }
 
 module.exports = service;

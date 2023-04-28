@@ -12,5 +12,6 @@
     "folder": "bvprod_inr"
   },
   "currency": "INR",
-  "agentIdOCMS": "653"
+  "agentIdOCMS": "653",
+  "blockedDomain": []
 }

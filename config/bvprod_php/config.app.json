@@ -12,5 +12,6 @@
     "folder": "bvprod_php"
   },
   "currency": "PHP",
-  "agentIdOCMS": "764"
+  "agentIdOCMS": "764",
+  "blockedDomain": []
 }

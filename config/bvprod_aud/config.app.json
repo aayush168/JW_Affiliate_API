@@ -12,5 +12,6 @@
     "folder": "bvprod_aud"
   },
   "currency": "AUD",
-  "agentIdOCMS": "2872"
+  "agentIdOCMS": "2872",
+  "blockedDomain": []
 }

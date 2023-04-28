@@ -12,5 +12,6 @@
     "folder": "bvprod"
   },
   "currency": "VND",
-  "agentIdOCMS": "0"
+  "agentIdOCMS": "0",
+  "blockedDomain": []
 }

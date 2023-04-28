@@ -12,5 +12,6 @@
     "folder": "bvprod_jw_thb"
   },
   "currency": "THB",
-  "agentIdOCMS": "5175"
+  "agentIdOCMS": "5175",
+  "blockedDomain": []
 }

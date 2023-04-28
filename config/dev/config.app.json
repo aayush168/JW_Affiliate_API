@@ -11,5 +11,7 @@
     "bucket": "agent-affiliate-s3",
     "folder": "dev"
   },
-  "agentCompanyId": "0"
+  "currency": "INR",
+  "agentIdOCMS": "0",
+  "blockedDomain": []
 }

@@ -12,5 +12,6 @@
     "folder": "bvprod_myr"
   },
   "currency": "MYR",
-  "agentIdOCMS": "654"
+  "agentIdOCMS": "654",
+  "blockedDomain": []
 }

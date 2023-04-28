@@ -255,9 +255,9 @@ router.get('/setting/getList', async function (req, res) {
 
 router.get('/domain/getList', async function (req, res) {
   try {
-    const agentCompanyId = parseInt(config.app.agentCompanyId);
+    const agentIdOCMS = parseInt(config.app.agentIdOCMS);
     const blockedDomain = config.app.blockedDomain
-    const result = await agentService.getDomainList(agentCompanyId, blockedDomain);
+    const result = await agentService.getDomainList(agentIdOCMS, blockedDomain);
     result.list = result.list.filter(x => !blockedDomain.includes(x.Domain))
     res.json(result)
   } catch (err) {

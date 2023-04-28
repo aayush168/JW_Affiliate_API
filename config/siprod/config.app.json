@@ -10,5 +10,8 @@
   "awsConfig": {
     "bucket": "agent-affiliate-s3",
     "folder": "siprod"
-  }
+  },
+  "agentIdOCMS": "0",
+  "currency": "THB",
+  "blockedDomain": []
 }

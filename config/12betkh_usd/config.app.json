@@ -12,5 +12,6 @@
     "folder": "12betkh_usd"
   },
   "currency": "USD",
-  "agentIdOCMS": "310"
+  "agentIdOCMS": "310",
+  "blockedDomain": []
 }

@@ -12,5 +12,6 @@
     "folder": "bvprod_usd"
   },
   "currency": "USD",
-  "agentIdOCMS": "658"
+  "agentIdOCMS": "658",
+  "blockedDomain": []
 }

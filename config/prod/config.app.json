@@ -11,6 +11,7 @@
     "bucket": "agent-affiliate-s3",
     "folder": "prod"
   },
-  "agentCompanyId": "0",
+  "currency": "INR",
+  "agentIdOCMS": "0",
   "blockedDomain": ["https://www.jeetwin.com", "https://www.jeetbet.com"]
 }

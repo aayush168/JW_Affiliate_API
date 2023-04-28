@@ -12,5 +12,6 @@
     "folder": "gameape_prod_php"
   },
   "currency": "PHP",
-  "agentIdOCMS": "65"
+  "agentIdOCMS": "65",
+  "blockedDomain": []
 }

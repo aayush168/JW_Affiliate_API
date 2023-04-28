@@ -12,5 +12,6 @@
     "folder": "bvprod_mmk"
   },
   "currency": "MMK",
-  "agentIdOCMS": "763"
+  "agentIdOCMS": "763",
+  "blockedDomain": []
 }

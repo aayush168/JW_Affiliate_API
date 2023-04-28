@@ -12,5 +12,6 @@
     "folder": "bvprod_jw_pkr"
   },
   "currency": "PKR",
-  "agentIdOCMS": "5173"
+  "agentIdOCMS": "5173",
+  "blockedDomain": []
 }

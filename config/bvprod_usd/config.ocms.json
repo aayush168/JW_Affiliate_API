@@ -9,6 +9,7 @@
   "path": {
     "login": "/service/operator/auth/login",
     "logout": "/service/operator/auth/logout",
-    "checkTokens": "/service/v2/menu/getList"
+    "checkTokens": "/service/v2/menu/getList",
+    "createAgent": "/service/v2/agent/agentMaintenance"
   }
 }

@@ -1,35 +1,15 @@
 {
   "domain": "admin.betnokia.com",
   "accounts": {
-    "loyaltyReward": {
-      "username": "jwloyaltyrewardbot",
-      "password": "Welcome12"
-    },
-    "tournament": {
-      "username": "jwtournamentbot",
-      "password": "Welcome12"
-    },
-    "cashback": {
-      "username": "jwcashbackbot",
-      "password": "Welcome12"
-    },
-    "referralCommission": {
-      "username": "jwreferralComBot_vnd",
-      "password": "Welcome12"
-    },
-    "referral": {
-      "username": "jwrefautobot_vnd",
+    "createAffAgent": {
+      "username": "bvjw_affbot_vnd",
       "password": "Welcome12"
     }
   },
   "path": {
     "login": "/service/operator/auth/login",
     "logout": "/service/operator/auth/logout",
-    
-    "pointTransfer": "/service/v2/financial/rewardPointManagement/addTransfer",
-    "enforceFail": "/service/v2/financial/onlinePayment/enforceFail",
-    "addOperator": "/service/v2/operatorGroup/operator",
-    "addOperatorToGroup": "/service/v2/operatorGroup/group/operators",
-    "checkTokens": "/service/v2/menu/getList"
+    "checkTokens": "/service/v2/menu/getList",
+    "createAgent": "/service/v2/agent/agentMaintenance"
   }
 }
