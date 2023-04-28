@@ -1,0 +1,14 @@
+{
+  "domain": "admin.ibetplus.net",
+  "accounts": {
+    "createAffAgent": {
+      "username": "jwbdt_affbot",
+      "password": "Welcome12"
+    }
+  },
+  "path": {
+    "login": "/service/operator/auth/login",
+    "logout": "/service/operator/auth/logout",
+    "checkTokens": "/service/v2/menu/getList"
+  }
+}

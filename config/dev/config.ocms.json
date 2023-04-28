@@ -1,0 +1,14 @@
+{
+  "domain": "jwv2admin.gpms365.net",
+  "accounts": {
+    "createAffAgent": {
+      "username": "jwdev_affbot",
+      "password": "Welcome12"
+    }
+  },
+  "path": {
+    "login": "/service/operator/auth/login",
+    "logout": "/service/operator/auth/logout",
+    "checkTokens": "/service/v2/menu/getList"
+  }
+}

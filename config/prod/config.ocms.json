@@ -1,0 +1,14 @@
+{
+  "domain": "admin.jeet55.net",
+  "accounts": {
+    "createAffAgent": {
+      "username": "jw_affbot",
+      "password": "Welcome12"
+    }
+  },
+  "path": {
+    "login": "/service/operator/auth/login",
+    "logout": "/service/operator/auth/logout",
+    "checkTokens": "/service/v2/menu/getList"
+  }
+}
