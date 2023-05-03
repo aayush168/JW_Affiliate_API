@@ -117,7 +117,8 @@ function calculateEstimateEarning(members, netwin, promotion) {
   if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
     revenue = revenue * .95;
   }
-  revenue = revenue - promotion
+  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  revenue = parseFloat(revenue) - parseFloat(promotion) - (parseFloat(revenue) * operationCost);
   let earning = 0
   let commission = config.commission.level;
   if (commission.length === 1) {
