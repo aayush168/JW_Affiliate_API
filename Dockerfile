@@ -23,6 +23,7 @@ COPY ./sqlTemplate /api/project/sqlTemplate
 COPY ./utils /api/project/utils
 COPY ./system /api/project/system
 COPY ./validator /api/project/validator
+COPY ./ocms /api/project/ocms
 COPY ./app.js /api/project
 
 EXPOSE 5999
