@@ -5,8 +5,8 @@ let memoize = require('memoizee');
 let moment = require('moment-timezone');
 let _CACHE_MAX_AGE = 300000;
 let db = require(path.join(rootPath, 'db', 'index.js'));
-let dataAPI = require(path.join(rootPath, 'dataAPI', 'index.js'));
-let mTurnoverData = memoize(dataAPI.getTurnoverData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let ocms = require(path.join(rootPath, 'ocms', 'index.js'));
+let mTurnoverData = memoize(ocms.getTurnoverData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
 service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime, username = ""){
   let conn;

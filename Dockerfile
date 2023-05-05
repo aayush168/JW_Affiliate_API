@@ -13,7 +13,6 @@ RUN mkdir -p /api/project/logs
 COPY ./config /api/project/config
 COPY ./credentials /api/project/credentials
 COPY ./controller /api/project/controller
-COPY ./dataAPI /api/project/dataAPI
 COPY ./db /api/project/db
 COPY ./logger /api/project/logger
 COPY ./middlewares /api/project/middlewares
