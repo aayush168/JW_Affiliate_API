@@ -56,6 +56,41 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
   }
 }
 
+service.updateProfile = async (id, email, phone) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let agent = (await conn.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (agent.length === 0) {
+      return { code: "code.agent.noExist", msg: "Agent Not Found" }
+    }
+    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ id, email, phone ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+
+service.resetPassword = async (id, oldPassword, newPassword) => {
+  try {
+    let conn1 = await db.getConn('extra:read')
+    let user = (await conn1.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (user.Password !== encrypt.encryptPassword(oldPassword, user.Salt1, user.Salt2)) {
+      return { code: 'code.password.invalidPassword', msg: 'Old Password does not match.' }
+    }
+    const salt1 = encrypt.getSalt(10)
+    const salt2 = encrypt.getSalt(12)
+    const encryptPassword = encrypt.encryptPassword(newPassword, salt1, salt2);
+    await conn1.query({ sql: db.sql('agent/updatePassword.sql'), values: [ encryptPassword, newPassword, id ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.addAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, isfc, branch }) => {
   try {
     let conn = await db.getConn('extra:write')

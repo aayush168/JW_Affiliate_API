@@ -147,6 +147,56 @@ router.post('/auth/login', async function (req, res) {
   }
 })
 
+router.put('/profile/update/:id', async function (req, res) {
+  try {
+    const id = req.params.id
+    if (!id) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    const email = req.body.email
+    const phone = req.body.phone
+    if (!email) {
+      return res.status(400).json({ code: 'params.email.required', msg: 'Email is required.' })
+    }
+    if (!phone) {
+      return res.status(400).json({ code: 'params.phone.required', msg: 'Phone is required.' })
+    }
+    let result = await agentService.updateProfile(id, email, phone)
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
+router.post('/password/reset', async function (req, res) {
+  try {
+    const id = req.payload.id
+    if (!id) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    const oldPassword = req.body.oldPassword
+    const newPassword = req.body.newPassword
+    if (!oldPassword) {
+      return res.status(400).json({ code: 'params.oldPassword.required', msg: 'Previous Password is required' })
+    }
+    if (!newPassword) {
+      return res.status(400).json({ code: 'params.newPassword.required', msg: 'New Password is required' })
+    }
+    let result = await agentService.resetPassword(id, oldPassword, newPassword)
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
 router.post('/checklogin', async function (req, res) {
   try {
     if (req.session.client) {
