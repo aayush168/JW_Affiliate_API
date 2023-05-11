@@ -64,7 +64,15 @@ service.updateProfile = async (id, email, phone) => {
     if (agent.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
     }
-    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ id, email, phone ]})
+    const agentMobile = (await conn.query(db.sql('agent/getAgentByMobile.sql'), [ phone ]))[0]
+    if (agentMobile.length > 0) {
+      return { code: 'code.phone.exist', msg: 'Number is already taken' }
+    }
+    const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
+    if (agentEmail.length > 0) {
+      return { code: 'code.email.exist', msg: 'Email is already taken' }
+    }
+    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, phone, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -75,15 +83,16 @@ service.updateProfile = async (id, email, phone) => {
 
 service.resetPassword = async (id, oldPassword, newPassword) => {
   try {
-    let conn1 = await db.getConn('extra:read')
-    let user = (await conn1.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let user = (await conn.query(db.sql('agent/getAgentById.sql'), [ id ]))[0][0];
     if (user.Password !== encrypt.encryptPassword(oldPassword, user.Salt1, user.Salt2)) {
-      return { code: 'code.password.invalidPassword', msg: 'Old Password does not match.' }
+      return { code: 'code.password.invalid', msg: 'Old Password does not match.' }
     }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(newPassword, salt1, salt2);
-    await conn1.query({ sql: db.sql('agent/updatePassword.sql'), values: [ encryptPassword, newPassword, id ]})
+    await conn1.query({ sql: db.sql('agent/updatePassword.sql'), values: [ encryptPassword, newPassword, salt1, salt2, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -338,7 +347,7 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, code: user.Code, accountType: user.AccountType }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, email: user.Email, phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at }}
   } catch (err) {
     console.log(err);
     throw new Error(err);

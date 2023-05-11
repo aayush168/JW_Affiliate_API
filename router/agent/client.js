@@ -147,9 +147,9 @@ router.post('/auth/login', async function (req, res) {
   }
 })
 
-router.put('/profile/update/:id', async function (req, res) {
+router.post('/profile/update', async function (req, res) {
   try {
-    const id = req.params.id
+    const id = req.body.id
     if (!id) {
       return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
     }
@@ -174,7 +174,7 @@ router.put('/profile/update/:id', async function (req, res) {
 
 router.post('/password/reset', async function (req, res) {
   try {
-    const id = req.payload.id
+    const id = req.body.id
     if (!id) {
       return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
     }

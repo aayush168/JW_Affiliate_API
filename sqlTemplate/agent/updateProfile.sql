@@ -1,6 +1,6 @@
 UPDATE Agent
 SET
   Email = ?,
-  Phone = ?
+  Mobile = ?
 WHERE Id = ?
   
