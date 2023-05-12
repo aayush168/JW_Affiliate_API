@@ -1,6 +1,8 @@
 UPDATE Agent
 SET
   Email = ?,
-  Mobile = ?
+  Mobile = ?,
+  Whatsapp = ?,
+  Skype = ?
 WHERE Id = ?
   

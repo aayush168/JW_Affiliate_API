@@ -155,13 +155,15 @@ router.post('/profile/update', async function (req, res) {
     }
     const email = req.body.email
     const phone = req.body.phone
+    const whatsapp = req.body.whatsapp || ''
+    const skype = req.body.skype || ''
     if (!email) {
       return res.status(400).json({ code: 'params.email.required', msg: 'Email is required.' })
     }
     if (!phone) {
       return res.status(400).json({ code: 'params.phone.required', msg: 'Phone is required.' })
     }
-    let result = await agentService.updateProfile(id, email, phone)
+    let result = await agentService.updateProfile(id, email, phone, whatsapp, skype)
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }

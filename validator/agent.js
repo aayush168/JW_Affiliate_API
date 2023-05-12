@@ -21,18 +21,25 @@ const registrationRules = [
     .isLength({ min: 5, max: 50 }).withMessage({ code: 'params.password.invalid', msg: 'Password should be between 5 to 50 characters.' }),
   body('mobile')
     .exists().withMessage({ code: 'params.mobile.required', msg: 'Mobile number is required.' })
+    // .custom(mobile => {
+    //   if(mobile) {
+    //     let valid = /^[0-9]*$/.test(mobile)
+    //     if (!valid) {
+    //       throw { code: 'params.mobile.invalid', msg: 'Invalid Mobile Number'}
+    //     }
+    //   }
+    //   return true
+    // }),
     .custom(mobile => {
-      if(mobile) {
-        let valid = /^[0-9]*$/.test(mobile)
-        if (!valid) {
-          throw { code: 'params.mobile.invalid', msg: 'Invalid Mobile Number'}
-        }
-      }
       return true
     }),
   body('email')
-    .exists().withMessage({ code: 'params.email.required', msg: 'Email is required.' })
-    .isEmail().withMessage({ code: 'params.email.invalid', msg: 'Invalid Email'}),
+    .custom(email => {
+      return true
+    }),
+  // body('email')
+  //   .exists().withMessage({ code: 'params.email.required', msg: 'Email is required.' })
+  //   .isEmail().withMessage({ code: 'params.email.invalid', msg: 'Invalid Email'}),
   body('whatsapp')
     .custom(whatsapp => {
       if(whatsapp) {

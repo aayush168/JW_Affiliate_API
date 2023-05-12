@@ -56,7 +56,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
   }
 }
 
-service.updateProfile = async (id, email, phone) => {
+service.updateProfile = async (id, email, phone, whatsapp, skype) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -72,7 +72,7 @@ service.updateProfile = async (id, email, phone) => {
     if (agentEmail.length > 0) {
       return { code: 'code.email.exist', msg: 'Email is already taken' }
     }
-    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, phone, id ]})
+    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, phone, whatsapp, skype, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -347,7 +347,7 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, email: user.Email, phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, email: user.Email, phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype }}
   } catch (err) {
     console.log(err);
     throw new Error(err);
