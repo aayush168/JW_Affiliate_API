@@ -28,44 +28,44 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' })
       }
     }
-    const paymentType = paymentTypeListResult.list[0].Code;
-    if (paymentType === 'player-account') {
+    const payment = paymentTypeListResult.list[0].Code;
+    if (payment === 'player-account') {
       const result = await agentService.checkAgentPlayerAccountUsername(req.body.playerAccountUsername);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }
     }
-    if (paymentType.includes('bank-account')) {
+    if (payment.includes('bank-account')) {
       const result = await agentService.checkAgentBankAccountNumber(req.body.accountNumber);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }
     }
-    if (paymentType === 'skrill') {
+    if (payment === 'skrill') {
       const result = await agentService.checkAgentSkrillAdress(req.body.skrillAddress);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }
     }
-    if (paymentType === 'usdt') {
+    if (payment === 'usdt') {
       const result = await agentService.checkAgentUsdtAddress(req.body.usdtWallet);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }
     }
-    if (paymentType === 'bkash') {
+    if (payment === 'bkash') {
       const result = await agentService.checkAgentBkashAddress(req.body.bkashWallet);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }
     }
-    if (paymentType === 'nagad') {
+    if (payment === 'nagad') {
       const result = await agentService.checkAgentNagadAddress(req.body.nagadWallet);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
       }
     }
-    if (paymentType === 'rocket') {
+    if (payment === 'rocket') {
       const result = await agentService.checkAgentRocketAddress(req.body.rocketWallet);
       if (result.code !== 'common.success') {
         return res.status(400).send(result)
@@ -78,8 +78,8 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       username: req.body.username,
       password: req.body.password,
       mobile: req.body.mobile || null,
-      whatsapp: req.body.whatsapp ? req.body.whatsapp : null,
-      skype: req.body.skype ? req.body.skype : null,
+      whatsapp: req.body.whatsapp || null,
+      skype: req.body.skype || null,
       email: req.body.email || null,
       revenueShareType: req.body.revenueShareType,
       playerSourceType: playerSourceType.toString(),
@@ -95,25 +95,25 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
     const mode = process.env.mode
     let resultPayment;
 
-    if (paymentType === 'player-account') {
+    if (payment === 'player-account') {
       resultPayment = await addPlayerAccount(req, agentId, paymentType);
-    } else if (paymentType.includes('bank-account')) {
+    } else if (payment === 'bank-account') {
       resultPayment = await addBankAccount(req, agentId, paymentType);
-    } else if (paymentType === 'skrill') {
+    } else if (payment === 'skrill') {
       resultPayment = await addSkrillAccount(req, agentId, paymentType);
-    } else if (paymentType === 'usdt') {
+    } else if (payment === 'usdt') {
       resultPayment = await addUsdtAccount(req, agentId, paymentType);
-    } else if (paymentType === 'bkash') {
+    } else if (payment === 'bkash') {
       resultPayment = await addBkashWallet(req, agentId, paymentType);
-    } else if (paymentType === 'nagad') {
+    } else if (payment === 'nagad') {
       resultPayment = await addNagadWallet(req, agentId, paymentType);
-    } else if (paymentType === 'rocket') {
+    } else if (payment === 'rocket') {
       resultPayment = await addRocketWallet(req, agentId, paymentType);
-    } else if (paymentType === 'bdt-bank-account') {
+    } else if (payment === 'bdt-bank-account') {
       resultPayment = await addBdtBankAccount(req, agentId, paymentType);
-    } else if (paymentType === 'bv-bank-account') {
+    } else if (payment === 'bv-bank-account') {
       resultPayment = await addBvBankAccount(req, agentId, paymentType);
-    } else if (paymentType === '12bet-bank-account') {
+    } else if (payment === '12bet-bank-account') {
       resultPayment = await add12BetBankAccount(req, agentId, paymentType);
     } else {
       res.status(400).send({ msg: 'Feature not available' })
@@ -321,7 +321,7 @@ router.get('/domain/getList', async function (req, res) {
   }
 });
 
-function addBankAccount (req, agentId, paymentType) {
+async function addBankAccount (req, agentId, paymentType) {
   try {
     const bankName = req.body.bankName;
     const accountName = req.body.accountName;
@@ -371,7 +371,7 @@ function addBankAccount (req, agentId, paymentType) {
   }
 }
 
-function addSkrillAccount (req, agentId, paymentType) {
+async function addSkrillAccount (req, agentId, paymentType) {
   try {
     const skrillAddress = req.body.skrillAddress
     if (!skrillAddress) {
@@ -392,7 +392,7 @@ function addSkrillAccount (req, agentId, paymentType) {
   }
 }
 
-function addUsdtAccount (req, agentId, paymentType) {
+async function addUsdtAccount (req, agentId, paymentType) {
   try {
     const usdtWallet = req.body.usdtWallet
     if (!usdtWallet) {
@@ -413,7 +413,7 @@ function addUsdtAccount (req, agentId, paymentType) {
   }
 }
 
-function addPlayerAccount (req, agentId, paymentType) {
+async function addPlayerAccount (req, agentId, paymentType) {
   try {
     const playerAccountUsername = req.body.playerAccountUsername
     if (!playerAccountUsername) {
@@ -436,7 +436,7 @@ function addPlayerAccount (req, agentId, paymentType) {
 
 
 
-function addBdtBankAccount (req, agentId, paymentType) {
+async function addBdtBankAccount (req, agentId, paymentType) {
   try {
     const bankName = req.body.bankName;
       const accountName = req.body.accountName;
@@ -481,7 +481,7 @@ function addBdtBankAccount (req, agentId, paymentType) {
   }
 }
 
-function addBkashWallet (req, agentId, paymentType) {
+async function addBkashWallet (req, agentId, paymentType) {
   try {
     const bkashWallet = req.body.bkashWallet
     if (!bkashWallet) {
@@ -502,7 +502,7 @@ function addBkashWallet (req, agentId, paymentType) {
   }
 }
 
-function addNagadWallet (req, agentId, paymentType) {
+async function addNagadWallet (req, agentId, paymentType) {
   try {
     const nagadWallet = req.body.nagadWallet
     if (!nagadWallet) {
@@ -523,7 +523,7 @@ function addNagadWallet (req, agentId, paymentType) {
   }
 }
 
-function addRocketWallet (req, agentId, paymentType) {
+async function addRocketWallet (req, agentId, paymentType) {
   try {
     const rocketWallet = req.body.rocketWallet
       if (!rocketWallet) {
@@ -544,7 +544,7 @@ function addRocketWallet (req, agentId, paymentType) {
   }
 }
 
-function addBvBankAccount(req, agentId, paymentType) {
+async function addBvBankAccount(req, agentId, paymentType) {
   try {
     const bankName = req.body.bankName;
     const accountName = req.body.accountName;
@@ -580,7 +580,7 @@ function addBvBankAccount(req, agentId, paymentType) {
   }
 }
 
-function add12BetBankAccount(req, agentId, paymentType) {
+async function add12BetBankAccount(req, agentId, paymentType) {
   try {
     const bankName = req.body.bankName;
     const accountName = req.body.accountName;
