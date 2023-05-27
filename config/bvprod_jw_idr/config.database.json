@@ -2,7 +2,7 @@
   "extra:read": {
     "user":"jwlabs",
     "password":"Welcome2PN",
-    "server":"labsdb-cluster-reader-bv.cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
     "database":"affiliate_bv_jwprod_idr",
     "requestTimeout":20000,
     "connectionTimeout":20000,
@@ -15,7 +15,7 @@
   "extra:write": {
     "user":"jwlabs",
     "password":"Welcome2PN",
-    "server":"labsdb-cluster.cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "server":"labsdb-cluster-cluster.cluster-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
     "database":"affiliate_bv_jwprod_idr",
     "requestTimeout":20000,
     "connectionTimeout":20000,
@@ -41,7 +41,7 @@
   "extra1:read": {
     "user":"jwlabs",
     "password":"Welcome2PN",
-    "server":"labsdb-cluster-reader-bv.cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
     "database":"bv_jwextra_idr",
     "requestTimeout":20000,
     "connectionTimeout":20000,
