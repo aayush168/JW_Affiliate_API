@@ -3,6 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
 const ocms = require(path.join(rootPath, 'ocms', 'index.js'));
+const mode = process.env.mode
 
 service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram }) => {
   try {
@@ -43,7 +44,9 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
         return { code: 'code.telegram.exist', msg: 'Telegram id is already taken' }
       }
     }
-    await ocms.createAgent(username);
+    if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod') {
+      await ocms.createAgent(username);
+    }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
