@@ -81,7 +81,7 @@ service.getPromotion = async function(startDate, endDate){
     let conn = await db.getConn('jw');
     let result = await getPromotion(conn, startDate, endDate);
     return result[0];
-  }catch(err){
+  } catch(err){
     console.log(err);
     throw err;
   }
@@ -102,10 +102,7 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
     let carriedRevenue = [];
     let conn = await db.getConn('jw');
-    let xconn;
-    if (mode && !mode.includes('ape')) {
-      xconn = await db.getConn('extra1:read');
-    }
+    let xconn = await db.getConn('extra1:read');
     let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
       getNetWinSummary(conn, startDate), getPromotionSummary(conn, startDate), getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
     ]);
@@ -142,6 +139,9 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
 
 service.getOtherBonus = async function (startDate, endDate, memberUsername) {
   let data = []
+  if (mode && mode.includes('ape') || mode.includes('12bet')) {
+    return data
+  }
   let xconn = await db.getConn('extra1:read');
   let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name })
   let keys = _.keys(agentGroupBy);
@@ -183,7 +183,7 @@ function getTotalPromotion (promotionSummary, otherBonus) {
 
 async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername) {
   let data = [];
-  if (mode && mode.includes('ape')) {
+  if (mode && mode.includes('ape') || mode.includes('12bet')) {
     return data;
   }
   let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name });
