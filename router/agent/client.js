@@ -308,6 +308,23 @@ router.get('/setting/getList', async function (req, res) {
   }
 });
 
+router.post('/money/getBalance', async function (req, res) {
+  try {
+    const id = req.body.id
+    if (!id) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    const result = await agentService.getBalance(id);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+});
+
 router.get('/domain/getList', async function (req, res) {
   try {
     const agentIdOCMS = parseInt(config.app.agentIdOCMS);

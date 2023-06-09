@@ -103,6 +103,22 @@ service.resetPassword = async (id, oldPassword, newPassword) => {
   }
 }
 
+service.getBalance = async (id) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let result = (await conn.query({ sql: db.sql('agent/getBalance.sql'), values: [ id ] }))[0];
+    let balance = 0;
+    if (result.length > 0) {
+      balance = result[0].Balance;
+    }
+    return { code: 'common.success', balance: balance }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+
 service.addAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, isfc, branch }) => {
   try {
     let conn = await db.getConn('extra:write')
