@@ -9,6 +9,7 @@ let AsyncLock = require('async-lock');
 let lock = new AsyncLock();
 let service = {};
 let account = config.ocms.accounts[BOT_ACCOUNT];
+const mode = process.env.mode
 
 let _CACHE_MAX_AGE = 300000;
 
@@ -128,26 +129,17 @@ service.createAgent = async function (agentUsername) {
         refreshtoken: tokens.REFRESH_TOKEN,
         "ocms-currency": config.app.currency || ''
       },
-      body: {
-        agentId: null,
-        agentUsername: agentUsername,
-        billingCycle: "month",   // month and isoWeek for weekly Option available
-        effectiveMember: {BetAmount: 0, Deposit: 0},
-        fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
-        isIgnoringCalculateRefundNetwin: true,
-        layerLimit: 5,
-        memo: "Affiliate Id",
-        name: `aff${agentUsername}`,
-        negativeProfitRatio: 0,
-        sensitiveField: [],
-        state: null
-      },
+      body: getCreateAgentPayload(agentUsername),
       json: true
     }
     let response = await rp(options);
     if (response.code !== 'common.success') {
       throw `Agent account could not be created`
     }
+    if (mode && mode.includes('bvprod_jw')) {
+      return
+    }
+    
     let options1 = {
       method: 'PUT',
       url: `https://${config.ocms.domain}${config.ocms.path.createAgent}`,
@@ -176,8 +168,35 @@ service.createAgent = async function (agentUsername) {
     if (res.code !== 'common.success') {
       throw `Agent status could not be updated`
     }
-    return
   })
+}
+
+
+function getCreateAgentPayload (agentUsername) {
+  if (mode === 'prod' || mode === 'jwbdtprod') {
+    return {
+      agentId: null,
+      agentUsername: agentUsername,
+      billingCycle: "month",   // month and isoWeek for weekly Option available
+      effectiveMember: {BetAmount: 0, Deposit: 0},
+      fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
+      isIgnoringCalculateRefundNetwin: true,
+      layerLimit: 5,
+      memo: "Affiliate Id",
+      name: `aff${agentUsername}`,
+      negativeProfitRatio: 0,
+      sensitiveField: [],
+      state: null
+    }
+  } else {
+    return {
+      agentId: parseInt(config.app.agentIdOCMS),
+      username: agentUsername,
+      memo: "Affiliate Id",
+      name: `aff${agentUsername}`,
+      status: 1
+    }
+  }
 }
 
 module.exports = service;
