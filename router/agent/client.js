@@ -245,6 +245,20 @@ router.post('/revenue/estimate/data', async function (req, res) {
   }
 });
 
+router.post('/player/getPaymentInfo', async function (req, res) {
+  try {
+    const agentId = req.body.agentId;
+    if (!agentId) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    let result = await agentService.getAgentPaymentInfo(agentId)
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+});
+
 router.get('/player/getList', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;

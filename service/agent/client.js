@@ -118,6 +118,16 @@ service.getBalance = async (id) => {
   }
 }
 
+service.getAgentPaymentInfo = async (id) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let result = (await conn.query({ sql: db.sql('agent/getPaymentInfo.sql'), values: [ id ] }))[0];
+    return { code: 'common.success', data: result[0] }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
 
 service.addAgentBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, isfc, branch }) => {
   try {
