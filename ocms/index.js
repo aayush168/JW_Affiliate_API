@@ -157,7 +157,7 @@ service.createAgent = async function (agentUsername) {
         isIgnoringCalculateRefundNetwin: true,
         layerLimit: 5,
         memo: "Affiliate Id",
-        name: `aff${agentUsername}`,
+        name: `${agentUsername}`,
         negativeProfitRatio: 0,
         sensitiveField: [],
         state: 1
@@ -183,7 +183,7 @@ function getCreateAgentPayload (agentUsername) {
       isIgnoringCalculateRefundNetwin: true,
       layerLimit: 5,
       memo: "Affiliate Id",
-      name: `aff${agentUsername}`,
+      name: `${agentUsername}`,
       negativeProfitRatio: 0,
       sensitiveField: [],
       state: null
@@ -193,7 +193,7 @@ function getCreateAgentPayload (agentUsername) {
       agentId: parseInt(config.app.agentIdOCMS),
       username: agentUsername,
       memo: "Affiliate Id",
-      name: `aff${agentUsername}`,
+      name: `${agentUsername}`,
       status: 1
     }
   }
