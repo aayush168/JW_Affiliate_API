@@ -122,7 +122,11 @@ service.getAgentPaymentInfo = async (id) => {
   try {
     let conn = await db.getConn('extra:read')
     let result = (await conn.query({ sql: db.sql('agent/getPaymentInfo.sql'), values: [ id ] }))[0];
-    return { code: 'common.success', data: result[0] }
+    if (result.length > 0) {
+      return { code: 'common.success', data: result[0] }
+    } else {
+      return { code: 'common.success', data: {} }
+    }
   } catch (err) {
     console.log(err);
     throw new Error(err);
