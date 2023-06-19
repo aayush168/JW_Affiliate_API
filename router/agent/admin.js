@@ -521,6 +521,28 @@ async function updateBvPayments (req, paymentTypeListResult, agentId, paymentTyp
         branch: branch
       }
       response = await agentService.updateAgentBvBankInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'nagad') {
+      const nagadWallet = req.body.nagadWallet
+      if (!nagadWallet) {
+        return { code: 'params.nagadWallet.required', msg: 'Wallet Address is required.' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        nagadWallet: nagadWallet
+      }
+      response = await agentService.updateAgentNagadtInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'rocket') {
+      const rocketWallet = req.body.rocketWallet
+      if (!rocketWallet) {
+        return { code: 'params.rocketWallet.required', msg: 'Wallet Address is required.' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        rocketWallet: rocketWallet
+      }
+      response = await agentService.updateAgentRocketInfo(payload);
     }
     if (response.code !== 'common.success') {
       return { code: 'params.unknown.error', msg: 'Unknown Error' }
