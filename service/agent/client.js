@@ -44,13 +44,16 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
         return { code: 'code.telegram.exist', msg: 'Telegram id is already taken' }
       }
     }
+    let status = 0;
     if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod') {
       await ocms.createAgent(username);
+      status = 1;
     }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram ]})
+    if (mode && mode.includes())
+    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, status ]})
     const agentId = result[0].insertId
     return { code: 'common.success', agentId: agentId }
   } catch (err) {
