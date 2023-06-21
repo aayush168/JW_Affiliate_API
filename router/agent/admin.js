@@ -9,28 +9,32 @@ const { Parser } = require('json2csv');
 const moment = require('moment-timezone');
 const settingService = require(path.join(rootPath, 'service', 'setting', 'admin.js'));
 
-router.get('/getList', async function (req, res) {
+router.get('/getList', async (req, res) => {
   try {
-    const size = req.query.size ? parseInt(req.query.size) : 20;
-    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const { size = 20, page = 1, ...queryParams } = req.query;
     const params = {
-      username: req.query.username ? req.query.username : '',
-      name: req.query.name ? req.query.name : '',
-      email: req.query.email ? req.query.email : '',
-      mobile: req.query.mobile ? req.query.mobile : '',
-      createdAt: req.query.createdAt ? req.query.createdAt : '',
-      status: parseInt(req.query.status) === 0 || parseInt(req.query.status) === 1 || parseInt(req.query.status) === 2 || parseInt(req.query.status) === 3 ? parseInt(req.query.status) : '',
-      playerSourceType: parseInt(req.query.playerSourceType) ? parseInt(req.query.playerSourceType) : '',
-      accountType: parseInt(req.query.accountType) ? parseInt(req.query.accountType) : '',
-      paymentType: parseInt(req.query.paymentType) ? parseInt(req.query.paymentType) : req.query.paymentType
-    }
-    const result = await agentService.getAgentList(size, page, params);
-    res.json(result)
+      username: queryParams.username || '',
+      name: queryParams.name || '',
+      email: queryParams.email || '',
+      mobile: queryParams.mobile || '',
+      createdAt: queryParams.createdAt || '',
+      status: [0, 1, 2, 3].includes(parseInt(queryParams.status)) ? parseInt(queryParams.status) : '',
+      playerSourceType: parseInt(queryParams.playerSourceType) || '',
+      accountType: parseInt(queryParams.accountType) || '',
+      paymentType: queryParams.paymentType || ''
+    };
+
+    const calculatedPage = Math.max(1, parseInt(page));
+    const calculatedSize = Math.max(1, parseInt(size));
+    const startIndex = (calculatedPage - 1) * calculatedSize;
+
+    const result = await agentService.getAgentList(calculatedSize, startIndex, params);
+    res.json(result);
   } catch (err) {
-    log.error(err)
+    console.error(err);
     res.status(500).send(err);
   }
-})
+});
 
 router.put('/updateProfile/:id', async function (req, res) {
   try {
