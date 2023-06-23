@@ -1,15 +1,16 @@
 {
-  "domain": "jwv2admin.gpms365.net",
+  "domain": "siv2admin.gpms365.net",
   "accounts": {
     "createAgent": {
-      "username": "jw_affbot",
-      "password": "Welcome12"
+      "username": "dtdev",
+      "password": "Welcome1"
     }
   },
   "path": {
     "login": "/service/operator/auth/login",
     "logout": "/service/operator/auth/logout",
     "checkTokens": "/service/v2/menu/getList",
-    "createAgent": "/service/v2/agent/agentMaintenance"
+    "createAgent": "/service/v2/agent/agentMaintenance",
+    "addBalance": "/service/v2/financial/transferManagement"
   }
 }
