@@ -487,6 +487,18 @@ async function updateBdtPayments (req, paymentTypeListResult, agentId, paymentTy
       }
       response = await agentService.updateAgentRocketInfo(payload);
     }
+    else if (paymentTypeListResult.list[0].Code === 'player-account') {
+      const playerAccountUsername = req.body.playerAccountUsername
+      if (!playerAccountUsername) {
+        return { code: 'params.playerAccount.required', msg: 'Player Account Username is required.' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        playerAccountUsername: playerAccountUsername
+      }
+      response = await agentService.updateAgentPlayerInfo(payload);
+    }
     if (response.code !== 'common.success') {
       return { code: 'params.unknown.error', msg: 'Unknown Error' }
     }
