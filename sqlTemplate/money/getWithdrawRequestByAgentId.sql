@@ -1,5 +1,5 @@
 SELECT *
 FROM Withdraw
 WHERE AgentId = ?
-  AND Status = 1
+  AND Status = 0
 LIMIT 1;

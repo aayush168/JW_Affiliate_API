@@ -201,7 +201,7 @@ service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername
           checkCode: null,
           verification: "",
           secret: ""
-      },
+        },
         json: true
       }
       return await rp(options);
