@@ -23,6 +23,7 @@ COPY ./utils /api/project/utils
 COPY ./system /api/project/system
 COPY ./validator /api/project/validator
 COPY ./ocms /api/project/ocms
+COPY ./enums /api/project/enums
 COPY ./app.js /api/project
 
 EXPOSE 5999
