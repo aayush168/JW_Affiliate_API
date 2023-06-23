@@ -10,6 +10,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
     const conn2 = await db.getConn('jw')
+    
     const agent = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
     if (agent.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }

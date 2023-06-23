@@ -14,6 +14,7 @@ const mode = process.env.mode
 let _CACHE_MAX_AGE = 300000;
 
 let system = require(path.join(rootPath, 'system', 'index.js'));
+let { TransferTypeEnum } = require(path.join(rootPath, 'enums', 'index.js'));
 
 let mAuthToken = memoize(system.getAuthToken, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
@@ -42,7 +43,6 @@ service.getTurnoverData = async function (startDate, endDate, recall = false) {
   return (recall) ? response : response.body.data.result;
 }
 
-
 service.init = async function () {
   let tokens = await lock.acquire('getTokens', getTokens);
   return
@@ -67,7 +67,6 @@ async function getTokens () {
     }
     if (checkRes.statusCode !== 401) {
       throw `Error: ${JSON.stringify(checkRes.body)} error when invoke OCMS Back Office API.`;
-      return;
     }
   }
   let loginRes = await login();
@@ -170,6 +169,49 @@ service.createAgent = async function (agentUsername) {
     }
   })
 }
+
+
+service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername) {
+  return await lock.acquire('getTokens', async function () {
+    try {
+      let tokens = await getTokens();
+      let options = {
+        method: 'POST',
+        url: `https://${config.ocms.domain}${config.ocms.path.addBalance}`,
+        headers: {
+          authorization: tokens.AUTHORIZATION_TOKEN,
+          refreshtoken: tokens.REFRESH_TOKEN,
+          "ocms-currency": config.app.currency || ''
+        },
+        
+        body: {
+          memberId: MemberId,
+          transferType: TransferTypeEnum['OTHER_DEPOSIT'],
+          transferTypeName: "Other deposits",
+          amount: Money,
+          rewardMagnification: 0,
+          memo: `Affiliate Settlement Transfer ${AgentUsername}`,
+          operatorPwd: "",
+          memberPwd: null,
+          targetPlatform: {
+            platformId: 0,
+            brand: "Main Wallet"
+          },
+          promotionWalletId: null,
+          checkCode: null,
+          verification: "",
+          secret: ""
+        },
+        json: true
+      }
+      return await rp(options);
+    } catch (err) {
+      console.log(err.response)
+      throw new Error(err);
+    }
+  })
+}
+
 
 
 function getCreateAgentPayload (agentUsername) {

@@ -43,10 +43,12 @@ app.use('/setting', router.settingAdmin);
 app.use('/advertisement', router.advertisementAdmin);
 app.use('/log', router.log);
 app.use('/credit', router.credit);
+app.use('/money', router.moneyAdmin);
 
 app.use('/api/v1/agent', router.agentClient);
 app.use('/api/v1/setting', router.settingClient);
 app.use('/api/v1/advertisement', router.advertisementClient);
+app.use('/api/v1/money', router.moneyClient);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
