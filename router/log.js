@@ -5,18 +5,17 @@ const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('modules');
 const logService = require(path.join(rootPath, 'service', 'log.js'));
 
-
-router.get('/getList', async function (req, res) {
+router.get('/agent/getList', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
     const agentUsername = req.query.agentUsername ? req.query.agentUsername : ''
     const payload = {
-      agentUsername: agentUsername,
       size: size,
-      page: page
+      page: page,
+      agentUsername: agentUsername
     }
-    const result = await logService.getLog(payload);
+    const result = await logService.getAgentLog(payload);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
@@ -28,7 +27,7 @@ router.get('/getList', async function (req, res) {
 })
 
 
-router.post('/add', async function (req, res) {
+router.post('/agent/add', async function (req, res) {
   try {
     const type = req.body.type
     const operatorId = req.body.operatorId
@@ -48,7 +47,28 @@ router.post('/add', async function (req, res) {
       actionData: actionData,
       actionCode: actionCode
     }
-    const result = await logService.addLog(payload);
+    const result = await logService.addAgentLog(payload);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+})
+
+router.get('/withdraw/getList', async function (req, res) {
+  try {
+    const size = req.query.size ? parseInt(req.query.size) : 20;
+    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const agentUsername = req.query.agentUsername ? req.query.agentUsername : ''
+    const payload = {
+      size: size,
+      page: page,
+      agentUsername: agentUsername
+    }
+    const result = await logService.getWithdrawLog(payload);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }

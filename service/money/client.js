@@ -29,7 +29,7 @@ service.addWithdrawRequest = async (agentId, playerAccount, amount, password) =>
     // Check payment info balance
     const paymentInfo = await conn.query(db.sql('money/getPaymentInfoBalance.sql'), [agentId]);
     if (paymentInfo[0].length === 0) {
-      return { code: "code.agent.paymentNoExist", msg: "Agent Payment Not Exist" };
+      return { code: "code.agent.paymentNoExist", msg: "Agent Balance is not enough" };
     }
 
     const { PlayerAccountUsername, Balance } = paymentInfo[0][0];

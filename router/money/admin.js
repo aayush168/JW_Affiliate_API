@@ -29,15 +29,17 @@ router.get('/withdraw/getList', async (req, res) => {
   }
 });
 
-router.get('/withdraw/transfer', async (req, res) => {
+router.post('/withdraw/transfer', async (req, res) => {
   try {
-    const { withdrawId } = req.body;
+    const { withdrawId, operatorId } = req.body;
     
     if (!withdrawId) {
       return res.status(400).json({ code: 'params.withdrawId.required', msg: 'Withdraw Id is required' });
     }
-
-    const result = await moneyService.transferWithdrawRequestOCMS(withdrawId);
+    if (!operatorId) {
+      return res.status(400).json({ code: 'params.operatorId.required', msg: 'Operator Id is required' });
+    }
+    const result = await moneyService.transferBalancePlayerAccount(withdrawId, operatorId);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
