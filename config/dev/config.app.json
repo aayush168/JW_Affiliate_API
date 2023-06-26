@@ -1,6 +1,6 @@
 {
   "DOMAIN": {
-    "DATA_API": "https://admin.jeet55.net"
+    "DATA_API": "https://jwv2admin.gpms365.net"
   },
   "API_URL": {
     "HOURLY": "/service/analysis/getPlayerGamingByHour",

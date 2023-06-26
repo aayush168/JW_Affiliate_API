@@ -91,8 +91,7 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
     }
 
     const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
-
-    if (!username) {
+    if (username.length === 0) {
       return { code: 'code.username.invalid', msg: 'Invalid Player Account Registered' };
     }
 
@@ -101,7 +100,7 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
     }
 
     try {
-      const { MemberId } = username;
+      const { MemberId } = username[0];
       await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
       const remainingBalance = parseFloat(Balance) - parseFloat(Money);
       await updateCredit(connWrite, remainingBalance, AgentId);
