@@ -1,7 +1,5 @@
 UPDATE Agent
 SET
-  Name = ?,
-  Username = ?,
   UnhashedPassword = ?,
   Password = ?,
   Salt1 = ?,

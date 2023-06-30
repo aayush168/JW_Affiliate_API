@@ -47,7 +47,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
 }
 
 
-service.updateAgentProfile = async ({ name, username, password, mobile, email, whatsapp, skype, playerSourceType, otherSourceLink, status, remark, telegram }, id) => {
+service.updateAgentProfile = async ({ password, mobile, email, whatsapp, skype, playerSourceType, otherSourceLink, status, remark, telegram }, id) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -55,16 +55,10 @@ service.updateAgentProfile = async ({ name, username, password, mobile, email, w
     if (agent.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
     }
-    if (agent[0].Username !== username) {
-      const agentUsername = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
-      if (agentUsername.length > 0) {
-        return { code: 'code.username.exist', msg: 'Username is already taken' }
-      }
-    }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const agentPassword = encrypt.encryptPassword(password, salt1, salt2);
-    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ name, username, password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, telegram, id ]})
+    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, telegram, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
