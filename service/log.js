@@ -17,7 +17,8 @@ service.getAgentLog = async ({size, page, agentUsername}) => {
   try {
     let conn = await db.getConn('extra:read')
     const result = (await conn.query({ sql: db.sql('log/getAgentLog.sql'), values: [`%${agentUsername}%`, page, size]}))[0]
-    return { code: 'common.success', list: result }
+    const rowCount = (await conn.query({ sql: db.sql('log/getAgentLogCount.sql'), values: [ `%${agentUsername}%` ]}))[0];
+    return { code: 'common.success', list: result, rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw err;
@@ -28,7 +29,8 @@ service.getWithdrawLog = async ({size, page, agentUsername}) => {
   try {
     let conn = await db.getConn('extra:read')
     const result = (await conn.query({ sql: db.sql('log/getWithdrawLog.sql'), values: [`%${agentUsername}%`, page, size]}))[0]
-    return { code: 'common.success', list: result }
+    const rowCount = (await conn.query({ sql: db.sql('log/getWithdrawLogCount.sql'), values: [ `%${agentUsername}%` ]}))[0];
+    return { code: 'common.success', list: result, rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw err;

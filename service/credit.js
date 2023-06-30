@@ -3,7 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const moment = require('moment-timezone');
 
-service.getCreditLogList = async (username, addTime, amount) => {
+service.getCreditLogList = async (size, page, username, addTime, amount) => {
   try {
     let conn = await db.getConn('extra:read')
     let startTime
@@ -14,20 +14,28 @@ service.getCreditLogList = async (username, addTime, amount) => {
     sql = sql.replace('${Username}', (username === '') ? '' : ` WHERE c.Username LIKE "%${username}%"`)
     sql = sql.replace('${AddTime}', (addTime === '') ? '' : `${username === '' && amount === '' ? 'WHERE' : 'AND' } cl.Created_at >= "${startTime}"`)
     sql = sql.replace('${Amount}', (amount === '') ? '' : `${username === '' && addTime === '' ? 'WHERE' : 'AND' } cl.Amount LIKE "%${amount}%"`)
-    const result = await conn.query({ sql: sql })
-    return { code: 'common.success', list: result[0] }
+    const result = await conn.query({ sql: sql, values: [page, size] })
+
+    let sqlCount = db.sql('credit/getCreditLogsCount.sql')
+    sqlCount = sqlCount.replace('${Username}', (username === '') ? '' : ` WHERE c.Username LIKE "%${username}%"`)
+    sqlCount = sqlCount.replace('${AddTime}', (addTime === '') ? '' : `${username === '' && amount === '' ? 'WHERE' : 'AND' } cl.Created_at >= "${startTime}"`)
+    sqlCount = sqlCount.replace('${Amount}', (amount === '') ? '' : `${username === '' && addTime === '' ? 'WHERE' : 'AND' } cl.Amount LIKE "%${amount}%"`)
+    const rowCount = (await conn.query({ sql: sqlCount }))[0]
+    return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw new Error(err);
   }
 }
 
-service.getAgentList = async (username) => {
+service.getAgentList = async (size, page, username) => {
   try {
     let conn = await db.getConn('extra:read')
     let sql = db.sql('credit/getAgentList.sql')
-    const result = await conn.query({ sql: sql, values: [`%${username}%`] })
-    return { code: 'common.success', list: result[0] }
+    let sqlCount = db.sql('credit/getAgentListCount.sql')
+    const result = await conn.query({ sql: sql, values: [`%${username}%`, page, size] })
+    const rowCount = (await conn.query({ sql: sqlCount, values: [`%${username}%`, page, size] }))[0]
+    return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw new Error(err);

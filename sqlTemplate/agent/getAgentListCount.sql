@@ -10,4 +10,3 @@ ${CreatedAt}
 ${PaymentTypeId}
 ${PlayerSoruceType}
 ${AccountType}
-ORDER BY a.Created_at DESC

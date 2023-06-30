@@ -1,4 +1,4 @@
-SELECT cl.*, c.Username as CustomerUsername, o.Username AS OperatorUsername
+SELECT COUNT(cl.Id) AS Count
 FROM CreditLog AS cl
 JOIN Agent AS c
 ON cl.AgentId = c.Id
@@ -8,4 +8,3 @@ ${Username}
 ${AddTime}
 ${Amount}
 ORDER BY cl.Created_at DESC
-LIMIT ?, ?
