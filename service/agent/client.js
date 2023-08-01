@@ -365,10 +365,10 @@ service.login = async (username, password) => {
       return { code: 'code.account.rejected', user: null }
     }
     let agentData
-    if (mode && (mode.includes('bv') || mode.includes('ape') || mode.includes('12betkh'))) {
-      agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
-    } else {
+    if (mode && (mode.includes('siprod') || mode.includes('jwbdtprod'))) {
       agentData = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
+    } else {
+      agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     }
     if (agentData.length === 0 || result[0].Status === 2) {
       return { code: 'code.account.review', user: null }

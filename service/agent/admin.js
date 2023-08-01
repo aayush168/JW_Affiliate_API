@@ -14,10 +14,8 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
       sql = db.sql('agent/getBdtAgentList.sql')
     } else if (mode === 'bvprod_bdt') {
       sql = db.sql('agent/getBvBDTAgentList.sql')
-    } else if (mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
-      sql = db.sql('agent/getBvAgentList.sql')
     } else {
-      sql = db.sql('agent/getAgentList.sql')
+      sql = db.sql('agent/getBvAgentList.sql')
     }
     sql = sql.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
     sql = sql.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
@@ -106,10 +104,10 @@ service.addAgent = async (name, username, password) => {
     }
     let mode = process.env.mode
     let agentOCMS
-    if (mode && mode.includes('bv') || mode.includes('ape') || mode.includes('12betkh')) {
-      agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
-    } else {
+    if (mode && mode.includes('siprod') || mode.includes('jwbdtprod')) {
       agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
+    } else {
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     }
     if (agentOCMS.length > 0 && agent.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }

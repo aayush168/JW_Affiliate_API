@@ -214,7 +214,7 @@ service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername
 
 
 function getCreateAgentPayload (agentUsername) {
-  if (mode === 'prod' || mode === 'jwbdtprod') {
+  if (mode === 'jwbdtprod') {
     return {
       agentId: null,
       agentUsername: agentUsername,

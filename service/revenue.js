@@ -36,7 +36,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
   try{
     let conn = await db.getConn('jw');
     let xconn;
-    if (process.env.mode && !process.env.mode.includes('ape')) {
+    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh')) {
       xconn = await db.getConn('extra1:read');
     }
     let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
@@ -47,7 +47,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     let memberUsers = _.chunk(memberUsername, 50000);
     let memberIds = _.chunk(memberId, 50000);
     let totalBonus = {};
-    if (process.env.mode && !process.env.mode.includes('ape')) {
+    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh')) {
       for (var i = 0; i < memberUsers.length; i++) {
         let users = memberUsers[i];
         let usersId = memberIds[i];
@@ -68,7 +68,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
       totalBonus = Object.keys(totalBonus).map(x => { return { Date: x, Promotion: totalBonus[x]  } });
     }
     let data;
-    if (process.env.mode.includes('ape') || Object.keys(totalBonus).length === 0) {
+    if (process.env.mode.includes('ape') || process.env.mode.includes('12betkh') || Object.keys(totalBonus).length === 0) {
       data = [...promotionSummary];
     } else {
       if (Object.keys(totalBonus).length > 0) {
