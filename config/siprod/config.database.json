@@ -26,8 +26,8 @@
     }
   },
   "jw": {
-    "user":"ocmsuser_si",
-    "password":"fQMYWWth7ZEd8ehcaAoBqoLE",
+    "user":"silabs",
+    "password":"Welc@me2S1am99",
     "server":"dbr.s99thai.net",
     "database":"si_ocms_v2",
     "requestTimeout":10000,
