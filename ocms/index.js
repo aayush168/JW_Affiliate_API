@@ -135,7 +135,7 @@ service.createAgent = async function (agentUsername) {
     if (response.code !== 'common.success') {
       throw `Agent account could not be created`
     }
-    if (mode && mode.includes('bvprod_jw')) {
+    if (mode && mode.includes('bvprod_jw') || mode === 'prod') {
       return
     }
     
