@@ -1,0 +1,16 @@
+{
+  "domain": "admin.apewizar.com",
+  "accounts": {
+    "createAgent": {
+      "username": "ape_affbot_bdt",
+      "password": "Welcome12"
+    }
+  },
+  "path": {
+    "login": "/service/operator/auth/login",
+    "logout": "/service/operator/auth/logout",
+    "checkTokens": "/service/v2/menu/getList",
+    "createAgent": "/service/v2/agent/agentMaintenance",
+    "addBalance": "/service/v2/financial/transferManagement"
+  }
+}
