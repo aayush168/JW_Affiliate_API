@@ -1,7 +1,7 @@
 {
   "extra:read": {
-    "user":"jwlabs",
-    "password":"Welcome2PN",
+    "user":"silabs",
+    "password":"Welc@me2S1am99",
     "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
     "database":"affiliate_siprod",
     "requestTimeout":20000,
@@ -13,8 +13,8 @@
     }
   },
   "extra:write": {
-    "user":"jwlabs",
-    "password":"Welcome2PN",
+    "user":"silabs",
+    "password":"Welc@me2S1am99",
     "server":"labsdb-cluster-cluster.cluster-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
     "database":"affiliate_siprod",
     "requestTimeout":20000,
@@ -39,8 +39,8 @@
     }
   },
   "extra1:read": {
-    "user":"jwlabs",
-    "password":"Welcome2PN",
+    "user":"silabs",
+    "password":"Welc@me2S1am99",
     "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
     "database":"siam99extra",
     "requestTimeout":20000,
