@@ -1,0 +1,38 @@
+{
+  "extra:read": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "database":"affiliate_apeprod_bdt",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  },
+  "extra:write": {
+    "user":"jwlabs",
+    "password":"Welcome2PN",
+    "server":"labsdb-cluster-cluster.cluster-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "database":"affiliate_apeprod_bdt",
+    "requestTimeout":20000,
+    "connectionTimeout":20000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  },
+  "jw": {
+    "user":"ocmsuser_ccx",
+    "password":"ctJrk2HdNYdEZEjgKu2VWiER",
+    "server":"dbr.apewizar.com",
+    "database":"ccx06_ocms_v2",
+    "requestTimeout":10000,
+    "connectionTimeout":10000,
+    "port":3306,
+    "pool":{
+      "max":100
+    }
+  }
+}
