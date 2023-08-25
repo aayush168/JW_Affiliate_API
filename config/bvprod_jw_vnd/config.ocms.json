@@ -11,6 +11,7 @@
     "logout": "/service/operator/auth/logout",
     "checkTokens": "/service/v2/menu/getList",
     "createAgent": "/service/v2/agent/channel",
-    "addBalance": "/service/v2/financial/transferManagement"
+    "addBalance": "/service/v2/financial/transferManagement",
+    "twofactor": "/service/v2/operatorGroup/operator/2FA"
   }
 }

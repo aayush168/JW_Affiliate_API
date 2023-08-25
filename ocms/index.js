@@ -1,6 +1,7 @@
 let AUTHORIZATION_TOKEN = null;
 let REFRESH_TOKEN = null;
 let BOT_ACCOUNT = 'createAgent';
+const { authenticator } = require("otplib");
 let path = require('path');
 let memoize = require('memoizee');
 let config = require(path.join(rootPath, 'config', 'index.js'));
@@ -69,13 +70,49 @@ async function getTokens () {
       throw `Error: ${JSON.stringify(checkRes.body)} error when invoke OCMS Back Office API.`;
     }
   }
-  let loginRes = await login();
-  AUTHORIZATION_TOKEN = loginRes.data.token;
-  REFRESH_TOKEN = loginRes.data.refreshToken;
+  let { token, refreshToken } = await authorize();
+  AUTHORIZATION_TOKEN = token;
+  REFRESH_TOKEN = refreshToken;
   return {
     AUTHORIZATION_TOKEN: AUTHORIZATION_TOKEN,
     REFRESH_TOKEN: REFRESH_TOKEN
   }
+}
+
+async function get2FAotpkey(operatorId) {
+  let conn = await db.getConn("jw");
+  let res = (
+    await conn.query({
+      sql: db.sql("ocms/get2FAotpKey.sql"),
+      values: [operatorId],
+    })
+  )[0];
+  return res[0].OneTimePassword;
+}
+
+async function authorize() {
+  let res = await login();
+
+  // check if 2FA is enabled/disabled;
+  let twofactorStatus = await system.getConfigParameter(
+    "TwoFactorAuthentication"
+  );
+  if (!twofactorStatus) {
+    return { token: res.data.token, refreshToken: res.data.refreshToken };
+  }
+
+  let operatorId = res.data.user.id;
+  let secret = "";
+  if (config.enum["OPERATOR_2FA_STATUS"]["2FA_NOT_BOUND"] === res.data.type) {
+    secret = res.data.otpKey;
+  } else if (config.enum["OPERATOR_2FA_STATUS"]["2FA_BOUND"]) {
+    secret = await get2FAotpkey(res.data.user.id);
+  }
+
+  const token = authenticator.generate(secret);
+
+  let otpres = await twoFactorAuth(operatorId, token);
+  return { token: otpres.data.token, refreshToken: otpres.data.refreshToken };
 }
 
 async function login () {
@@ -94,6 +131,28 @@ async function login () {
   let response = await rp(options);
   if (response.code !== 'common.success') {
     throw `Bot ${account.username} login failed.`;
+    return;
+  }
+  return response;
+}
+
+async function twoFactorAuth(operatorIdx, otp) {
+  let options = {
+    method: "POST",
+    url: `https://${config.ocms.domain}${config.ocms.path.twofactor}`,
+    body: {
+      operatorIdx: operatorIdx,
+      operatorId: operatorIdx,
+      otp: otp,
+    },
+    headers: {
+      "ocms-currency": config.ocms.currency,
+    },
+    json: true,
+  };
+  let response = await rp(options);
+  if (response.code !== "common.success") {
+    throw `Bot otp verify failed .`;
     return;
   }
   return response;

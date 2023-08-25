@@ -1,0 +1,8 @@
+{
+  "OPERATOR_2FA_STATUS": {
+    "GENERAL_LOGIN": 1,
+    "2FA_NOT_BOUND": 2,
+    "2FA_BOUND": 3,
+    "FORCE_CHANGE_PASSOWRD": 4
+  }
+}
