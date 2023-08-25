@@ -240,7 +240,9 @@ function getTotalMembers (conn) {
 }
 
 function getBetData(conn, startDate, endDate){
-  if (mode && mode.includes('siprod') || mode.includes('jwbdtprod')) {
+  if (mode && mode.includes('jwbdtprod')) {
+    return conn.query({ sql: db.sql('settlement/getBetDataOptimize.sql'), values: [ startDate, endDate ] });
+  } else if (mode && mode.includes('siprod')) {
     return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
   } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate, ocmsAgentId ] });
