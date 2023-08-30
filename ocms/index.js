@@ -97,7 +97,7 @@ async function authorize() {
   let twofactorStatus = await system.getConfigParameter(
     "TwoFactorAuthentication"
   );
-  if (!twofactorStatus) {
+  if (!twofactorStatus || twofactorStatus.ParameterValue === "0") {
     return { token: res.data.token, refreshToken: res.data.refreshToken };
   }
 
