@@ -22,42 +22,59 @@ let controller = {};
 const mode = process.env.mode
 
 async function getMembers (endDate) {
+  console.time('getMembers');
   const result = await mGetMembers(`${endDate} 23:59:59`)
+  console.timeEnd("getMembers");
   return result;
 }
 
 async function getMembersbyDate (startDate, endDate) {
+  console.time("getMembersbyDate");
   const result = await mGetMemberByDate(`${startDate} 00:00:00`, `${endDate} 23:59:59`)
+  console.timeEnd("getMembersbyDate");
   return result;
 }
 
 async function getTotalMembers () {
+  console.time("getTotalMembers");
   const result = await mGetTotalMembers()
+  console.timeEnd("getTotalMembers");
   return result;
 }
 
 async function getFirstDepositMembers (startDate, endDate) {
+  console.time("getFirstDepositMembers");
   const result = await mGetFirstDepositMembers(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+  console.timeEnd("getFirstDepositMembers");
   return result;
 }
 
 async function getMemberDeposits (startDate, endDate) {
+  console.time("getMemberDeposits");
   const result = await mGetMemberDeposits(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+  console.timeEnd("getMemberDeposits");
   return result;
 }
 
 async function getBetData (startDate, endDate) {
+  console.time("getBetData");
+  // const result = require(path.join(rootPath, 'mockData', 'getBetData.json'));
   const result = await mGetBetData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+  console.timeEnd("getBetData");
   return result;
 }
 
 async function getMemberUsername (endDate) {
+  console.time("getMemberUsername");
   let result = await mGetMemberUsername(`${endDate} 23:59:59`);
+  console.timeEnd("getMemberUsername");
   return result;
 }
 
 async function getCarriedRevenue (startDate, memberUsername) {
+  console.time("getCarriedRevenue");
   const result = await mGetCarriedRevenue(`${startDate} 00:00:00`, memberUsername);
+  console.timeEnd("getCarriedRevenue");
   return result;
 }
 
@@ -65,13 +82,16 @@ async function getOtherBonus (startDate, endDate, memberUsername) {
   if (mode && mode.includes('ape') && !mode.includes('12betkh')) {
     return []
   }
+  console.time("getOtherBonus");
   const result =  await mGetOtherBonus(`${startDate} 00:00:00`, `${endDate} 23:59:59`, memberUsername);
+  console.timeEnd("getOtherBonus");
   return result
 }
 
 controller.getSettlementData = async function (startDate, endDate) {
   try {
     let affiliates = [];
+    console.time('get-settlement');
     let [ members, betData, memberUsername, firstDepositMembers, totalUsers, memberDeposits, memberCount ] = await Promise.all([
       getMembers(endDate),
       getBetData(startDate, endDate),
@@ -81,10 +101,13 @@ controller.getSettlementData = async function (startDate, endDate) {
       getMemberDeposits(startDate, endDate),
       getMembersbyDate(startDate, endDate)
     ]);
+    console.timeEnd("get-settlement");
+    console.time("carried-other-bonus");
     let [ carriedRevenue, otherBonus ] = await Promise.all([
       getCarriedRevenue(startDate, memberUsername),
       getOtherBonus(startDate, endDate, memberUsername)
     ])
+    console.timeEnd("carried-other-bonus");
     _.each(members, function (item) {
       let data = {
         name: item.Name,

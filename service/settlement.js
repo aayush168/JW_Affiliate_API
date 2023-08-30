@@ -104,7 +104,9 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
     let conn = await db.getConn('jw');
     let xconn = await db.getConn('extra1:read');
     let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
-      getNetWinSummary(conn, startDate), getPromotionSummary(conn, startDate), getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
+      getNetWinSummary(conn, startDate),
+      getPromotionSummary(conn, startDate),
+      getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
     ]);
     let calculatedPromotion = getTotalPromotion(promotionSummary[0], otherBonusSummary);
     let netWinGroup = _.groupBy(netWinSummary[0], 'Name');
@@ -240,9 +242,7 @@ function getTotalMembers (conn) {
 }
 
 function getBetData(conn, startDate, endDate){
-  if (mode && mode.includes('jwbdtprod')) {
-    return conn.query({ sql: db.sql('settlement/getBetDataOptimize.sql'), values: [ startDate, endDate ] });
-  } else if (mode && mode.includes('siprod')) {
+  if (mode && mode.includes('siprod') || mode.includes('jwbdtprod')) {
     return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
   } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate, ocmsAgentId ] });
@@ -250,6 +250,7 @@ function getBetData(conn, startDate, endDate){
 }
 
 function getFirstDepositMembers(conn, startDate, endDate){
+  console.log(startDate, endDate);
   if (mode && mode.includes('siprod') || mode.includes('jwbdtprod')) {
     return conn.query({ sql: db.sql('settlement/getFirstDepositMembers.sql'), values: [ startDate, endDate ] });
   } else {
