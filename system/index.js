@@ -23,6 +23,20 @@ service.getParameter = async function(code) {
   }
 }
 
+service.getConfigParameter = async function(name){
+  try{
+    let conn = await db.getConn('jw');
+    let result = await conn.query({ sql: db.sql('system/getConfigParameter.sql'), values: [ name ] });
+    if(result[0].length === 0){
+      return null;
+    }
+    return result[0][0];
+  }catch(err){
+    log.error(err);
+    throw new Error(err);
+  }
+};
+
 service.getAuthToken = async function () {
   try {
     let conn = await db.getConn('jw');
