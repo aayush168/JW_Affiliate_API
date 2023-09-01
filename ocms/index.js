@@ -176,7 +176,7 @@ async function checkToken (authorization, refreshToken) {
   return response;
 }
 
-service.createAgent = async function (agentUsername) {
+service.createAgent = async function (agentUsername, name) {
   await lock.acquire('getTokens', async function () {
     let tokens = await getTokens();
     let options = {
@@ -187,7 +187,7 @@ service.createAgent = async function (agentUsername) {
         refreshtoken: tokens.REFRESH_TOKEN,
         "ocms-currency": config.app.currency || ''
       },
-      body: getCreateAgentPayload(agentUsername),
+      body: getCreateAgentPayload(agentUsername, name),
       json: true
     }
     let response = await rp(options);
@@ -272,7 +272,7 @@ service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername
 
 
 
-function getCreateAgentPayload (agentUsername) {
+function getCreateAgentPayload (agentUsername, name) {
   if (mode === 'jwbdtprod') {
     return {
       agentId: null,
@@ -283,7 +283,7 @@ function getCreateAgentPayload (agentUsername) {
       isIgnoringCalculateRefundNetwin: true,
       layerLimit: 5,
       memo: "Affiliate Id",
-      name: `${agentUsername}`,
+      name: name,
       negativeProfitRatio: 0,
       sensitiveField: [],
       state: null
@@ -293,7 +293,7 @@ function getCreateAgentPayload (agentUsername) {
       agentId: parseInt(config.app.agentIdOCMS),
       username: agentUsername,
       memo: "Affiliate Id",
-      name: `${agentUsername}`,
+      name: name,
       status: 1
     }
   }

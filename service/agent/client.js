@@ -47,7 +47,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     }
     let status = 0;
     if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod') {
-      await ocms.createAgent(username);
+      await ocms.createAgent(username, name);
       status = 1;
     }
     const salt1 = encrypt.getSalt(10)
