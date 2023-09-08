@@ -5,6 +5,7 @@ const { authenticator } = require("otplib");
 let path = require('path');
 let memoize = require('memoizee');
 let config = require(path.join(rootPath, 'config', 'index.js'));
+let db = require(path.join(rootPath, "db", "index.js"));
 let rp = require('request-promise');
 let AsyncLock = require('async-lock');
 let lock = new AsyncLock();
