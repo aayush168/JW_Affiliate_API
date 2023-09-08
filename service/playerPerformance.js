@@ -8,7 +8,9 @@ service.getBetData = async function(agentCode, startDateTime, endDateTime, usern
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
   try{
     conn = await db.getConn('jw');
+    console.time("getBetData");
     let result = await getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    console.timeEnd("getBetData");
     return result[0];
   }catch(err){
     console.log(err);
@@ -21,7 +23,9 @@ service.getTotalBetData = async function(agentCode, startDateTime, endDateTime, 
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
   try{
     conn = await db.getConn('jw');
+    console.time("getTotalBetData");
     let result = await getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    console.timeEnd("getTotalBetData");
     return result[0][0];
   }catch(err){
     console.log(err);
@@ -34,7 +38,9 @@ service.getAccData = async function(agentCode, startDateTime, endDateTime, usern
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
   try{
     conn = await db.getConn('jw');
+    console.time("getAccData");
     let result = await getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    console.timeEnd("getAccData");
     return result[0];
   }catch(err){
     console.log(err);
@@ -45,7 +51,9 @@ service.getAccData = async function(agentCode, startDateTime, endDateTime, usern
 service.getFirstDepositData = async function(agentCode, startDateTime, endDateTime){
   try{
     const conn = await db.getConn('jw');
+    console.time("getFirstDepositData");
     let result = await getFirstDepositData(conn, agentCode, startDateTime, endDateTime)
+    console.timeEnd("getFirstDepositData");
     return result[0][0];
   }catch(err){
     console.log(err);
@@ -58,7 +66,9 @@ service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, 
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
   try{
     conn = await db.getConn('jw');
+    console.time("getTotalAccData");
     let result = await getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    console.timeEnd("getTotalAccData");
     return result[0][0];
   }catch(err){
     console.log(err);

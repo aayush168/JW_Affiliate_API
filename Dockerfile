@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:8.11.0-alpine
+FROM --platform=linux/amd64 node:8.4.0
 
 # Create app directory
 RUN mkdir -p /api/project

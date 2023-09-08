@@ -365,7 +365,7 @@ service.login = async (username, password) => {
       return { code: 'code.account.rejected', user: null }
     }
     let agentData
-    if (mode && (mode.includes('siprod')) {
+    if (mode && (mode.includes('siprod'))) {
       agentData = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
     } else {
       agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
