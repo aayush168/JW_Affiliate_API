@@ -195,7 +195,7 @@ service.createAgent = async function (agentUsername, name) {
     if (response.code !== 'common.success') {
       throw `Agent account could not be created`
     }
-    if (mode && mode.includes('bvprod_jw') || mode === 'prod') {
+    if (mode && mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod') {
       return
     }
     
@@ -274,22 +274,22 @@ service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername
 
 
 function getCreateAgentPayload (agentUsername, name) {
-  if (mode === 'jwbdtprod') {
-    return {
-      agentId: null,
-      agentUsername: agentUsername,
-      billingCycle: "month",   // month and isoWeek for weekly Option available
-      effectiveMember: {BetAmount: 0, Deposit: 0},
-      fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
-      isIgnoringCalculateRefundNetwin: true,
-      layerLimit: 5,
-      memo: "Affiliate Id",
-      name: name,
-      negativeProfitRatio: 0,
-      sensitiveField: [],
-      state: null
-    }
-  } else {
+  // if (mode === 'jwbdtprod') {
+  //   return {
+  //     agentId: null,
+  //     agentUsername: agentUsername,
+  //     billingCycle: "month",   // month and isoWeek for weekly Option available
+  //     effectiveMember: {BetAmount: 0, Deposit: 0},
+  //     fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
+  //     isIgnoringCalculateRefundNetwin: true,
+  //     layerLimit: 5,
+  //     memo: "Affiliate Id",
+  //     name: name,
+  //     negativeProfitRatio: 0,
+  //     sensitiveField: [],
+  //     state: null
+  //   }
+  // } else {
     return {
       agentId: parseInt(config.app.agentIdOCMS),
       username: agentUsername,
@@ -297,7 +297,7 @@ function getCreateAgentPayload (agentUsername, name) {
       name: name,
       status: 1
     }
-  }
+  // }
 }
 
 module.exports = service;
