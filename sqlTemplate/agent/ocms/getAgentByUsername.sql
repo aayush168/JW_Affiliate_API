@@ -1,3 +1,3 @@
-SELECT Code
+SELECT Code, NickName AS AgentCodeName
 FROM Agent
 WHERE Name = ?

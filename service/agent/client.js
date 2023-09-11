@@ -383,7 +383,7 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, email: user.Email, phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, agentCodeName: user.AgentCodeName, email: user.Email, phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype }}
   } catch (err) {
     console.log(err);
     throw new Error(err);
