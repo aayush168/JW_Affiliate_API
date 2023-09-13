@@ -147,7 +147,7 @@ async function twoFactorAuth(operatorIdx, otp) {
       otp: otp,
     },
     headers: {
-      "ocms-currency": config.ocms.currency,
+      "ocms-currency": config.app.currency || '',
     },
     json: true,
   };
