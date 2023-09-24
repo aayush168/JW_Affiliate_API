@@ -111,56 +111,38 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   return { data: data.splice(index, 20), total: total, totalCount: totalCount };
 };
 
+function calculateEarning (revenue, members, commission) {
+  let earning = 0;
+  for (let i = commission.length - 1; i >= 0; i--) {
+    const c = commission[i];
+
+    if (members > c['members'] && revenue >= c['minRevenue']) {
+      earning = revenue * commission['rate'];
+      return earning;
+    }
+  }
+
+  return earning;
+}
+
 function calculateEstimateEarning(members, netwin, carried, promotion) {
   if (netwin + promotion > 0) {
     // company winning so no calculation
     return 0
   }
   let revenue = Math.abs(netwin);
-  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
-    revenue = revenue * .95;
-  }
   let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  console.log('Total Members', members);
+  console.log('Total NetWin', netwin);
+  console.log('Promotion Amount', promotion);
+  console.log('Carried Negative', carried * -1);
+  console.log('Operator Cost', operationCost);
   revenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
-  let earning = 0
   let commission = config.commission.level;
-  if (commission.length === 1) {
-    earning = revenue * commission[0]['rate'];
-    return earning;
-  }
+  console.log('Commission Requirement', commission);
+  const earning = calculateEarning(revenue, members, commission);
 
-  if (commission.length === 4) {
-    if (members >= commission[3]['members'] && revenue >= commission[3]['minRevenue']) {
-      earning = revenue * commission[3]['rate'];
-    } else if (members >= commission[2]['members'] && revenue >= commission[2]['minRevenue']) {
-      earning = revenue * commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
-      earning = revenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
-      earning = revenue * commission[0]['rate'];
-    }
-    return earning;
-  }
-
-  if (commission.length === 3) {
-    if (members >= commission[2]['members'] && revenue >= commission[2]['minRevenue']) {
-      earning = revenue * commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
-      earning = revenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
-      earning = revenue * commission[0]['rate'];
-    }
-    return earning;
-  }
-
-  if (commission.length === 2) {
-    if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
-      earning = revenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
-      earning = revenue * commission[0]['rate'];
-    }
-    return earning;
-  }
+  return earning;
 }
 
 module.exports = controller;
