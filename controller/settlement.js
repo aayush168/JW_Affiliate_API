@@ -58,7 +58,6 @@ async function getMemberDeposits (startDate, endDate) {
 
 async function getBetData (startDate, endDate) {
   console.time("getBetData");
-  // const result = require(path.join(rootPath, 'mockData', 'getBetData.json'));
   const result = await mGetBetData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
   console.timeEnd("getBetData");
   return result;

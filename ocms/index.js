@@ -274,30 +274,14 @@ service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername
 
 
 function getCreateAgentPayload (agentUsername, name) {
-  // if (mode === 'jwbdtprod') {
-  //   return {
-  //     agentId: null,
-  //     agentUsername: agentUsername,
-  //     billingCycle: "month",   // month and isoWeek for weekly Option available
-  //     effectiveMember: {BetAmount: 0, Deposit: 0},
-  //     fee: {DepositFeeRate: 0, DiscountFeeRate: 0, PlatformFeeRate: 0, WithdrawFeeRate: 0},
-  //     isIgnoringCalculateRefundNetwin: true,
-  //     layerLimit: 5,
-  //     memo: "Affiliate Id",
-  //     name: name,
-  //     negativeProfitRatio: 0,
-  //     sensitiveField: [],
-  //     state: null
-  //   }
-  // } else {
-    return {
-      agentId: parseInt(config.app.agentIdOCMS),
-      username: agentUsername,
-      memo: "Affiliate Id",
-      name: name,
-      status: 1
-    }
-  // }
+  return {
+    agentId: parseInt(config.app.agentIdOCMS),
+    username: agentUsername,
+    token: agentUsername,
+    memo: "Affiliate Id",
+    name: name,
+    status: 1
+  }
 }
 
 module.exports = service;

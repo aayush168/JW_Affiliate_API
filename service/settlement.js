@@ -250,7 +250,6 @@ function getBetData(conn, startDate, endDate){
 }
 
 function getFirstDepositMembers(conn, startDate, endDate){
-  console.log(startDate, endDate);
   if (mode && mode.includes('siprod')) {
     return conn.query({ sql: db.sql('settlement/getFirstDepositMembers.sql'), values: [ startDate, endDate ] });
   } else {
