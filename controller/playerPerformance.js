@@ -115,13 +115,11 @@ function calculateEarning (revenue, members, commission) {
   let earning = 0;
   for (let i = commission.length - 1; i >= 0; i--) {
     const c = commission[i];
-
     if (members > c['members'] && revenue >= c['minRevenue']) {
-      earning = revenue * commission['rate'];
+      earning = revenue * c['rate'];
       return earning;
     }
   }
-
   return earning;
 }
 
@@ -139,7 +137,6 @@ function calculateEstimateEarning(members, netwin, carried, promotion) {
   console.log('Operator Cost', operationCost);
   revenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
   let commission = config.commission.level;
-  console.log('Commission Requirement', commission);
   const earning = calculateEarning(revenue, members, commission);
 
   return earning;
