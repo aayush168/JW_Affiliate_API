@@ -113,6 +113,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
 
 function calculateEarning (revenue, members, commission) {
   let earning = 0;
+  console.log(revenue, members, commission, 'calc earning')
   for (let i = commission.length - 1; i >= 0; i--) {
     const c = commission[i];
     if (members > c['members'] && revenue >= c['minRevenue']) {
