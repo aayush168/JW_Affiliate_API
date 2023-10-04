@@ -16,9 +16,9 @@ const mode = process.env.mode
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
   let [enableMembers, newMembers, activePlayerCount, currentPromotion, currentBetData, carriedRevenue] = await Promise.all([
-    mEnableMembers(`${agentCode}%`, '', '', username, 0),
-    mEnableMembers(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`),
-    mActiveMembers(`${agentCode}%`, start, end),
+    mEnableMembers(`${agentCode}`, '', '', username, 0),
+    mEnableMembers(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`),
+    mActiveMembers(`${agentCode}`, start, end),
     mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
     mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
     mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username),
@@ -29,11 +29,27 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   }
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
-  let earning = calculateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
+  let earning = calculateEstimateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
   return { members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning.earning, platformFee: earning.fee, commissionRate: earning.commissionRate, totalMembers: parseFloat(enableMembers.TotalCount), newMembers: newMembers.TotalCount };
 };
 
-function calculateEarning(members, revenue, carried, promotion) {
+function calculateEarning (revenue, members, commission) {
+  let earning = 0;
+  let percentage = 0
+  for (let i = commission.length - 1; i >= 0; i--) {
+    const c = commission[i];
+    if (members > c['members'] && revenue >= c['minRevenue']) {
+      earning = revenue * c['rate'];
+      percentage = c['rate']
+    }
+  }
+  return {
+    earning: earning,
+    percentage: percentage
+  };
+}
+
+function calculateEstimateEarning(members, revenue, carried, promotion) {
   const payload = {
     earning: 0,
     fee: 0,
@@ -42,54 +58,14 @@ function calculateEarning(members, revenue, carried, promotion) {
   if ((revenue - promotion) <= 0) {
     return payload
   }
-  let netRevenue = revenue
-  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
-    netRevenue = .95 * netRevenue;
-  }
-  payload.fee = parseFloat(netRevenue) < 0 ? 0 : config.commission.operationCost;
-  let operationCost = parseFloat(netRevenue) < 0 ? 0 : config.commission.operationCost;
-  netRevenue = parseFloat(netRevenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(netRevenue) * operationCost);
+  payload.fee = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  let netRevenue = parseFloat(netRevenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(netRevenue) * operationCost);
   let commission = config.commission.level;
-  if (commission.length === 1) {
-    payload.earning = netRevenue * commission[0]['rate'];
-    payload.commissionRate = commission[0]['rate'];
-  }
-  if (commission.length === 4) {
-    if (members >= commission[3]['members'] && netRevenue >= commission[3]['minRevenue']) {
-      payload.earning = netRevenue * commission[3]['rate'];
-      payload.commissionRate = commission[3]['rate']
-    } else if (members >= commission[2]['members'] && netRevenue >= commission[2]['minRevenue']) {
-      payload.earning = netRevenue * commission[2]['rate'];
-      payload.commissionRate = commission[2]['rate']
-    } else if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      payload.earning = netRevenue * commission[1]['rate'];
-      payload.commissionRate = commission[1]['rate']
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      payload.earning = netRevenue * commission[0]['rate'];
-      payload.commissionRate = commission[0]['rate']
-    }
-  }
-  if (commission.length === 3) {
-    if (members >= commission[2]['members'] && netRevenue >= commission[2]['minRevenue']) {
-      payload.earning = netRevenue * commission[2]['rate'];
-      payload.commissionRate = commission[2]['rate']
-    } else if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      payload.earning = netRevenue * commission[1]['rate'];
-      payload.commissionRate = commission[1]['rate']
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      payload.earning = netRevenue * commission[0]['rate'];
-      payload.commissionRate = commission[0]['rate']
-    }
-  }
-  if (commission.length === 2) {
-    if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      payload.earning = netRevenue * commission[1]['rate'];
-      payload.commissionRate = commission[1]['rate']
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      payload.earning = netRevenue * commission[0]['rate'];
-      payload.commissionRate = commission[0]['rate']
-    }
-  }
+
+  const data = calculateEarning(netRevenue, members, commission);
+  payload.earning = data.earning
+  payload.commissionRate = data.percentage
   return payload
 }
 

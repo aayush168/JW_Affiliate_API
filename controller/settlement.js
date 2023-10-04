@@ -159,7 +159,7 @@ controller.getSettlementData = async function (startDate, endDate) {
       let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0
       data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
       data.carried = (carried) ? ((carried.Revenue < 0) ? parseFloat(carried.Revenue) : 0) : 0;
-      let result = calculateEarning(data.totalMembers, data.revenue, data.promotion, data.carried);
+      let result = calculateEstimateEarning(data.totalMembers, data.revenue, data.promotion, data.carried);
       data.level = (result.percentage === 0.1) ? 'Level 1 (10%)' : (result.percentage === 0.2) ? 'Level 2 (20%)' : (result.percentage === 0.3) ? 'Level 3 (30%)' : (result.percentage === 0.35) ? 'Level 4 (35%)' : '';
       data.earning = result.earning;
       affiliates.push(data)
@@ -171,56 +171,31 @@ controller.getSettlementData = async function (startDate, endDate) {
   }
 }
 
-function calculateEarning(members, revenue, promotion, carried) {
-  let revenueData = revenue
-  if ((revenueData - promotion) <= 0) {
+function calculateEarning (revenue, members, commission) {
+  let earning = 0;
+  let percentage = 0
+  for (let i = commission.length - 1; i >= 0; i--) {
+    const c = commission[i];
+    if (members > c['members'] && revenue >= c['minRevenue']) {
+      earning = revenue * c['rate'];
+      percentage = c['rate']
+    }
+  }
+  return {
+    earning: earning,
+    percentage: percentage
+  };
+}
+
+function calculateEstimateEarning(members, revenue, promotion, carried) {
+  if ((revenue - promotion) <= 0) {
     return { earning: 0, percentage: 0 };
   }
-  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && revenueData > 0) {
-    revenueData = revenueData * .95;
-  }
-  let operationCost = parseFloat(revenueData) < 0 ? 0 : config.commission.operationCost;
-  let netRevenue = parseFloat(revenueData) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenueData) * operationCost);
-  let earning = 0;
-  let percentage = 0;
+  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  let netRevenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
   let commission = config.commission.level;
-
-  if (commission.length === 1) {
-    percentage = commission[0]['rate'];
-  }
-
-  if (commission.length === 4) {
-    if (members >= commission[3]['members'] && netRevenue >= commission[3]['minRevenue']) {
-      percentage = commission[3]['rate'];
-    } else if (members >= commission[2]['members'] && netRevenue >= commission[2]['minRevenue']) {
-      percentage = commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      percentage = commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      percentage = commission[0]['rate'];
-    }
-  }
-
-  if (commission.length === 3) {
-    if (members >= commission[2]['members'] && netRevenue >= commission[2]['minRevenue']) {
-      percentage = commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      percentage = commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      percentage = commission[0]['rate'];
-    }
-  }
-
-  if (commission.length === 2) {
-    if (members >= commission[1]['members'] && netRevenue >= commission[1]['minRevenue']) {
-      percentage = commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && netRevenue >= commission[0]['minRevenue']) {
-      percentage = commission[0]['rate'];
-    }
-  }
-  
-  earning = netRevenue * percentage;
-  return { earning: earning, percentage: percentage };
+  const data = calculateEarning(netRevenue, members, commission);
+  return data;
 }
 
 module.exports = controller;

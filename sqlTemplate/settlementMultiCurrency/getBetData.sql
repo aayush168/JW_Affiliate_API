@@ -1,13 +1,16 @@
 SELECT
 	ac.`Name`,
 	`AccountingDate`,
-	SUM( `NetWin` ) AS `NetWin` 
+	SUM( `Revenue` ) AS `Revenue`,
+	SUM( `Turnover` ) AS `Turnover`,
+	COUNT(DISTINCT(t.MemberId)) AS Count
 FROM
 	(
-	SELECT REPLACE
-		( REVERSE( SUBSTRING_INDEX( REVERSE( SUBSTRING_INDEX( smbd.AgentCode, '-', 2 )), '-', 1 )), 'C', '' ) AS chGroupId,
+	SELECT SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(smbd.AgentCode, 'C', '-')), '-', 2)), '-', 1) AS chGroupId,
 		DATE_FORMAT( smbd.AccountingDate, '%Y-%m' ) AS `AccountingDate`,
-		SUM( smbd.NetWin ) AS `NetWin` 
+		SUM( smbd.NetWin ) AS `Revenue`,
+		SUM( smbd.BetAmount ) AS `Turnover`,
+		smbd.MemberId
 	FROM
 		SummaryMemberBetDaily AS smbd FORCE INDEX ( IDX_AccountingDate ) 
 	WHERE
@@ -16,9 +19,11 @@ FROM
 		AND smbd.AgentCode IN ( SELECT Code FROM AgentChannel ) 
 	GROUP BY
 		DATE_FORMAT( smbd.AccountingDate, '%Y-%m' ),
-		smbd.AgentCode 
+		smbd.AgentCode,
+		smbd.MemberId
 	) t
-	LEFT JOIN AgentChannel AS ac ON ac.Id = t.chGroupId 
+	LEFT JOIN AgentChannel AS ac ON ac.Id = t.chGroupId
+	JOIN Member AS m ON m.Id = t.MemberId
 WHERE
 	ac.AgentId = ? 
 GROUP BY
