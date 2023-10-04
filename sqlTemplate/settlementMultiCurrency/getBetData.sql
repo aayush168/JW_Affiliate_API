@@ -8,7 +8,7 @@ FROM
 	(
 	SELECT SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(smbd.AgentCode, 'C', '-')), '-', 2)), '-', 1) AS chGroupId,
 		DATE_FORMAT( smbd.AccountingDate, '%Y-%m' ) AS `AccountingDate`,
-		SUM( smbd.NetWin ) AS `Revenue`,
+		SUM( smbd.NetWin ) * -1 AS `Revenue`,
 		SUM( smbd.BetAmount ) AS `Turnover`,
 		smbd.MemberId
 	FROM
