@@ -37,6 +37,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     bonusData = bonusInfo
     totalBonusData = totalBonusInfo
   }
+  console.log(bonusData, 'bonus Data')
   _.each(betData, function(item){
     let obj = {
       name: item.Username,
