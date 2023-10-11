@@ -40,7 +40,7 @@ function calculateEarning (revenue, members, commission) {
     const c = commission[i];
     if (commission.length === 1) {
       earning = revenue * c['rate'];
-      return earning
+      percentage = c['rate']
     } else if (members > c['members'] && revenue >= c['minRevenue']) {
       earning = revenue * c['rate'];
       percentage = c['rate']
