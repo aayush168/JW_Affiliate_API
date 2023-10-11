@@ -120,8 +120,7 @@ function calculateEarning (revenue, members, commission) {
     if (commission.length === 1) {
       earning = revenue * c['rate'];
       return earning
-    }
-    else if (members > c['members'] && revenue >= c['minRevenue']) {
+    } else if (members > c['members'] && revenue >= c['minRevenue']) {
       earning = revenue * c['rate'];
       return earning;
     }
