@@ -251,7 +251,7 @@ service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername
           amount: Money,
           rewardMagnification: 0,
           memo: `Affiliate Settlement Transfer ${AgentUsername}`,
-          operatorPwd: "",
+          operatorPwd: account.password,
           memberPwd: null,
           targetPlatform: {
             platformId: 0,
