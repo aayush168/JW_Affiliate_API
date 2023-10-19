@@ -10,12 +10,16 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
     const conn2 = await db.getConn('jw')
-    
     const agent = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
     if (agent.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
-    const agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
+    let agentOCMS;
+    if (mode && mode === 'siprod') {
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
+    } else {
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
+    }
     if (agentOCMS.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
@@ -356,6 +360,7 @@ service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')
     let conn1 = await db.getConn('extra:read')
+    const conn2 = await db.getConn('jw')
     let mode = process.env.mode
     let result = (await conn1.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0];
     if (result.length === 0) {
@@ -364,11 +369,11 @@ service.login = async (username, password) => {
     if (result[0].Status === 3) {
       return { code: 'code.account.rejected', user: null }
     }
-    let agentData
-    if (mode && (mode.includes('siprod'))) {
-      agentData = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
+    let agentOCMS
+    if (mode && mode === 'siprod') {
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
     } else {
-      agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
+      agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     }
     if (agentData.length === 0 || result[0].Status === 2) {
       return { code: 'code.account.review', user: null }
