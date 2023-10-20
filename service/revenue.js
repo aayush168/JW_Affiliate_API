@@ -160,14 +160,14 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
     startDate = moment(sEndDate).add({ days: 1 }).format('YYYY-MM-DD 00:00:00');
     endDate = endDateTime;
   }
-  let betData = await mTurnoverData(startDate, endDate);
-  for (let i = 0; i < betData.length; i++) {
-    let bData = betData[i];
-    if (agentPlayerUsername.includes(bData.memberUserId)) {
-      TotalTurnover += parseFloat(bData.betAmount)
-      TotalNetWin += parseFloat(bData.winAmount)
-    }
-  }
+  // let betData = await mTurnoverData(startDate, endDate);
+  // for (let i = 0; i < betData.length; i++) {
+  //   let bData = betData[i];
+  //   if (agentPlayerUsername.includes(bData.memberUserId)) {
+  //     TotalTurnover += parseFloat(bData.betAmount)
+  //     TotalNetWin += parseFloat(bData.winAmount)
+  //   }
+  // }
   return { Turnover: TotalTurnover, Revenue: (TotalNetWin * -1)}
 }
 
