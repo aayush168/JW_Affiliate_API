@@ -19,9 +19,9 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
     mEnableMembers(`${agentCode}`, '', '', username, 0),
     mEnableMembers(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`),
     mActiveMembers(`${agentCode}`, start, end),
-    mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
-    mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
-    mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username),
+    mCurrentPromotion(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`, username),
+    mCurrentBetData(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`, username),
+    mCarriedRevenue(`${agentCode}`, `${start} 00:00:00`, username),
   ])
   let bonusAmount = 0;
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
