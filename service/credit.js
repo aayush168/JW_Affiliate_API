@@ -78,4 +78,46 @@ service.updateCredit = async (agentId, operatorId, amount, type, memo) => {
 }
 
 
+service.creditBatchAdd = async (items, operatorId) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let validationFailed = false;
+    if (items.length > 0) {
+      for (const item of items) {
+        if (!item.hasOwnProperty('amount') || !item.hasOwnProperty('username')) {
+          validationFailed = true;
+          break; // Break out of the loop as soon as a validation error is encountered
+        }
+      }
+      if (validationFailed) {
+        return { code: "code.file.invalid", msg: "Invalid Data file" }
+      }
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        let agent = (await conn.query({ sql: db.sql('credit/getAgentAccountByUsername.sql'), values: [ item.username ]}))[0];
+        if (agent.length > 0) {
+          const agentId = agent[0].AgentId
+          const oldBalance = agent[0].Balance
+          const creditAmount = parseFloat(item.amount)
+          const memo = `${item.username} credit added (batch upload)`
+          if (oldBalance === '') {
+            await conn1.query({ sql: db.sql('credit/addCredit.sql'), values: [agentId, creditAmount]})
+          } else {
+            const newBalance = oldBalance + creditAmount
+            await conn1.query({ sql: db.sql('credit/updateCredit.sql'), values: [newBalance, agentId]})
+          }
+          await conn1.query({ sql: db.sql('credit/addCreditLog.sql'), values: [agentId, operatorId, creditAmount, memo]})
+        }
+      }
+    } else {
+      return { code: "code.file.empty", msg: "Empty File" }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service; 

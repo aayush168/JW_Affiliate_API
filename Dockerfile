@@ -10,6 +10,7 @@ RUN npm install
 
 # Copy app source
 RUN mkdir -p /api/project/logs
+RUN mkdir -p /api/project/uploads
 COPY ./config /api/project/config
 COPY ./credentials /api/project/credentials
 COPY ./controller /api/project/controller
