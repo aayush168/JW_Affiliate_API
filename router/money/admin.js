@@ -50,4 +50,21 @@ router.post('/withdraw/transfer', async (req, res) => {
   }
 });
 
+router.post('/withdraw/transfer/batch', async (req, res) => {
+  try {
+    const operatorId = req.body.operatorId;
+    if (!operatorId) {
+      return res.status(400).json({ code: 'params.operatorId.required', msg: 'Operator Id is required' });
+    }
+    const result = await moneyService.batchTransferPlayerAccount(operatorId);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err);
+  }
+});
+
 module.exports = router;

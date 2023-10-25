@@ -121,4 +121,41 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
   }
 };
 
+service.batchTransferPlayerAccount = async (operatorId) => {
+  try {
+    const connRead = await db.getConn('extra:read');
+    const connJW = await db.getConn('jw');
+    const connWrite = await db.getConn('extra:write');
+
+    const getPendingWithdrawRequest = db.sql('money/admin/getPendingWithdrawRequest.sql');
+    const withdrawRequest = (await connRead.query({ sql: getPendingWithdrawRequest }))[0];
+
+    if (withdrawRequest.length === 0) {
+      return { code: 'code.pendingRequest.empty', msg: 'No pending request remaining' };
+    }
+    for (let i = 0; i < withdrawRequest.length; i++) {
+      const request = withdrawRequest[i]
+      const { PlayerAccountUsername, Money, Status, Balance, AgentUsername, AgentId } = request;
+      const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
+      if (username.length === 0 || parseInt(Status) !== 0 || Money > Balance) {
+        // Validation fail case
+        console.log('test', PlayerAccountUsername)
+        await updateWithdraw(connWrite, 2, operatorId, request.Id);
+        await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), parseFloat(Balance), 2);
+      } else {
+        const { MemberId } = username[0];
+        await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
+        const remainingBalance = parseFloat(Balance) - parseFloat(Money);
+        await updateCredit(connWrite, remainingBalance, AgentId);
+        await updateWithdraw(connWrite, 1, operatorId, request.Id);
+        await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), remainingBalance, 1);
+      }
+    }
+    return { code: 'common.success' };
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
+
 module.exports = service;
