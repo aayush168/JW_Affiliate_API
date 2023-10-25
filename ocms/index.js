@@ -10,7 +10,7 @@ let rp = require('request-promise');
 let AsyncLock = require('async-lock');
 let lock = new AsyncLock();
 let service = {};
-let account = config.ocms.accounts[BOT_ACCOUNT];
+let account = config.ocms.accounts;
 const mode = process.env.mode
 
 let _CACHE_MAX_AGE = 300000;
@@ -50,7 +50,7 @@ service.init = async function () {
   return
 }
 
-async function getTokens () {
+async function getTokens (BOT_ACCOUNT) {
   if (AUTHORIZATION_TOKEN && REFRESH_TOKEN) {
     let checkRes = await checkToken(AUTHORIZATION_TOKEN, REFRESH_TOKEN);
     if (checkRes.statusCode === 304) {
@@ -71,7 +71,7 @@ async function getTokens () {
       throw `Error: ${JSON.stringify(checkRes.body)} error when invoke OCMS Back Office API.`;
     }
   }
-  let { token, refreshToken } = await authorize();
+  let { token, refreshToken } = await authorize(BOT_ACCOUNT);
   AUTHORIZATION_TOKEN = token;
   REFRESH_TOKEN = refreshToken;
   return {
@@ -91,8 +91,8 @@ async function get2FAotpkey(operatorId) {
   return res[0].OneTimePassword;
 }
 
-async function authorize() {
-  let res = await login();
+async function authorize(BOT_ACCOUNT) {
+  let res = await login(BOT_ACCOUNT);
 
   // check if 2FA is enabled/disabled;
   let twofactorStatus = await system.getConfigParameter(
@@ -116,13 +116,13 @@ async function authorize() {
   return { token: otpres.data.token, refreshToken: otpres.data.refreshToken };
 }
 
-async function login () {
+async function login (BOT_ACCOUNT) {
   let options = {
     method: 'POST',
     url: `https://${config.ocms.domain}${config.ocms.path.login}`,
     body: {
-      username: account.username,
-      password: account.password
+      username: account[BOT_ACCOUNT].username,
+      password: account[BOT_ACCOUNT].password
     },
     headers: {
       "ocms-currency": config.app.currency
@@ -179,7 +179,8 @@ async function checkToken (authorization, refreshToken) {
 
 service.createAgent = async function (agentUsername, name) {
   await lock.acquire('getTokens', async function () {
-    let tokens = await getTokens();
+    let BOT_ACCOUNT = 'createAgent';
+    let tokens = await getTokens(BOT_ACCOUNT);
     let options = {
       method: 'POST',
       url: `https://${config.ocms.domain}${config.ocms.path.createAgent}`,
@@ -234,7 +235,8 @@ service.createAgent = async function (agentUsername, name) {
 service.addBalancePlayerAccount = async function (MemberId, Money, AgentUsername) {
   return await lock.acquire('getTokens', async function () {
     try {
-      let tokens = await getTokens();
+      let BOT_ACCOUNT = 'bulkTransfer';
+      let tokens = await getTokens(BOT_ACCOUNT);
       let options = {
         method: 'POST',
         url: `https://${config.ocms.domain}${config.ocms.path.addBalance}`,

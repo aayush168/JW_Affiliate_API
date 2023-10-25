@@ -5,8 +5,8 @@
       "username": "ape_affbot_php",
       "password": "Welcome1"
     },
-    "trasnferBalance": {
-      "username": "affbot2",
+    "bulkTransfer": {
+      "username": "ape_affbot_php",
       "password": "Welcome1"
     }
   },
