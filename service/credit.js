@@ -84,6 +84,7 @@ service.creditBatchAdd = async (items, operatorId) => {
     let conn1 = await db.getConn('extra:write')
     let validationFailed = false;
     if (items.length > 0) {
+      console.log(items, 'test');
       for (const item of items) {
         if (!item.hasOwnProperty('amount') || !item.hasOwnProperty('username')) {
           validationFailed = true;
@@ -101,13 +102,15 @@ service.creditBatchAdd = async (items, operatorId) => {
           const oldBalance = agent[0].Balance
           const creditAmount = parseFloat(item.amount)
           const memo = `${item.username} credit added (batch upload)`
-          if (oldBalance === '') {
+          if (oldBalance === null || oldBalance === '') {
             await conn1.query({ sql: db.sql('credit/addCredit.sql'), values: [agentId, creditAmount]})
           } else {
             const newBalance = oldBalance + creditAmount
             await conn1.query({ sql: db.sql('credit/updateCredit.sql'), values: [newBalance, agentId]})
           }
           await conn1.query({ sql: db.sql('credit/addCreditLog.sql'), values: [agentId, operatorId, creditAmount, memo]})
+        } else {
+          console.log(`${item.username} username not found for batch credit`);
         }
       }
     } else {
