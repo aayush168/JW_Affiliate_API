@@ -30,8 +30,6 @@ service.getWithdrawRequest = async (size, startIndex, { username, status, create
       modifiedSql = modifiedSql.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
       modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
     }
-    console.log(modifiedSql, 'modified sql');
-    console.log(modifiedSqlCount, 'modified sql');
     const result = await conn.query({ sql: modifiedSql, values: queryParams });
     const rowCount = (await conn.query({ sql: modifiedSqlCount, values: countParams }))[0];
 
@@ -47,7 +45,7 @@ service.getWithdrawRequest = async (size, startIndex, { username, status, create
 };
 
 const getPlayerAccountByUsername = async (conn, username) => {
-  const sql = db.sql('agent/ocms/getPlayerAccountByUsername.sql');
+  const sql = db.sql('agent/ocms/getPlayerAccountByUsernameUnfrozen.sql');
   const queryParams = [username];
   const result = await conn.query({ sql, values: queryParams });
   return result[0];
@@ -93,7 +91,7 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
 
     const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
     if (username.length === 0) {
-      return { code: 'code.username.invalid', msg: 'Invalid Player Account Registered' };
+      return { code: 'code.username.invalid', msg: 'Invalid Player Account Registered OR Player Account Frozen' };
     }
 
     if (Money > Balance) {
@@ -140,12 +138,15 @@ service.batchTransferPlayerAccount = async (operatorId) => {
       const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
       if (username.length === 0 || parseInt(Status) !== 0 || Money > Balance) {
         // Validation fail case
-        console.log('test', PlayerAccountUsername)
         await updateWithdraw(connWrite, 2, operatorId, request.Id);
         await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), parseFloat(Balance), 2);
       } else {
         const { MemberId } = username[0];
-        await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
+        try {
+          await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
+        } catch (err) {
+          console.log(err)
+        }
         const remainingBalance = parseFloat(Balance) - parseFloat(Money);
         await updateCredit(connWrite, remainingBalance, AgentId);
         await updateWithdraw(connWrite, 1, operatorId, request.Id);
