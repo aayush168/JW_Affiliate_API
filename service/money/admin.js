@@ -19,18 +19,19 @@ service.getWithdrawRequest = async (size, startIndex, { username, status, create
       modifiedSql = modifiedSql.replace('${Status}', '');
       modifiedSqlCount = modifiedSqlCount.replace('${Status}', '');
     } else {
-      modifiedSql = modifiedSql.replace('${Status}', `AND a.Status = '${status}'`);
-      modifiedSqlCount = modifiedSqlCount.replace('${Status}', `AND a.Status = '${status}'`);
+      modifiedSql = modifiedSql.replace('${Status}', `AND w.Status = ${status}`);
+      modifiedSqlCount = modifiedSqlCount.replace('${Status}', `AND w.Status = ${status}`);
     }
 
     if (createdAt === '') {
       modifiedSql = modifiedSql.replace('${CreatedAt}', '');
       modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', '');
     } else {
-      modifiedSql = modifiedSql.replace('${CreatedAt}', `AND a.Created_at >= '${createdAt}'`);
-      modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND a.Created_at >= '${createdAt}'`);
+      modifiedSql = modifiedSql.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
+      modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
     }
-
+    console.log(modifiedSql, 'modified sql');
+    console.log(modifiedSqlCount, 'modified sql');
     const result = await conn.query({ sql: modifiedSql, values: queryParams });
     const rowCount = (await conn.query({ sql: modifiedSqlCount, values: countParams }))[0];
 
@@ -151,6 +152,34 @@ service.batchTransferPlayerAccount = async (operatorId) => {
         await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), remainingBalance, 1);
       }
     }
+    return { code: 'common.success' };
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
+
+service.rejectWithdrawRequest = async (withdrawId, operatorId) => {
+  try {
+    const connRead = await db.getConn('extra:read');
+    const connJW = await db.getConn('jw');
+    const connWrite = await db.getConn('extra:write');
+
+    const sqlGetWithdrawRequest = db.sql('money/admin/getWithdrawRequestById.sql');
+    const withdrawParams = [withdrawId];
+    const withdrawRequest = (await connRead.query({ sql: sqlGetWithdrawRequest, values: withdrawParams }))[0];
+
+    if (withdrawRequest.length === 0) {
+      return { code: 'code.withdrawRequest.invalid', msg: 'Withdraw Request does not exist' };
+    }
+
+    const { Money, Status, Balance } = withdrawRequest[0];
+
+    if (parseInt(Status) !== 0) {
+      return { code: 'code.withdrawRequest.invalid', msg: 'Request has already been handled. Please refresh and try again' };
+    }
+    await updateWithdraw(connWrite, 3, operatorId, withdrawId);
+    await addWithdrawLog(connWrite, withdrawId, Money, parseFloat(Balance), parseFloat(Balance), 3);
     return { code: 'common.success' };
   } catch (err) {
     console.log(err);
