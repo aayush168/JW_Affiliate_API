@@ -31,8 +31,8 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
-      playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-      playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+      playerPerformanceService.getBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+      playerPerformanceService.getTotalBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     ])
     bonusData = bonusInfo
     totalBonusData = totalBonusInfo
@@ -114,7 +114,6 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
 
 function calculateEarning (revenue, members, commission) {
   let earning = 0;
-  console.log(revenue, 'revenue')
   for (let i = commission.length - 1; i >= 0; i--) {
     const c = commission[i];
     if (commission.length === 1) {
