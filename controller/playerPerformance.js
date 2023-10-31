@@ -26,7 +26,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     playerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getTotalAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
-    revenueService.getCarriedRevenue(`${agentCode}%`, `${startDate} 00:00:00`, username)
+    revenueService.getCarriedRevenue(`${agentCode}`, `${startDate} 00:00:00`, username)
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {

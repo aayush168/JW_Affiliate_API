@@ -19,9 +19,9 @@ FROM
 		AND smbd.AgentCode IN ( SELECT Code FROM AgentChannel ) 
 	GROUP BY
 		DATE_FORMAT( smbd.AccountingDate, '%Y-%m' ),
-		smbd.AgentCode,
+		SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(smbd.AgentCode, 'C', '-')), '-', 2)), '-', 1),
 		smbd.MemberId
-	) t
+	) AS t
 	LEFT JOIN AgentChannel AS ac ON ac.Id = t.chGroupId
 	JOIN Member AS m ON m.Id = t.MemberId
 WHERE
