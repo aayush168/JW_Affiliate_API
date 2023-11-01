@@ -6,11 +6,12 @@ FROM (
         FROM MemberAccTransfer AS mt
         JOIN Member AS m ON m.Id = mt.MemberId 
         WHERE m.STATUS in (0, 1,4)
-         AND mt.AgentCode = ?
-         AND mt.SuccessTime < ?
-         AND mt.STATUS = 1 
-         AND mt.Type = 7 
-         AND m.Username LIKE ?
+        AND mt.AgentCode = ?
+        AND mt.SuccessTime < ?
+        AND mt.STATUS = 1 
+        AND mt.Type = 7
+        AND mt.AgentCode IN ( SELECT Code FROM AgentChannel )  
+        AND m.Username LIKE ?
         GROUP BY DATE_FORMAT( mt.SuccessTime, '%Y-%m' ) 
  UNION ALL
         SELECT DATE_FORMAT( CreateTime, '%Y-%m' ) AS Date,
@@ -18,8 +19,9 @@ FROM (
         FROM PromotionWalletTrans AS pwt
     JOIN (SELECT Id as MemberId FROM Member AS m WHERE m.STATUS in (0, 1,4) AND m.AgentCode = ? AND m.Username LIKE ?) as Member using (`MemberId`)
         WHERE CreateTime < ? 
-         AND pwt.STATUS = 1 
-         AND pwt.Type = 7 
+        AND pwt.STATUS = 1 
+        AND pwt.Type = 7
+        AND pwt.AgentId IN ( SELECT Id FROM AgentChannel )
         GROUP BY DATE_FORMAT( CreateTime, '%Y-%m' ) 
  UNION ALL
          SELECT DATE_FORMAT( CreateTime, '%Y-%m' ) AS Date,
@@ -27,7 +29,8 @@ FROM (
          FROM PromotionWalletTrans AS pwt
      JOIN (SELECT 19 as Type union SELECT 20) as Type using (`Type`)
      JOIN (SELECT Id as MemberId FROM Member AS m WHERE m.STATUS in (0, 1,4) AND m.AgentCode = ? AND m.Username LIKE ?) as Member using (`MemberId`)
-         WHERE CreateTime < ? 
-         AND pwt.STATUS = 1 
-         GROUP BY DATE_FORMAT( CreateTime, '%Y-%m' ) 
+        WHERE CreateTime < ? 
+        AND pwt.STATUS = 1
+        AND pwt.AgentId IN ( SELECT Id FROM AgentChannel )
+        GROUP BY DATE_FORMAT( CreateTime, '%Y-%m' ) 
 ) AS r GROUP BY r.Date;
