@@ -10,6 +10,7 @@ FROM (
       AND mt.SuccessTime < ?
       AND mt.Status = 1
       AND mt.Type = 7
+      AND mt.AgentCode IN ( SELECT Code FROM AgentChannel )  
   GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1) , DATE_FORMAT(mt.SuccessTime, '%Y-%m')
   UNION ALL
   SELECT (SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1)) AS AgentId, DATE_FORMAT(CreateTime, '%Y-%m') AS Date, IFNULL(SUM(pwt.Amount), 0) AS Amount
@@ -20,6 +21,7 @@ FROM (
     AND CreateTime < ?
     AND pwt.Status = 1
     AND pwt.Type = 7
+    AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 
   GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1) , DATE_FORMAT(CreateTime, '%Y-%m')
   UNION ALL
   SELECT (SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1)) AS AgentId, DATE_FORMAT(CreateTime, '%Y-%m') AS Date, IFNULL(SUM(pwt.Amount) * - 1, 0) AS Amount
@@ -30,6 +32,7 @@ FROM (
     AND CreateTime < ?
     AND pwt.Status = 1
     AND pwt.Type IN (19 , 20)
+    AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 
   GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1) , DATE_FORMAT(CreateTime, '%Y-%m')
   ) AS r
   GROUP BY r.AgentId, r.Date
