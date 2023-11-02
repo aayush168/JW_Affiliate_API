@@ -10,11 +10,11 @@ let mTurnoverData = memoize(ocms.getTurnoverData, { primitive: true, maxAge: _CA
 
 service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime, username = ""){
   let conn;
-  try{
+  try {
     conn = await db.getConn('jw');
     let result = await getCurrentBetData(conn, agentCode, startDateTime, endDateTime, username);
     return result;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err;
   }
@@ -87,7 +87,6 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
       prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
       return prev;
     }, {});
-
     let mergedArray = _.map(netWinSummary, function (x) {
       let f = _.find(promotionCarried, function (y) { return (y.Date == x.Date ) && y })
       if (f) {
