@@ -226,7 +226,7 @@ router.get('/settlement/getList', async function (req, res) {
         let fields = [
           {
             label: 'Username',
-            value: 'name'
+            value: 'username'
           },
           {
             label: 'Members',

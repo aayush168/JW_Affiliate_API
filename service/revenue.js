@@ -63,6 +63,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
           users, startDateTime,
           usersId, startDateTime,
           usersId, startDateTime,
+          usersId, startDateTime,
           usersId, startDateTime
         ]}))[0];
         _.each(bonus, function (x) {
@@ -126,6 +127,7 @@ service.getBonusAmount = async function (agentCode, startDateTime, endDateTime, 
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         users, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime

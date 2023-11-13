@@ -110,6 +110,7 @@ controller.getSettlementData = async function (startDate, endDate) {
     _.each(members, function (item) {
       let data = {
         name: item.Name,
+        username: item.Username,
         members: 0,
         totalMembers: 0,
         firstDeposit: 0,
