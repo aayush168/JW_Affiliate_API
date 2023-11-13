@@ -5,5 +5,5 @@ LEFT JOIN Operator AS o ON w.OperatorId = o.Id
 WHERE a.Username LIKE ?
 ${Status}
 ${CreatedAt}
-ORDER BY a.Created_at DESC
+ORDER BY w.Created_at DESC
 LIMIT ?, ?;
