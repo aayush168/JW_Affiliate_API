@@ -6,5 +6,4 @@ WHERE m.Status != 2
 AND smbd.AgentCode = ?
 AND smbd.AccountingDate < ?
 AND m.Username LIKE ?
-AND smbd.AgentCode IN ( SELECT Code FROM AgentChannel )
 GROUP BY smbd.AgentCode
