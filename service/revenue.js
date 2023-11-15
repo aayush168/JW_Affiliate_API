@@ -145,10 +145,6 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
   let TotalTurnover = 0, TotalNetWin = 0;
   let startDate = startDateTime;
   let endDate = endDateTime;
-
-  let agentPlayer = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ] }))[0];
-  let agentPlayerUsername = _.pluck(agentPlayer, 'Username');
-
   if (!(moment(moment(startDate).format('YYYY-MM-DD')).isSame(moment(moment(endDate).format('YYYY-MM-DD'))))) {
     let sStartDate = moment(startDateTime).format('YYYY-MM-DD');
     let sEndDate = moment(endDateTime).subtract({ days: 1 }).format('YYYY-MM-DD');
@@ -161,14 +157,6 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
     startDate = moment(sEndDate).add({ days: 1 }).format('YYYY-MM-DD 00:00:00');
     endDate = endDateTime;
   }
-  // let betData = await mTurnoverData(startDate, endDate);
-  // for (let i = 0; i < betData.length; i++) {
-  //   let bData = betData[i];
-  //   if (agentPlayerUsername.includes(bData.memberUserId)) {
-  //     TotalTurnover += parseFloat(bData.betAmount)
-  //     TotalNetWin += parseFloat(bData.winAmount)
-  //   }
-  // }
   return { Turnover: TotalTurnover, Revenue: (TotalNetWin * -1)}
 }
 

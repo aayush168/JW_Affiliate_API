@@ -52,11 +52,11 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
 
   _.each(accData, function(item){
     let obj = _.find(data, function(i){ return (i.name === item.Username) ? true : false });
-    if(obj){
+    if (obj) {
       obj.deposit = parseFloat(item.Deposit);
       obj.withdraw = parseFloat(item.Withdraw);
       obj.promotion = parseFloat(item.Promotion);
-    }else{
+    } else {
       obj = {
         name: item.Username,
         turnover: 0,
@@ -95,6 +95,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+    console.log(totalAccData.Promotion, totalBonusData, 'total promotion calculation')
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);
