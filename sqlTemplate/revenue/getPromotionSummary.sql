@@ -9,8 +9,7 @@ FROM (
     AND mt.SuccessTime < ?
     AND mt.Status = 1 
     AND mt.Type = 7
-    AND m.Username LIKE ?
-    AND mt.AgentCode IN ( SELECT Code FROM AgentChannel )  
+    AND m.Username LIKE ? 
     GROUP BY DATE_FORMAT( mt.SuccessTime, '%Y-%m' ) 
     UNION ALL
     SELECT DATE_FORMAT( CreateTime, '%Y-%m' ) AS Date,
@@ -23,7 +22,6 @@ FROM (
       AND CreateTime < ? 
       AND pwt.Status = 1 
       AND pwt.Type = 7
-      AND pwt.AgentId IN ( SELECT Id FROM AgentChannel )
       GROUP BY DATE_FORMAT( CreateTime, '%Y-%m' ) 
     UNION ALL
     SELECT DATE_FORMAT( CreateTime, '%Y-%m' ) AS Date,
@@ -36,6 +34,5 @@ FROM (
     AND CreateTime < ? 
     AND pwt.Status = 1
     AND pwt.Type IN (19 , 20)
-    AND pwt.AgentId IN ( SELECT Id FROM AgentChannel )
     GROUP BY DATE_FORMAT( CreateTime, '%Y-%m' ) 
 ) AS r GROUP BY r.Date;
