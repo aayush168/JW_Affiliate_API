@@ -151,8 +151,8 @@ controller.getSettlementData = async function (startDate, endDate) {
       let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
       data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
       data.revenue = (bet) ? parseFloat(bet.Revenue) : 0;
-      if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh') && data.revenue && data.revenue < 0) {
-        data.deduction = .05 * data.revenue;
+      if (mode && data.revenue && data.revenue < 0) {
+        data.deduction = parseFloat(config.commission.operationCost) * parseFloat(data.revenue);
       }
       let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
       data.operationCost = data.revenue * operationCost;
