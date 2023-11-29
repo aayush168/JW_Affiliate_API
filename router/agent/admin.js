@@ -18,7 +18,7 @@ router.get('/getList', async (req, res) => {
       email: queryParams.email || '',
       mobile: queryParams.mobile || '',
       createdAt: queryParams.createdAt || '',
-      status: [0, 1, 2, 3].includes(parseInt(queryParams.status)) ? parseInt(queryParams.status) : '',
+      status: [0, 1, 2, 3, 4].includes(parseInt(queryParams.status)) ? parseInt(queryParams.status) : '',
       playerSourceType: parseInt(queryParams.playerSourceType) || '',
       accountType: parseInt(queryParams.accountType) || '',
       paymentType: queryParams.paymentType || ''
@@ -38,8 +38,8 @@ router.get('/getList', async (req, res) => {
 
 router.put('/updateProfile/:id', async function (req, res) {
   try {
-    // 0: Disabled, 1: Enabled, 2: In review 3: Rejected
-    const allowedStatus = [0, 1, 2, 3]
+    // 0: Disabled, 1: Enabled, 2: In review 3: Rejected, 4: Frozen
+    const allowedStatus = [0, 1, 2, 3, 4]
     const id = req.params.id
     const password = req.body.password
     const mobile = req.body.mobile
