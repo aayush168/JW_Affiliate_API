@@ -488,6 +488,17 @@ async function updateBdtPayments (req, paymentTypeListResult, agentId, paymentTy
         playerAccountUsername: playerAccountUsername
       }
       response = await agentService.updateAgentPlayerInfo(payload);
+    } else if (paymentTypeListResult.list[0].Code === 'usdt') {
+      const usdtWallet = req.body.usdtWallet
+      if (!usdtWallet) {
+        return { code: 'params.usdtWallet.required', msg: 'USDT Wallet Id is required.' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        usdtWallet: usdtWallet
+      }
+      response = await agentService.updateAgentUsdtWalletInfo(payload);
     }
     if (response.code !== 'common.success') {
       return { code: 'params.unknown.error', msg: 'Unknown Error' }
