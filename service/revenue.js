@@ -43,7 +43,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
     console.timeEnd("getNetWinSummary");
     console.time("getPromotionSummary");
-    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, agentCode, `%${username}%`, startDateTime, ]}))[0];
+    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, ]}))[0];
     console.timeEnd("getPromotionSummary");
     console.time("getAgentPlayer");
     let agentMember = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ]}))[0];

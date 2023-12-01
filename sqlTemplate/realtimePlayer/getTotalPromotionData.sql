@@ -4,7 +4,7 @@ FROM
 SELECT IFNULL(SUM(mt.Money), 0) AS Amount, IFNULL(SUM(mt.RewardPoint), 0) AS LoyaltyPoint
 FROM MemberAccTransfer AS mt
 JOIN Member AS m ON m.Id = mt.MemberId
-WHERE mt.AgentCode = ?
+WHERE m.AgentCode = ?
 AND mt.SuccessTime >= ? AND mt.SuccessTime <= ?
 AND mt.Status = 1
 AND mt.Type = 7
