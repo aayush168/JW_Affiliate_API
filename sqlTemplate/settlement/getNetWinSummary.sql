@@ -14,8 +14,7 @@ FROM
 		JOIN Member AS m ON m.Id = smbd.MemberId
 		JOIN Agent AS a ON m.AgentId = a.Id 
 	WHERE
-		m.STATUS != 2 
-		AND smbd.AccountingDate < ?
+		smbd.AccountingDate < ?
 		AND smbd.AgentCode != "0-" 
 	GROUP BY
 	IF

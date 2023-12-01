@@ -1,4 +1,4 @@
-SELECT a.Name, r.Count
+SELECT a.Name, a.Username, r.Count
 FROM
 (
 SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) AS AgentId, COUNT(Id) AS Count
