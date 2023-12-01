@@ -295,7 +295,7 @@ function getPromotionSummary (conn, startDate) {
   if (mode && mode.includes('siprod')) {
     return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
   } else {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
+    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, ocmsAgentId ]});
   }
 }
 

@@ -12,23 +12,13 @@ FROM (
       AND mt.AgentCode IN ( SELECT Code FROM AgentChannel )  
   GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1) , DATE_FORMAT(mt.SuccessTime, '%Y-%m')
   UNION ALL
-  SELECT (SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1)) AS AgentId, DATE_FORMAT(CreateTime, '%Y-%m') AS Date, IFNULL(SUM(pwt.Amount), 0) AS Amount
+  SELECT (SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1)) AS AgentId, DATE_FORMAT(CreateTime, '%Y-%m') AS Date, IFNULL( SUM( CASE WHEN `Type` = 7 THEN pwt.Amount ELSE pwt.Amount*-1 END ), 0 ) AS Amount
   FROM PromotionWalletTrans AS pwt
   JOIN Member AS m ON m.Id = pwt.MemberId
   WHERE
     CreateTime < ?
     AND pwt.Status = 1
-    AND pwt.Type = 7
-    AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 
-  GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1) , DATE_FORMAT(CreateTime, '%Y-%m')
-  UNION ALL
-  SELECT (SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1)) AS AgentId, DATE_FORMAT(CreateTime, '%Y-%m') AS Date, IFNULL(SUM(pwt.Amount) * - 1, 0) AS Amount
-  FROM PromotionWalletTrans AS pwt
-  JOIN Member AS m ON m.Id = pwt.MemberId
-  WHERE
-    CreateTime < ?
-    AND pwt.Status = 1
-    AND pwt.Type IN (19 , 20)
+    AND pwt.Type IN (7, 19 , 20)
     AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 
   GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(m.AgentCode, 'C', '-')), '-', 2)), '-', 1) , DATE_FORMAT(CreateTime, '%Y-%m')
   ) AS r
