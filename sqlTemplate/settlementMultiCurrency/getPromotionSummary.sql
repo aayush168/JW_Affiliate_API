@@ -6,8 +6,7 @@ FROM (
   FROM MemberAccTransfer AS mt
   JOIN Member AS m ON m.Id = mt.MemberId
   WHERE
-      m.Status != 2
-      AND mt.SuccessTime < ?
+      mt.SuccessTime < ?
       AND mt.Status = 1
       AND mt.Type = 7
       AND mt.AgentCode IN ( SELECT Code FROM AgentChannel )  
@@ -17,8 +16,7 @@ FROM (
   FROM PromotionWalletTrans AS pwt
   JOIN Member AS m ON m.Id = pwt.MemberId
   WHERE
-    m.Status != 2
-    AND CreateTime < ?
+    CreateTime < ?
     AND pwt.Status = 1
     AND pwt.Type = 7
     AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 
@@ -28,8 +26,7 @@ FROM (
   FROM PromotionWalletTrans AS pwt
   JOIN Member AS m ON m.Id = pwt.MemberId
   WHERE
-    m.Status != 2
-    AND CreateTime < ?
+    CreateTime < ?
     AND pwt.Status = 1
     AND pwt.Type IN (19 , 20)
     AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 

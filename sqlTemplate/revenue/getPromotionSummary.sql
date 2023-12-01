@@ -4,8 +4,7 @@ FROM (
     IFNULL( SUM( mt.Money ), 0 ) AS Amount 
     FROM MemberAccTransfer AS mt
     JOIN Member AS m ON m.Id = mt.MemberId 
-    WHERE m.Status != 2
-    AND mt.AgentCode = ?
+    WHERE mt.AgentCode = ?
     AND mt.SuccessTime < ?
     AND mt.Status = 1 
     AND mt.Type = 7
@@ -16,8 +15,7 @@ FROM (
     IFNULL( SUM( pwt.Amount ), 0 ) AS Amount 
     FROM PromotionWalletTrans AS pwt
     JOIN Member AS m ON m.Id = pwt.MemberId
-    WHERE m.Status != 2
-      AND m.AgentCode = ?
+    WHERE m.AgentCode = ?
       AND m.Username LIKE ?
       AND CreateTime < ? 
       AND pwt.Status = 1 
@@ -28,8 +26,7 @@ FROM (
     IFNULL( SUM( pwt.Amount ) * - 1, 0 ) AS Amount 
     FROM PromotionWalletTrans AS pwt
     JOIN Member AS m ON m.Id = pwt.MemberId
-    WHERE m.Status != 2
-    AND m.AgentCode = ?
+    WHERE m.AgentCode = ?
     AND m.Username LIKE ?
     AND CreateTime < ? 
     AND pwt.Status = 1
