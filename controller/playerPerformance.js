@@ -21,10 +21,10 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   let bonusData;
   let totalBonusData;
   const [betData, accData, totalBetData, totalAccData, firstDepositData, carriedRevenue] = await Promise.all([
-    playerPerformanceService.getBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getTotalAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    playerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    playerPerformanceService.getAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    playerPerformanceService.getTotalBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    playerPerformanceService.getTotalAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
     revenueService.getCarriedRevenue(`${agentCode}%`, `${startDate} 00:00:00`, username)
   ])
