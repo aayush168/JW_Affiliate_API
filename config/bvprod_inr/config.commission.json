@@ -4,18 +4,6 @@
     {
       "members": 5,
       "minRevenue": 1,
-      "maxRevenue": 1000000,
-      "rate": 0.40
-    },
-    {
-      "members": 5,
-      "minRevenue": 1000001,
-      "maxRevenue": 3000000,
-      "rate": 0.45
-    },
-    {
-      "members": 5,
-      "minRevenue": 3000001,
       "maxRevenue": 0,
       "rate": 0.5
     }
