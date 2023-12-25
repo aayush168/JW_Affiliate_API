@@ -14,6 +14,10 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
       sql = db.sql('agent/getBdtAgentList.sql')
     } else if (mode === 'bvprod_bdt') {
       sql = db.sql('agent/getBvBDTAgentList.sql')
+    } else if (mode.includes('jwprod_')) {
+      sql = db.sql('agent/getJwBvAgentList.sql')
+    } else if (mode === 'prod') {
+      sql = db.sql('agent/getAgentList.sql')
     } else {
       sql = db.sql('agent/getBvAgentList.sql')
     }
