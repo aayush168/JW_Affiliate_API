@@ -19,6 +19,14 @@ WHERE
   AND UpdateTime >= ? AND UpdateTime <= ?
 GROUP BY Username
 UNION
+SELECT ParentUsername AS Username, IFNULL(SUM(Commission), 0) AS Amount
+FROM ReferralCommission
+WHERE
+  ParentId IN (?)
+  AND UpdateTime >= ? AND UpdateTime <= ?
+  AND Status != 0
+GROUP BY ParentUsername
+UNION
 SELECT Username, IFNULL(SUM(Amount), 0) AS Amount
 FROM ReferralTicket
 WHERE

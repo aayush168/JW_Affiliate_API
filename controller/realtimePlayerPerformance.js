@@ -18,21 +18,21 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
   let totalBonusData;
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
-      realtimePlayerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-      realtimePlayerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username)
+      realtimePlayerPerformanceService.getBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+      realtimePlayerPerformanceService.getTotalBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username)
     ])
     bonusData = bonusInfo
     totalBonusData = totalBonusInfo
   }
   let [betData, depositData, withdrawData, promotionData, totalBetData, totalDepositData, totalWithdrawData, totalPromotionData] = await Promise.all([
-    realtimePlayerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getDepositData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getWithdrawData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getPromotionData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getTotalBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getTotalDepositData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getTotalWithdrawData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    realtimePlayerPerformanceService.getTotalPromotionData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getWithdrawData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getPromotionData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getTotalDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getTotalWithdrawData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+    realtimePlayerPerformanceService.getTotalPromotionData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
   ])
   _.each(betData, function(item){
     let obj = {

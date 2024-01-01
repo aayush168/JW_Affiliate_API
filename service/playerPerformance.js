@@ -96,12 +96,14 @@ service.getBonusData = async function (agentCode, startDateTime, endDateTime, us
         users, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime
       ] }))[0];
       if (result.length !== 0) {
         bonusData.push(result);
       }
     }
+    console.log(agentCode, startDateTime, endDateTime, username, 'getBonusData payload')
     return bonusData[0];
   } catch (err) {
     console.log(err);
@@ -127,6 +129,7 @@ service.getTotalBonusData = async function (agentCode, startDateTime, endDateTim
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         users, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime

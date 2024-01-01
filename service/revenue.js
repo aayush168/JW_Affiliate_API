@@ -10,11 +10,11 @@ let mTurnoverData = memoize(ocms.getTurnoverData, { primitive: true, maxAge: _CA
 
 service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime, username = ""){
   let conn;
-  try{
+  try {
     conn = await db.getConn('jw');
     let result = await getCurrentBetData(conn, agentCode, startDateTime, endDateTime, username);
     return result;
-  }catch(err){
+  } catch (err) {
     console.log(err);
     throw err;
   }
@@ -43,7 +43,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
     console.timeEnd("getNetWinSummary");
     console.time("getPromotionSummary");
-    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, agentCode, `%${username}%`, startDateTime, ]}))[0];
+    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, ]}))[0];
     console.timeEnd("getPromotionSummary");
     console.time("getAgentPlayer");
     let agentMember = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ]}))[0];
@@ -61,6 +61,7 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
           usersId, startDateTime,
           usersId, startDateTime,
           users, startDateTime,
+          usersId, startDateTime,
           usersId, startDateTime,
           usersId, startDateTime,
           usersId, startDateTime
@@ -87,7 +88,6 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
       prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
       return prev;
     }, {});
-
     let mergedArray = _.map(netWinSummary, function (x) {
       let f = _.find(promotionCarried, function (y) { return (y.Date == x.Date ) && y })
       if (f) {
@@ -129,6 +129,7 @@ service.getBonusAmount = async function (agentCode, startDateTime, endDateTime, 
         users, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime
       ] }))[0][0];
       totalBonus = parseFloat(totalBonus) + parseFloat(bonus.TotalAmount);
@@ -144,10 +145,6 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
   let TotalTurnover = 0, TotalNetWin = 0;
   let startDate = startDateTime;
   let endDate = endDateTime;
-
-  let agentPlayer = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ] }))[0];
-  let agentPlayerUsername = _.pluck(agentPlayer, 'Username');
-
   if (!(moment(moment(startDate).format('YYYY-MM-DD')).isSame(moment(moment(endDate).format('YYYY-MM-DD'))))) {
     let sStartDate = moment(startDateTime).format('YYYY-MM-DD');
     let sEndDate = moment(endDateTime).subtract({ days: 1 }).format('YYYY-MM-DD');
@@ -159,14 +156,6 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
     }
     startDate = moment(sEndDate).add({ days: 1 }).format('YYYY-MM-DD 00:00:00');
     endDate = endDateTime;
-  }
-  let betData = await mTurnoverData(startDate, endDate);
-  for (let i = 0; i < betData.length; i++) {
-    let bData = betData[i];
-    if (agentPlayerUsername.includes(bData.memberUserId)) {
-      TotalTurnover += parseFloat(bData.betAmount)
-      TotalNetWin += parseFloat(bData.winAmount)
-    }
   }
   return { Turnover: TotalTurnover, Revenue: (TotalNetWin * -1)}
 }

@@ -1,8 +1,8 @@
 {
-  "operationCost": 0.10,
+  "operationCost": 0.18,
   "level": [
     {
-      "members": 5,
+      "members": 0,
       "minRevenue": 1,
       "maxRevenue": 0,
       "rate": 0.5

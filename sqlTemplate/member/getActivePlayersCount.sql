@@ -1,4 +1,4 @@
 SELECT COUNT(DISTINCT(MemberId)) AS TotalCount
 FROM SummaryMemberBetDaily
-WHERE AgentCode LIKE ?
+WHERE AgentCode = ?
 AND AccountingDate >= ? AND AccountingDate <= ?

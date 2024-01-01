@@ -4,6 +4,10 @@
     "createAgent": {
       "username": "ape_affbot_bdt",
       "password": "Welcome12"
+    },
+    "bulkTransfer": {
+      "username": "",
+      "password": ""
     }
   },
   "path": {

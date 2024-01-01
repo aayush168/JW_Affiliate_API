@@ -26,17 +26,18 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     playerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getTotalAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
-    revenueService.getCarriedRevenue(`${agentCode}%`, `${startDate} 00:00:00`, username)
+    revenueService.getCarriedRevenue(`${agentCode}`, `${startDate} 00:00:00`, username)
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
-      playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-      playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+      playerPerformanceService.getBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+      playerPerformanceService.getTotalBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     ])
     bonusData = bonusInfo
     totalBonusData = totalBonusInfo
   }
+  console.log(bonusData, 'bonus Data')
   _.each(betData, function(item){
     let obj = {
       name: item.Username,
@@ -51,11 +52,11 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
 
   _.each(accData, function(item){
     let obj = _.find(data, function(i){ return (i.name === item.Username) ? true : false });
-    if(obj){
+    if (obj) {
       obj.deposit = parseFloat(item.Deposit);
       obj.withdraw = parseFloat(item.Withdraw);
       obj.promotion = parseFloat(item.Promotion);
-    }else{
+    } else {
       obj = {
         name: item.Username,
         turnover: 0,
@@ -94,6 +95,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+    console.log(totalAccData.Promotion, totalBonusData, 'total promotion calculation')
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);
@@ -111,56 +113,38 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   return { data: data.splice(index, 20), total: total, totalCount: totalCount };
 };
 
+function calculateEarning (revenue, members, commission) {
+  let earning = 0;
+  for (let i = commission.length - 1; i >= 0; i--) {
+    const c = commission[i];
+    if (commission.length === 1) {
+      earning = revenue * c['rate'];
+      return earning
+    } else if (members > c['members'] && revenue >= c['minRevenue']) {
+      earning = revenue * c['rate'];
+      return earning;
+    }
+  }
+  return earning;
+}
+
 function calculateEstimateEarning(members, netwin, carried, promotion) {
   if (netwin + promotion > 0) {
     // company winning so no calculation
     return 0
   }
   let revenue = Math.abs(netwin);
-  if (mode && mode.includes('bvprod') || mode.includes('ape') || mode.includes('12betkh')) {
-    revenue = revenue * .95;
-  }
   let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  console.log('Total Members', members);
+  console.log('Total NetWin', netwin);
+  console.log('Promotion Amount', promotion);
+  console.log('Carried Negative', carried * -1);
+  console.log('Operator Cost', operationCost);
   revenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
-  let earning = 0
   let commission = config.commission.level;
-  if (commission.length === 1) {
-    earning = revenue * commission[0]['rate'];
-    return earning;
-  }
+  const earning = calculateEarning(revenue, members, commission);
 
-  if (commission.length === 4) {
-    if (members >= commission[3]['members'] && revenue >= commission[3]['minRevenue']) {
-      earning = revenue * commission[3]['rate'];
-    } else if (members >= commission[2]['members'] && revenue >= commission[2]['minRevenue']) {
-      earning = revenue * commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
-      earning = revenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
-      earning = revenue * commission[0]['rate'];
-    }
-    return earning;
-  }
-
-  if (commission.length === 3) {
-    if (members >= commission[2]['members'] && revenue >= commission[2]['minRevenue']) {
-      earning = revenue * commission[2]['rate'];
-    } else if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
-      earning = revenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
-      earning = revenue * commission[0]['rate'];
-    }
-    return earning;
-  }
-
-  if (commission.length === 2) {
-    if (members >= commission[1]['members'] && revenue >= commission[1]['minRevenue']) {
-      earning = revenue * commission[1]['rate'];
-    } else if (members >= commission[0]['members'] && revenue >= commission[0]['minRevenue']) {
-      earning = revenue * commission[0]['rate'];
-    }
-    return earning;
-  }
+  return earning;
 }
 
 module.exports = controller;

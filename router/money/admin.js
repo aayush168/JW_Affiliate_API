@@ -7,18 +7,16 @@ const moneyService = require(path.join(rootPath, 'service', 'money', 'admin.js')
 
 router.get('/withdraw/getList', async (req, res) => {
   try {
-    const { size = 20, page = 1, ...queryParams } = req.query;
     const params = {
-      username: queryParams.username || '',
-      createdAt: queryParams.createdAt || '',
-      status: [1, 2, 3].includes(parseInt(queryParams.status)) ? parseInt(queryParams.status) : '',
+      username: req.query.username || '',
+      createdAt: req.query.createdAt || '',
+      status: [0, 1, 2, 3].includes(parseInt(req.query.status)) ? parseInt(req.query.status) : '',
     };
 
-    const calculatedPage = Math.max(1, parseInt(page));
-    const calculatedSize = Math.max(1, parseInt(size));
-    const startIndex = (calculatedPage - 1) * calculatedSize;
-
-    const result = await moneyService.getWithdrawRequest(calculatedSize, startIndex, params);
+    const page = parseInt(req.query.page);
+    const size = parseInt(req.query.size);
+    const startIndex = (page - 1) * size;
+    const result = await moneyService.getWithdrawRequest(size, startIndex, params);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
@@ -40,6 +38,44 @@ router.post('/withdraw/transfer', async (req, res) => {
       return res.status(400).json({ code: 'params.operatorId.required', msg: 'Operator Id is required' });
     }
     const result = await moneyService.transferBalancePlayerAccount(withdrawId, operatorId);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err);
+  }
+});
+
+router.post('/withdraw/reject', async (req, res) => {
+  try {
+    const { withdrawId, operatorId } = req.body;
+    
+    if (!withdrawId) {
+      return res.status(400).json({ code: 'params.withdrawId.required', msg: 'Withdraw Id is required' });
+    }
+    if (!operatorId) {
+      return res.status(400).json({ code: 'params.operatorId.required', msg: 'Operator Id is required' });
+    }
+    const result = await moneyService.rejectWithdrawRequest(withdrawId, operatorId);
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err);
+  }
+});
+
+router.post('/withdraw/transfer/batch', async (req, res) => {
+  try {
+    const operatorId = req.body.operatorId;
+    if (!operatorId) {
+      return res.status(400).json({ code: 'params.operatorId.required', msg: 'Operator Id is required' });
+    }
+    const result = await moneyService.batchTransferPlayerAccount(operatorId);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }

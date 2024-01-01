@@ -1,6 +1,6 @@
 {
   "DOMAIN": {
-    "DATA_API": "https://jwv2admin.gpms365.net"
+    "DATA_API": "https://ccxv2admin.gpms365.net"
   },
   "API_URL": {
     "HOURLY": "/service/analysis/getPlayerGamingByHour",
@@ -11,7 +11,7 @@
     "bucket": "agent-affiliate-s3",
     "folder": "dev"
   },
-  "currency": "INR",
+  "currency": "PHP",
   "agentIdOCMS": "0",
   "blockedDomain": []
 }

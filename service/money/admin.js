@@ -19,18 +19,17 @@ service.getWithdrawRequest = async (size, startIndex, { username, status, create
       modifiedSql = modifiedSql.replace('${Status}', '');
       modifiedSqlCount = modifiedSqlCount.replace('${Status}', '');
     } else {
-      modifiedSql = modifiedSql.replace('${Status}', `AND a.Status = '${status}'`);
-      modifiedSqlCount = modifiedSqlCount.replace('${Status}', `AND a.Status = '${status}'`);
+      modifiedSql = modifiedSql.replace('${Status}', `AND w.Status = ${status}`);
+      modifiedSqlCount = modifiedSqlCount.replace('${Status}', `AND w.Status = ${status}`);
     }
 
     if (createdAt === '') {
       modifiedSql = modifiedSql.replace('${CreatedAt}', '');
       modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', '');
     } else {
-      modifiedSql = modifiedSql.replace('${CreatedAt}', `AND a.Created_at >= '${createdAt}'`);
-      modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND a.Created_at >= '${createdAt}'`);
+      modifiedSql = modifiedSql.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
+      modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
     }
-
     const result = await conn.query({ sql: modifiedSql, values: queryParams });
     const rowCount = (await conn.query({ sql: modifiedSqlCount, values: countParams }))[0];
 
@@ -46,7 +45,7 @@ service.getWithdrawRequest = async (size, startIndex, { username, status, create
 };
 
 const getPlayerAccountByUsername = async (conn, username) => {
-  const sql = db.sql('agent/ocms/getPlayerAccountByUsername.sql');
+  const sql = db.sql('agent/ocms/getPlayerAccountByUsernameUnfrozen.sql');
   const queryParams = [username];
   const result = await conn.query({ sql, values: queryParams });
   return result[0];
@@ -92,7 +91,7 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
 
     const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
     if (username.length === 0) {
-      return { code: 'code.username.invalid', msg: 'Invalid Player Account Registered' };
+      return { code: 'code.username.invalid', msg: 'Invalid Player Account Registered OR Player Account Frozen' };
     }
 
     if (Money > Balance) {
@@ -115,6 +114,74 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
 
       return { code: 'code.money.transferFail', msg: 'Transfer Failed' };
     }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
+
+service.batchTransferPlayerAccount = async (operatorId) => {
+  try {
+    const connRead = await db.getConn('extra:read');
+    const connJW = await db.getConn('jw');
+    const connWrite = await db.getConn('extra:write');
+
+    const getPendingWithdrawRequest = db.sql('money/admin/getPendingWithdrawRequest.sql');
+    const withdrawRequest = (await connRead.query({ sql: getPendingWithdrawRequest }))[0];
+
+    if (withdrawRequest.length === 0) {
+      return { code: 'code.pendingRequest.empty', msg: 'No pending request remaining' };
+    }
+    for (let i = 0; i < withdrawRequest.length; i++) {
+      const request = withdrawRequest[i]
+      const { PlayerAccountUsername, Money, Status, Balance, AgentUsername, AgentId } = request;
+      const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
+      if (username.length === 0 || parseInt(Status) !== 0 || Money > Balance) {
+        // Validation fail case
+        await updateWithdraw(connWrite, 2, operatorId, request.Id);
+        await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), parseFloat(Balance), 2);
+      } else {
+        const { MemberId } = username[0];
+        try {
+          await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
+        } catch (err) {
+          console.log(err)
+        }
+        const remainingBalance = parseFloat(Balance) - parseFloat(Money);
+        await updateCredit(connWrite, remainingBalance, AgentId);
+        await updateWithdraw(connWrite, 1, operatorId, request.Id);
+        await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), remainingBalance, 1);
+      }
+    }
+    return { code: 'common.success' };
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+};
+
+service.rejectWithdrawRequest = async (withdrawId, operatorId) => {
+  try {
+    const connRead = await db.getConn('extra:read');
+    const connJW = await db.getConn('jw');
+    const connWrite = await db.getConn('extra:write');
+
+    const sqlGetWithdrawRequest = db.sql('money/admin/getWithdrawRequestById.sql');
+    const withdrawParams = [withdrawId];
+    const withdrawRequest = (await connRead.query({ sql: sqlGetWithdrawRequest, values: withdrawParams }))[0];
+
+    if (withdrawRequest.length === 0) {
+      return { code: 'code.withdrawRequest.invalid', msg: 'Withdraw Request does not exist' };
+    }
+
+    const { Money, Status, Balance } = withdrawRequest[0];
+
+    if (parseInt(Status) !== 0) {
+      return { code: 'code.withdrawRequest.invalid', msg: 'Request has already been handled. Please refresh and try again' };
+    }
+    await updateWithdraw(connWrite, 3, operatorId, withdrawId);
+    await addWithdrawLog(connWrite, withdrawId, Money, parseFloat(Balance), parseFloat(Balance), 3);
+    return { code: 'common.success' };
   } catch (err) {
     console.log(err);
     throw new Error(err);

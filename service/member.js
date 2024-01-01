@@ -11,7 +11,7 @@ service.getPlayers = async function(agentCode, start, end, username, status, ind
   let conn;
   try{
     conn = await db.getConn('jw');
-    let result = await getPlayers(conn, `${agentCode}%`, cUsername, `%${username}%`, cStatus, status, cStart, start, cEnd, end, index);
+    let result = await getPlayers(conn, `${agentCode}`, cUsername, `%${username}%`, cStatus, status, cStart, start, cEnd, end, index);
     if(result[0].length === 0){
       return null;
     }
@@ -30,7 +30,7 @@ service.getPlayersCount = async function(agentCode, start, end, username, status
   let conn;
   try{
     conn = await db.getConn('jw');
-    let result = await getPlayersCount(conn, `${agentCode}%`, cUsername, `%${username}%`, cStatus, status, cStart, start, cEnd, end);
+    let result = await getPlayersCount(conn, `${agentCode}`, cUsername, `%${username}%`, cStatus, status, cStart, start, cEnd, end);
     if(result[0].length === 0){
       return null;
     }
@@ -44,7 +44,7 @@ service.getPlayersCount = async function(agentCode, start, end, username, status
 service.getActivePlayersCount = async function(agentCode, start, end){
   try{
     let conn = await db.getConn('jw');
-    let result = await getActivePlayersCount(conn, `${agentCode}%`, start, end);
+    let result = await getActivePlayersCount(conn, `${agentCode}`, start, end);
     if(result[0].length === 0){
       return null;
     }
