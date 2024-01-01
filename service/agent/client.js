@@ -364,12 +364,7 @@ service.login = async (username, password) => {
     if (result[0].Status === 3) {
       return { code: 'code.account.rejected', user: null }
     }
-    let agentData
-    if (mode && (mode.includes('siprod'))) {
-      agentData = (await conn.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0];
-    } else {
-      agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
-    }
+    let agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     if (agentData.length === 0 || result[0].Status === 2) {
       return { code: 'code.account.review', user: null }
     }
