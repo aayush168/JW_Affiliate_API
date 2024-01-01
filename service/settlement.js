@@ -233,16 +233,8 @@ function getBetData(conn, startDate, endDate){
 }
 
 function getFirstDepositMembers(conn, startDate, endDate){
-<<<<<<< HEAD
   console.log(startDate, endDate);
   return conn.query({ sql: db.sql('settlementMultiCurrency/getFirstDepositMembers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-=======
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getFirstDepositMembers.sql'), values: [ startDate, endDate ] });
-  } else {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getFirstDepositMembers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-  }
->>>>>>> 25cbb060a683444a78563b252a4248d61d2c65e8
 }
 
 function getMemberDeposits(conn, startDate, endDate){
@@ -254,7 +246,7 @@ function getPromotion(conn, startDate, endDate){
 }
 
 function getMembers(conn, endDate){
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate, ocmsAgentId ] });
+  return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate, ocmsAgentId ] });
 }
 
 function getNetWinSummary(conn, startDate){
@@ -262,15 +254,7 @@ function getNetWinSummary(conn, startDate){
 }
 
 function getPromotionSummary (conn, startDate) {
-<<<<<<< HEAD
   return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
-=======
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
-  } else {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, ocmsAgentId ]});
-  }
->>>>>>> 25cbb060a683444a78563b252a4248d61d2c65e8
 }
 
 module.exports = service;
