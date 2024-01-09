@@ -146,7 +146,7 @@ controller.getSettlementData = async function (startDate, endDate) {
         data.memberDeposit = parseFloat(depositMembers.Deposit);
         promotion = depositMembers.Promotion;
       }
-      let carried = _.find(carriedRevenue, function(i){ return (item.Name === i.Name) ? true : false; });
+      let carried = _.find(carriedRevenue, function(i){ return (item.Username === i.Username) ? true : false; });
       let bet = _.find(betData, function (i) { return (item.Name === i.Name ) ? true : false; });
       let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
       data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;

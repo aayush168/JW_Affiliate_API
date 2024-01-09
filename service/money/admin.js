@@ -27,8 +27,8 @@ service.getWithdrawRequest = async (size, startIndex, { username, status, create
       modifiedSql = modifiedSql.replace('${CreatedAt}', '');
       modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', '');
     } else {
-      modifiedSql = modifiedSql.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
-      modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt}'`);
+      modifiedSql = modifiedSql.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt} 00:00:00' AND w.Created_at <= '${createdAt} 23:59:59'`);
+      modifiedSqlCount = modifiedSqlCount.replace('${CreatedAt}', `AND w.Created_at >= '${createdAt} 00:00:00' AND w.Created_at <= '${createdAt} 23:59:59'`);
     }
     const result = await conn.query({ sql: modifiedSql, values: queryParams });
     const rowCount = (await conn.query({ sql: modifiedSqlCount, values: countParams }))[0];

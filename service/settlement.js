@@ -97,40 +97,43 @@ service.getMembers = async function (endDate) {
 
 service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
-    let carriedRevenue = [];
+    // let carriedRevenue = [];
+    // let conn = await db.getConn('jw');
+    // let xconn = await db.getConn('extra1:read');
+    // let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
+    //   getNetWinSummary(conn, startDate),
+    //   getPromotionSummary(conn, startDate),
+    //   getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
+    // ]);
+    // let calculatedPromotion = getTotalPromotion(promotionSummary[0], otherBonusSummary);
+    // let netWinGroup = _.groupBy(netWinSummary[0], 'Name');
+    // let promotionGroup = _.groupBy(calculatedPromotion, 'Name');
+    // let keys = _.keys(netWinGroup);
+    // for (var i = 0; i < keys.length; i++) {
+    //   let agentName = keys[i];
+    //   let netWin = netWinGroup[agentName], promotion = promotionGroup[agentName];
+    //   let mergedArray = _.map(netWin, function (x) {
+    //     let f = _.find(promotion, function (y) { return (y.Date === x.Date) && y });
+    //     if (f) {
+    //       return { ...x, ...f, NetRevenue: parseFloat(x.Revenue) - parseFloat(f.Promotion) }
+    //     } else {
+    //       return { ...x, Promotion: 0, NetRevenue: parseFloat(x.Revenue) }
+    //     }
+    //   });
+    //   let carriedRevenueAmt = 0, netLoss = 0;
+    //   _.each(mergedArray, function (item) {
+    //     if (netLoss < 0) { carriedRevenueAmt = netLoss }
+    //     if (carriedRevenueAmt > 0 || netLoss >= 0) { carriedRevenueAmt = 0 }
+    //     netLoss = parseFloat(netLoss) + parseFloat(item.NetRevenue)
+    //     if (netLoss > 0) { netLoss = 0; }
+    //   })
+    //   carriedRevenue.push({ Name: agentName, Revenue: netLoss })
+    // }
     let conn = await db.getConn('jw');
-    let xconn = await db.getConn('extra1:read');
-    let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
-      getNetWinSummary(conn, startDate),
-      getPromotionSummary(conn, startDate),
-      getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
-    ]);
-    let calculatedPromotion = getTotalPromotion(promotionSummary[0], otherBonusSummary);
-    let netWinGroup = _.groupBy(netWinSummary[0], 'Name');
-    let promotionGroup = _.groupBy(calculatedPromotion, 'Name');
-    let keys = _.keys(netWinGroup);
-    for (var i = 0; i < keys.length; i++) {
-      let agentName = keys[i];
-      let netWin = netWinGroup[agentName], promotion = promotionGroup[agentName];
-      let mergedArray = _.map(netWin, function (x) {
-        let f = _.find(promotion, function (y) { return (y.Date === x.Date) && y });
-        if (f) {
-          return { ...x, ...f, NetRevenue: parseFloat(x.Revenue) - parseFloat(f.Promotion) }
-        } else {
-          return { ...x, Promotion: 0, NetRevenue: parseFloat(x.Revenue) }
-        }
-      });
-      let carriedRevenueAmt = 0, netLoss = 0;
-      _.each(mergedArray, function (item) {
-        if (netLoss < 0) { carriedRevenueAmt = netLoss }
-        if (carriedRevenueAmt > 0 || netLoss >= 0) { carriedRevenueAmt = 0 }
-        netLoss = parseFloat(netLoss) + parseFloat(item.NetRevenue)
-        if (netLoss > 0) { netLoss = 0; }
-      })
-      carriedRevenue.push({ Name: agentName, Revenue: netLoss })
-    }
+    const carriedRevenue = (await getSettlementCarriedRevenue(conn, startDate))[0]
+    console.log(carriedRevenue, 'carried revenue test')
     return carriedRevenue;
-  }catch(err){
+  } catch(err) {
     console.log(err);
     throw err;
   }
@@ -255,6 +258,10 @@ function getNetWinSummary(conn, startDate){
 
 function getPromotionSummary (conn, startDate) {
   return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
+}
+
+function getSettlementCarriedRevenue (conn, startDate) {
+  return conn.query({ sql: db.sql('settlementMultiCurrency/getCarriedRevenue.sql'), values: [ startDate, ocmsAgentId ]});
 }
 
 module.exports = service;
