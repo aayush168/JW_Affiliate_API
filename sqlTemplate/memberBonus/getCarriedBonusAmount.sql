@@ -21,13 +21,13 @@ FROM (
     AND UpdateTime <= ?
   GROUP BY DATE(UpdateTime)
   UNION
-  SELECT DATE(UpdateTime) AS AddDate, IFNULL(SUM(Commission), 0) AS TotalAmount
+  SELECT DATE(AddTime) AS AddDate, IFNULL(SUM(Commission), 0) AS TotalAmount
   FROM ReferralCommission
   WHERE
     ParentId IN (?)
     AND AddTime <= ?
     AND Status != 0
-  GROUP BY DATE(UpdateTime)
+  GROUP BY DATE(AddTime)
   UNION
   SELECT DATE(UpdateTime) AS AddDate, IFNULL(SUM(Amount), 0) AS TotalAmount
   FROM ReferralTicket
