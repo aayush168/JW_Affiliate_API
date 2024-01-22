@@ -22,7 +22,7 @@ FROM (
   FROM ReferralCommission
   WHERE
     ParentId IN (?)
-    AND UpdateTime >= ? AND UpdateTime <= ?
+    AND AddTime >= ? AND AddTime <= ?
     AND Status != 0
   UNION
   SELECT IFNULL(SUM(Amount), 0) AS TotalAmount

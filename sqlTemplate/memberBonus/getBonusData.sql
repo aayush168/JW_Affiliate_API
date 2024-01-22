@@ -23,7 +23,7 @@ SELECT ParentUsername AS Username, IFNULL(SUM(Commission), 0) AS Amount
 FROM ReferralCommission
 WHERE
   ParentId IN (?)
-  AND UpdateTime >= ? AND UpdateTime <= ?
+  AND AddTime >= ? AND AddTime <= ?
   AND Status != 0
 GROUP BY ParentUsername
 UNION

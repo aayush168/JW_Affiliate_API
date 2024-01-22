@@ -25,7 +25,7 @@ FROM (
   FROM ReferralCommission
   WHERE
     ParentId IN (?)
-    AND UpdateTime <= ?
+    AND AddTime <= ?
     AND Status != 0
   GROUP BY DATE(UpdateTime)
   UNION
