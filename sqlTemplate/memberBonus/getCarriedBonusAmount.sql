@@ -36,14 +36,6 @@ FROM (
     AND UpdateTime <= ?
     AND Status != 0
   GROUP BY DATE(UpdateTime)
-  -- UNION
-  -- SELECT DATE(UpdateTime) AS AddDate, IFNULL(SUM(Reward), 0) AS TotalAmount
-  -- FROM TournamentRewardLog
-  -- WHERE
-  --   MemberId IN (?)
-  --   AND UpdateTime <= ?
-  --   AND Type = "Credits"
-  -- GROUP BY DATE(UpdateTime)
   UNION
   SELECT DATE(UpdateTime) AS AddDate, IFNULL(SUM(GiftQuantity), 0) AS TotalAmount
   FROM LuckyWheel_Ticket

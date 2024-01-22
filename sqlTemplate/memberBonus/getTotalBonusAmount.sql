@@ -29,15 +29,8 @@ FROM (
   FROM ReferralTicket
   WHERE
     MemberId IN (?)
-    AND UpdateTime >= ? AND UpdateTime <= ?
+    AND AddTime >= ? AND AddTime <= ?
     AND Status != 0
-  -- UNION
-  -- SELECT IFNULL(SUM(Reward), 0) AS TotalAmount
-  -- FROM TournamentRewardLog
-  -- WHERE
-  --   MemberId IN (?)
-  --   AND UpdateTime >= ? AND UpdateTime <= ?
-  --   AND Type = "Credits"
   UNION
   SELECT IFNULL(SUM(GiftQuantity), 0) AS TotalAmount
   FROM LuckyWheel_Ticket

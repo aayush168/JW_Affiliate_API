@@ -31,17 +31,9 @@ SELECT Username, IFNULL(SUM(Amount), 0) AS Amount
 FROM ReferralTicket
 WHERE
   MemberId IN (?)
-  AND UpdateTime >= ? AND UpdateTime <= ?
+  AND AddTime >= ? AND AddTime <= ?
   AND Status != 0
 GROUP BY Username
--- UNION
--- SELECT Username, IFNULL(SUM(Reward), 0) AS Amount
--- FROM TournamentRewardLog
--- WHERE
---   MemberId IN (?)
---   AND UpdateTime >= ? AND UpdateTime <= ?
---   AND Type = "Credits"
--- GROUP BY Username
 UNION
 SELECT Username, IFNULL(SUM(GiftQuantity), 0) AS Amount
 FROM LuckyWheel_Ticket
