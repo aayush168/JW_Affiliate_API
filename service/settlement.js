@@ -163,6 +163,7 @@ service.getOtherBonus = async function (startDate, endDate, memberUsername) {
         agPlayer, startDate, endDate,
         agPlayerId, startDate, endDate,
         agPlayerId, startDate, endDate,
+        agPlayerId, startDate, endDate,
         agPlayerId, startDate, endDate
       ] }))[0];
       bonusAmount = parseFloat(bonusAmount) + parseFloat(bonus[0].TotalAmount);
@@ -203,6 +204,7 @@ async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername
         agPlayerId, startDateTime,
         agPlayerId, startDateTime,
         agPlayer, startDateTime,
+        agPlayerId, startDateTime,
         agPlayerId, startDateTime,
         agPlayerId, startDateTime,
         agPlayerId, startDateTime

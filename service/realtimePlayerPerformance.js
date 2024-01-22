@@ -131,6 +131,7 @@ service.getBonusData = async function (agentCode, startDateTime, endDateTime, us
         users, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime,
+        usersId, startDateTime, endDateTime,
         usersId, startDateTime, endDateTime
       ] }))[0];
       if (result.length !== 0) {
