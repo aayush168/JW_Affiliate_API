@@ -131,7 +131,10 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
     // }
     let conn = await db.getConn('jw');
     const carriedRevenue = (await getSettlementCarriedRevenue(conn, startDate))[0]
-    console.log(carriedRevenue, 'carried revenue test')
+    const promotionMonthlyData = (await getPromotionSummary(conn, startDate))[0]
+    const revenueMonthlyData = (await revenueMonthlySummary(conn, startDate))[0]
+    console.log(promotionMonthlyData, 'promotion summary')
+    console.log(revenueMonthlyData, 'monthly revenue summary')
     return carriedRevenue;
   } catch(err) {
     console.log(err);
@@ -258,6 +261,10 @@ function getNetWinSummary(conn, startDate){
 
 function getPromotionSummary (conn, startDate) {
   return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
+}
+
+function revenueMonthlySummary (conn, startDate) {
+  return conn.query({ sql: db.sql('settlementMultiCurrency/getMonthlyRevenue.sql'), values: [ startDate, ocmsAgentId ]});
 }
 
 function getSettlementCarriedRevenue (conn, startDate) {
