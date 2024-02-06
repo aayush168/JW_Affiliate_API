@@ -98,7 +98,7 @@ service.getMembers = async function (endDate) {
 
 service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
-    let conn = await db.getConn('extra1:read');
+    let conn = await db.getConn('extra:read');
     const dateFormat = 'YYYY-MM-DD'
     const lastMonth = moment(startDate).subtract(1, 'months')
     const lastMonthEnd = moment(lastMonth).endOf('months').format(dateFormat)
