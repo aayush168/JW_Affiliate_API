@@ -235,7 +235,7 @@ function getPromotionSummary (conn, startDate) {
   return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
 }
 
-function getSettlementCarriedRevenue (conn, startDate) {
+function getSettlementCarriedRevenue (conn, startDate, endDate) {
   return conn.query({ sql: db.sql('settlementMultiCurrency/getNegativeCarryover.sql'), values: [ startDate, endDate ]});
 }
 
