@@ -8,7 +8,7 @@
     "dev": "mode=dev node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "push": "docker build -t aio1108/jw-affiliate:api . && docker push aio1108/jw-affiliate:api",
-    "migration": "node ./migration.js"
+    "migration": "mode=prod node ./migration.js"
   },
   "keywords": [],
   "author": "legendDai",
