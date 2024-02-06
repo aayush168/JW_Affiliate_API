@@ -1,6 +1,7 @@
 let service = {};
 let path = require('path');
 let _ = require('underscore');
+const moment = require('moment-timezone')
 let db = require(path.join(rootPath, 'db', 'index.js'));
 let config = require(path.join(rootPath, 'config', 'index.js'));
 const mode = process.env.mode
@@ -97,41 +98,15 @@ service.getMembers = async function (endDate) {
 
 service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
-    // let carriedRevenue = [];
-    // let conn = await db.getConn('jw');
-    // let xconn = await db.getConn('extra1:read');
-    // let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
-    //   getNetWinSummary(conn, startDate),
-    //   getPromotionSummary(conn, startDate),
-    //   getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
-    // ]);
-    // let calculatedPromotion = getTotalPromotion(promotionSummary[0], otherBonusSummary);
-    // let netWinGroup = _.groupBy(netWinSummary[0], 'Name');
-    // let promotionGroup = _.groupBy(calculatedPromotion, 'Name');
-    // let keys = _.keys(netWinGroup);
-    // for (var i = 0; i < keys.length; i++) {
-    //   let agentName = keys[i];
-    //   let netWin = netWinGroup[agentName], promotion = promotionGroup[agentName];
-    //   let mergedArray = _.map(netWin, function (x) {
-    //     let f = _.find(promotion, function (y) { return (y.Date === x.Date) && y });
-    //     if (f) {
-    //       return { ...x, ...f, NetRevenue: parseFloat(x.Revenue) - parseFloat(f.Promotion) }
-    //     } else {
-    //       return { ...x, Promotion: 0, NetRevenue: parseFloat(x.Revenue) }
-    //     }
-    //   });
-    //   let carriedRevenueAmt = 0, netLoss = 0;
-    //   _.each(mergedArray, function (item) {
-    //     if (netLoss < 0) { carriedRevenueAmt = netLoss }
-    //     if (carriedRevenueAmt > 0 || netLoss >= 0) { carriedRevenueAmt = 0 }
-    //     netLoss = parseFloat(netLoss) + parseFloat(item.NetRevenue)
-    //     if (netLoss > 0) { netLoss = 0; }
-    //   })
-    //   carriedRevenue.push({ Name: agentName, Revenue: netLoss })
-    // }
-    let conn = await db.getConn('jw');
-    const carriedRevenue = (await getSettlementCarriedRevenue(conn, startDate))[0]
-    console.log(carriedRevenue, 'carried revenue test')
+    let conn = await db.getConn('extra1:read');
+    const dateFormat = 'YYYY-MM-DD'
+    const lastMonth = moment(startDate).subtract(1, 'months')
+    const lastMonthEnd = moment(lastMonth).endOf('months').format(dateFormat)
+    const lastMonthStart = moment(lastMonth).startOf('months').format(dateFormat)
+    console.log(startDate, 'startDate test')
+    console.log(lastMonthEnd, 'lastMonthEnd test')
+    console.log(lastMonthStart, 'lastMonthStart test')
+    const carriedRevenue = (await getSettlementCarriedRevenue(conn, lastMonthStart, lastMonthEnd))[0]
     return carriedRevenue;
   } catch(err) {
     console.log(err);
@@ -261,7 +236,7 @@ function getPromotionSummary (conn, startDate) {
 }
 
 function getSettlementCarriedRevenue (conn, startDate) {
-  return conn.query({ sql: db.sql('settlementMultiCurrency/getCarriedRevenue.sql'), values: [ startDate, ocmsAgentId ]});
+  return conn.query({ sql: db.sql('settlementMultiCurrency/getNegativeCarryover.sql'), values: [ startDate, endDate ]});
 }
 
 module.exports = service;
