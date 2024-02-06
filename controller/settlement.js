@@ -158,7 +158,7 @@ controller.getSettlementData = async function (startDate, endDate) {
       data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
       data.carried = (carried) ? ((carried.Amount < 0) ? parseFloat(carried.Amount) : 0) : 0;
       let result = calculateEstimateEarning(data.totalMembers, data.revenue, data.promotion, data.carried);
-      if (mode && data.revenue && data.revenue > 0 && (parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1)) > 0) {
+      if (mode && data.revenue && data.revenue > 0 && (parseFloat(data.revenue) - parseFloat(data.promotion) - parseFloat(data.carried * -1)) > 0) {
         data.deduction = parseFloat(config.commission.operationCost) * parseFloat(data.revenue);
       }
       data.level = (result.percentage === 0.1) ? 'Level 1 (10%)' : (result.percentage === 0.2) ? 'Level 2 (20%)' : (result.percentage === 0.3) ? 'Level 3 (30%)' : (result.percentage === 0.35) ? 'Level 4 (35%)' : '';
