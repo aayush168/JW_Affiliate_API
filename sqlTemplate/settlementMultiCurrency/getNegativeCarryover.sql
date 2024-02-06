@@ -1,4 +1,4 @@
 SELECT *
 FROM NegativeCarryover
 WHERE
-  CreateAt >= ? AND CreatedAt <= ?
+  CreatedAt >= ? AND CreatedAt <= ?
