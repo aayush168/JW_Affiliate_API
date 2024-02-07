@@ -51,8 +51,16 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     }
     let status = 0;
     if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod') {
-      await ocms.createAgent(username, name);
-      status = 1;
+      try {
+        await ocms.createAgent(username, name);
+        status = 1;
+      } catch (err) {
+        if (err.response.body.code === 'channel.name.exist') {
+          return { code: 'code.username.exist', msg: 'Username is already taken' }
+        }
+        console.log(err.response.body, 'ocms error');
+        throw new Error(err);
+      }
     }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
