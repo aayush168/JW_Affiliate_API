@@ -100,12 +100,10 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
     let conn = await db.getConn('extra:read');
     const dateFormat = 'YYYY-MM-DD'
-    const lastMonth = moment(startDate).subtract(1, 'months')
-    const lastMonthEnd = moment(lastMonth).endOf('months').format(dateFormat)
-    const lastMonthStart = moment(lastMonth).startOf('months').format(dateFormat)
-    console.log(startDate, 'startDate test')
-    console.log(lastMonthEnd, 'lastMonthEnd test')
-    console.log(lastMonthStart, 'lastMonthStart test')
+    const lastMonthEnd = moment(startDate).endOf('months').format(dateFormat)
+    const lastMonthStart = moment(startDate).startOf('months').format(dateFormat)
+    console.log(lastMonthEnd, 'lastMonthEnd');
+    console.log(lastMonthStart, 'lastMonthStart');
     const carriedRevenue = (await getSettlementCarriedRevenue(conn, lastMonthStart, lastMonthEnd))[0]
     return carriedRevenue;
   } catch(err) {
