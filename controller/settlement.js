@@ -192,10 +192,10 @@ function calculateEarning (revenue, members, commission) {
 }
 
 function calculateEstimateEarning(members, revenue, promotion, carried) {
-  if ((parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1)) <= 0) {
+  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
+  if ((parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1)) - (parseFloat(revenue) * operationCost) <= 0) {
     return { earning: 0, percentage: 0 };
   }
-  let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
   let netRevenue = parseFloat(revenue) - parseFloat(promotion) - parseFloat(carried * -1) - (parseFloat(revenue) * operationCost);
   let commission = config.commission.level;
   const data = calculateEarning(netRevenue, members, commission);
