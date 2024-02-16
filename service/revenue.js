@@ -6,7 +6,9 @@ let moment = require('moment-timezone');
 let _CACHE_MAX_AGE = 300000;
 let db = require(path.join(rootPath, 'db', 'index.js'));
 let ocms = require(path.join(rootPath, 'ocms', 'index.js'));
-let mTurnoverData = memoize(ocms.getTurnoverData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+
+let config = require(path.join(rootPath, 'config', 'index.js'));
+const ocmsAgentId = parseInt(config.app.agentIdOCMS)
 
 service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime, username = ""){
   let conn;
@@ -35,75 +37,21 @@ service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTi
 service.getCarriedRevenue = async function(agentCode, startDateTime, username = ""){
   try{
     let conn = await db.getConn('jw');
-    let xconn;
-    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh')) {
-      xconn = await db.getConn('extra1:read');
+    let xconn = await db.getConn('extra:read');
+    let agentData = (await conn.query({ sql: db.sql('revenue/getAgentData.sql'), values: [ agentCode, ocmsAgentId ] }))[0];
+    if (agentData.length === 0) {
+      return { Revenue: 0 }
     }
-    console.time("getNetWinSummary");
-    let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
-    console.timeEnd("getNetWinSummary");
-    console.time("getPromotionSummary");
-    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, ]}))[0];
-    console.timeEnd("getPromotionSummary");
-    console.time("getAgentPlayer");
-    let agentMember = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ]}))[0];
-    console.timeEnd("getAgentPlayer");
-    let memberUsername = _.pluck(agentMember, 'Username');
-    let memberId = _.pluck(agentMember, 'MemberId');
-    let memberUsers = _.chunk(memberUsername, 50000);
-    let memberIds = _.chunk(memberId, 50000);
-    let totalBonus = {};
-    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh')) {
-      for (var i = 0; i < memberUsers.length; i++) {
-        let users = memberUsers[i];
-        let usersId = memberIds[i];
-        let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
-          usersId, startDateTime,
-          usersId, startDateTime,
-          users, startDateTime,
-          usersId, startDateTime,
-          usersId, startDateTime,
-          usersId, startDateTime,
-          usersId, startDateTime
-        ]}))[0];
-        _.each(bonus, function (x) {
-          totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);
-        });
-      }
+    const agentUsername = agentData[0].Username
+    const dateFormat = 'YYYY-MM-DD'
+    const lastMonthEnd = moment(startDateTime).endOf('months').format(dateFormat)
+    const lastMonthStart = moment(startDateTime).startOf('months').format(dateFormat)
+    let agentNegativeData = (await xconn.query({ sql: db.sql('revenue/getNegativeCarryover.sql'), values: [ lastMonthStart, lastMonthEnd, agentUsername ]}))[0];
+    if (agentNegativeData.length === 0) {
+      return { Revenue: 0 }
     }
-    if (Object.keys(totalBonus).length > 0) {
-      totalBonus = Object.keys(totalBonus).map(x => { return { Date: x, Promotion: totalBonus[x]  } });
-    }
-    let data;
-    if (process.env.mode.includes('ape') || process.env.mode.includes('12betkh') || Object.keys(totalBonus).length === 0) {
-      data = [...promotionSummary];
-    } else {
-      if (Object.keys(totalBonus).length > 0) {
-        data = [ ...totalBonus, ...promotionSummary];
-      } else {
-        data = [...promotionSummary];
-      }
-    }
-    let promotionCarried = Object.values(data).reduce(function (prev, next) {
-      prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
-      return prev;
-    }, {});
-    let mergedArray = _.map(netWinSummary, function (x) {
-      let f = _.find(promotionCarried, function (y) { return (y.Date == x.Date ) && y })
-      if (f) {
-        return { ...x, ...f, NetRevenue: parseFloat(x.Revenue) - parseFloat(f.Promotion) }
-      } else {
-        return { ...x, Promotion: 0, NetRevenue: parseFloat(x.Revenue) }
-      }
-    })
-    let carriedRevenue = 0, netLoss = 0;
-    _.each(mergedArray, function (item) {
-      if (netLoss < 0) { carriedRevenue = netLoss }
-      if (carriedRevenue > 0 || netLoss >= 0) { carriedRevenue = 0 }
-      netLoss = parseFloat(netLoss) + parseFloat(item.NetRevenue)
-      if (netLoss > 0) { netLoss = 0; }
-    })
-    return { Revenue: netLoss };
+    const amount = parseFloat(agentNegativeData[0].Amount)
+    return { Revenue: amount }
   } catch(err){
     console.log(err);
     throw err;
