@@ -42,6 +42,7 @@ router.put('/updateProfile/:id', async function (req, res) {
     const allowedStatus = [0, 1, 2, 3, 4]
     const id = req.params.id
     const password = req.body.password
+    const username = req.body.username
     const mobile = req.body.mobile
     const email = req.body.email
     const whatsapp = req.body.whatsapp
@@ -60,7 +61,11 @@ router.put('/updateProfile/:id', async function (req, res) {
     if (!password) {
       return res.status(400).json({ code: 'params.password.required', msg: 'Password is required' })
     }
+    if (!username) {
+      return res.status(400).json({ code: 'params.username.required', msg: 'Username is required' })
+    }
     const payload = {
+      username: username,
       password: password,
       mobile: mobile,
       email: email,
