@@ -25,7 +25,7 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   ])
   let bonusAmount = 0;
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
+    bonusAmount = await mBonusAmount(agentCode, `${start} 00:00:00`, `${end} 23:59:59`, username);
   }
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
