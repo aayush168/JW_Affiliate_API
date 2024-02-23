@@ -54,7 +54,7 @@ service.updateAgentProfile = async ({ username, password, mobile, email, whatsap
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
     }
     const agentUsername = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
-    if (agentUsername.length > 0) {
+    if (agentUsername.length > 0 && agentUsername[0].Username !== username) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
     const salt1 = encrypt.getSalt(10)
