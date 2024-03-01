@@ -76,6 +76,19 @@ service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, 
   }
 };
 
+service.getNewSignupData = async function(agentCode, startDateTime, endDateTime){
+  try{
+    const conn = await db.getConn('jw');
+    console.time("getNewSignupData");
+    let result = await getNewSignupData(conn, agentCode, startDateTime, endDateTime);
+    console.timeEnd("getNewSignupData");
+    return result[0][0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
 service.getBonusData = async function (agentCode, startDateTime, endDateTime, username) {
   try {
     let conn = await db.getConn('jw');
@@ -145,6 +158,10 @@ service.getTotalBonusData = async function (agentCode, startDateTime, endDateTim
 
 function getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
   return conn.query({ sql: db.sql('playerPerformance/getBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+}
+
+function getNewSignupData(conn, agentCode, startDateTime, endDateTime){
+  return conn.query({ sql: db.sql('playerPerformance/getNewSignupCount.sql'), values: [agentCode, startDateTime, endDateTime] });
 }
 
 function getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username){

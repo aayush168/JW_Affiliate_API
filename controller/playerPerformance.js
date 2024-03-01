@@ -16,17 +16,19 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     promotion: 0,
     revenue: 0,
     firstDeposit: 0,
-    firstDepositCount: 0
+    firstDepositCount: 0,
+    newSignup: 0
   };
   let bonusData;
   let totalBonusData;
-  const [betData, accData, totalBetData, totalAccData, firstDepositData, carriedRevenue] = await Promise.all([
+  const [betData, accData, totalBetData, totalAccData, firstDepositData, carriedRevenue, newSignupData] = await Promise.all([
     playerPerformanceService.getBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getTotalAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
-    revenueService.getCarriedRevenue(`${agentCode}`, `${startDate} 00:00:00`, username)
+    revenueService.getCarriedRevenue(`${agentCode}`, `${startDate} 00:00:00`, username),
+    playerPerformanceService.getNewSignupData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
@@ -94,6 +96,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
+  total.newSignupCount = parseInt(newSignupData.TotalCount)
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
     console.log(totalAccData.Promotion, totalBonusData, 'total promotion calculation')
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
