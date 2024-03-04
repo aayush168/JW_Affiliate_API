@@ -1,4 +1,4 @@
 INSERT INTO TransferLog
-(AgentUsername, Money, Status)
+(OperatorId, AgentUsername, Money, Status)
 VALUES
-(?, ?, ?)
+(?, ?, ?, ?)

@@ -78,10 +78,9 @@ service.updateCredit = async (agentId, operatorId, amount, type, memo) => {
   }
 }
 
-const addTransferLog = async (conn, username, status, money) => {
+const addTransferLog = async (conn, operatorId, username, status, money) => {
   const sql = db.sql('transfer/addAgentTransferLog.sql');
-  const transferLogParams = [username, status, money];
-  console.log('transferLogParams:', transferLogParams)
+  const transferLogParams = [operatorId, username, status, money];
   await conn.query({ sql, values: transferLogParams });
 };
 
@@ -107,20 +106,19 @@ service.creditBatchAdd = async (items, operatorId) => {
           const paymentInfo = (await connRead.query(db.sql('agent/getPaymentInfo.sql'), [agentId]))[0];
           const playerAccountUsername = paymentInfo[0].PlayerAccountUsername;
           const username = (await connJW.query(db.sql('agent/ocms/getPlayerAccountByUsernameUnfrozen.sql'), [playerAccountUsername]))[0];
-
           if (username.length > 0) {
             const { MemberId } = username[0];
             try {
               await ocms.addBalancePlayerAccount(MemberId, creditAmount, item.username);
+              await addTransferLog(connWrite, operatorId, item.username, creditAmount, 1);
             } catch (err) {
               console.log(err)
             }
-            await addTransferLog(connWrite, item.username, creditAmount, 1);
           } else {
-            await addTransferLog(connWrite, item.username, creditAmount, 2);
+            await addTransferLog(connWrite, operatorId, item.username, creditAmount, 2);
           }
         } else {
-          await addTransferLog(connWrite, item.username, creditAmount, 2);
+          await addTransferLog(connWrite, operatorId, item.username, creditAmount, 2);
         }
       } else {
         console.log(`${item.username} username not found for batch credit`);
