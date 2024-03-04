@@ -24,10 +24,10 @@
     }
   },
   "jw": {
-    "user":"ocmsdev_ccx",
-    "password":"lg4lFLf9CVP2qm8jIPER",
-    "server":"devdbr.gpms365.net",
-    "database":"ccx0a_ocms_v2",
+    "user":"ocmsdev_jw",
+    "password":"34KI5NXj9atCkgCLFxVtw9S4",
+    "server":"35.240.236.243",
+    "database":"jw_ocms_v2",
     "requestTimeout":10000,
     "connectionTimeout":10000,
     "port":3306,
