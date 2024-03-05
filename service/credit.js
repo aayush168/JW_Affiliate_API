@@ -100,8 +100,10 @@ service.creditBatchAdd = async (items, operatorId) => {
       if (agent.length > 0) {
         const agentId = agent[0].AgentId;
         const creditAmount = parseFloat(item.amount);
+        const currentYear = moment().year();
+        const currentMonth = moment().month() + 1;
 
-        const transferLog = (await connRead.query(db.sql('transfer/getAgentTransferLog.sql'), [item.username]))[0];
+        const transferLog = (await connRead.query(db.sql('transfer/getAgentTransferLog.sql'), [item.username, currentYear, currentMonth]))[0];
         if (transferLog.length === 0) {
           const paymentInfo = (await connRead.query(db.sql('agent/getPaymentInfo.sql'), [agentId]))[0];
           const playerAccountUsername = paymentInfo[0].PlayerAccountUsername;

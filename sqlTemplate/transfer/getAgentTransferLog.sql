@@ -1,6 +1,6 @@
-SELECT * 
+SELECT *
 FROM TransferLog
-WHERE AgentUsername = ? 
+WHERE AgentUsername = ?
 AND Status = 1
-AND YEAR(TransferDateTime) = YEAR(CURRENT_DATE())
-AND MONTH(TransferDateTime) = MONTH(CURRENT_DATE());
+AND YEAR(TransferDateTime) = ?
+AND MONTH(TransferDateTime) = ?;
