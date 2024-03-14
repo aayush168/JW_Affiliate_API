@@ -1,6 +1,7 @@
 let service = {}
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
+const ocms = require(path.join(rootPath, 'ocms', 'index.js'));
 const moment = require('moment-timezone');
 
 service.getCreditLogList = async (size, page, username, addTime, amount) => {
@@ -77,45 +78,54 @@ service.updateCredit = async (agentId, operatorId, amount, type, memo) => {
   }
 }
 
+const addTransferLog = async (conn, operatorId, username, status, money) => {
+  const sql = db.sql('transfer/addAgentTransferLog.sql');
+  const transferLogParams = [operatorId, username, status, money];
+  await conn.query({ sql, values: transferLogParams });
+};
 
 service.creditBatchAdd = async (items, operatorId) => {
   try {
-    let conn = await db.getConn('extra:read')
-    let conn1 = await db.getConn('extra:write')
-    let validationFailed = false;
-    if (items.length > 0) {
-      console.log(items, 'test');
-      for (const item of items) {
-        if (!item.hasOwnProperty('amount') || !item.hasOwnProperty('username')) {
-          validationFailed = true;
-          break; // Break out of the loop as soon as a validation error is encountered
-        }
-      }
-      if (validationFailed) {
-        return { code: "code.file.invalid", msg: "Invalid Data file" }
-      }
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        let agent = (await conn.query({ sql: db.sql('credit/getAgentAccountByUsername.sql'), values: [ item.username ]}))[0];
-        if (agent.length > 0) {
-          const agentId = agent[0].AgentId
-          const oldBalance = agent[0].Balance
-          const creditAmount = parseFloat(item.amount)
-          const memo = `${item.username} credit added (batch upload)`
-          if (oldBalance === null || oldBalance === '') {
-            await conn1.query({ sql: db.sql('credit/addCredit.sql'), values: [agentId, creditAmount]})
-          } else {
-            const newBalance = oldBalance + creditAmount
-            await conn1.query({ sql: db.sql('credit/updateCredit.sql'), values: [newBalance, agentId]})
-          }
-          await conn1.query({ sql: db.sql('credit/addCreditLog.sql'), values: [agentId, operatorId, creditAmount, memo]})
-        } else {
-          console.log(`${item.username} username not found for batch credit`);
-        }
-      }
-    } else {
-      return { code: "code.file.empty", msg: "Empty File" }
+    const connRead = await db.getConn('extra:read');
+    const connJW = await db.getConn('jw');
+    const connWrite = await db.getConn('extra:write');
+    
+    const validationFailed = items.some(item => !item.hasOwnProperty('amount') || !item.hasOwnProperty('username'));
+    if (validationFailed) {
+      return { code: "code.file.invalid", msg: "Invalid Data file" }
     }
+
+    await Promise.all(items.map(async (item) => {
+      const agent = (await connRead.query(db.sql('credit/getAgentAccountByUsername.sql'), [item.username]))[0];
+      if (agent.length > 0) {
+        const agentId = agent[0].AgentId;
+        const creditAmount = parseFloat(item.amount);
+        const currentYear = moment().year();
+        const currentMonth = moment().month() + 1;
+
+        const transferLog = (await connRead.query(db.sql('transfer/getAgentTransferLog.sql'), [item.username, currentYear, currentMonth]))[0];
+        if (transferLog.length === 0) {
+          const paymentInfo = (await connRead.query(db.sql('agent/getPaymentInfo.sql'), [agentId]))[0];
+          const playerAccountUsername = paymentInfo[0].PlayerAccountUsername;
+          const username = (await connJW.query(db.sql('agent/ocms/getPlayerAccountByUsernameUnfrozen.sql'), [playerAccountUsername]))[0];
+          if (username.length > 0) {
+            const { MemberId } = username[0];
+            try {
+              await ocms.addBalancePlayerAccount(MemberId, creditAmount, item.username);
+              await addTransferLog(connWrite, operatorId, item.username, creditAmount, 1);
+            } catch (err) {
+              console.log(err)
+            }
+          } else {
+            await addTransferLog(connWrite, operatorId, item.username, creditAmount, 2);
+          }
+        } else {
+          await addTransferLog(connWrite, operatorId, item.username, creditAmount, 2);
+        }
+      } else {
+        console.log(`${item.username} username not found for batch credit`);
+      }
+    }));
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

@@ -1,12 +1,12 @@
 {
-  "domain": "ccxv2admin.gpms365.net",
+  "domain": "qjwv2admin.gpms365.net",
   "accounts": {
     "createAgent": {
-      "username": "ape_affbot_php",
+      "username": "inrsengdy",
       "password": "Welcome1"
     },
     "bulkTransfer": {
-      "username": "ape_affbot_php",
+      "username": "inrsengdy",
       "password": "Welcome1"
     }
   },
