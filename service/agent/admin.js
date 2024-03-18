@@ -19,9 +19,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
     } else if (mode === 'prod') {
       sql = db.sql('agent/getAgentList.sql')
     } else {
-      // revert aftert test for bulk transfer to ocms player account
-      sql = db.sql('agent/getAgentList.sql')
-      // sql = db.sql('agent/getBvAgentList.sql')
+      sql = db.sql('agent/getBvAgentList.sql')
     }
     sql = sql.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
     sql = sql.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
