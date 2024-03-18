@@ -109,10 +109,8 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
 }
 
 function getCurrentPromotion(conn, agentCode, startDateTime, endDateTime, username){
-  return conn.query({ sql: db.sql('revenue/getCurrentPromotion.sql'), values: [
+  return conn.query({ sql: db.sql('revenue/getCurrentPromotionNew.sql'), values: [
     agentCode, startDateTime, endDateTime, `%${username}%`,
-    agentCode, startDateTime, endDateTime, `%${username}%`,
-    agentCode, startDateTime, endDateTime, `%${username}%`
   ] });
 }
 
