@@ -7,4 +7,5 @@ ON cl.OperatorId = o.Id
 ${Username}
 ${AddTime}
 ${Amount}
+${Status}
 ORDER BY cl.Created_at DESC
