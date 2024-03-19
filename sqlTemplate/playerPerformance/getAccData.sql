@@ -1,4 +1,4 @@
-SELECT m.Username, IFNULL(SUM(smid.Deposit + smid.HandDeposit + smid.OnlineDeposit), 0) AS Deposit, IFNULL(SUM(smid.Withdraw + smid.OnlineWithdraw), 0) AS Withdraw, IFNULL(SUM(smid.PromotionAmount) - SUM(smid.RefundPromotionAmount), 0) AS Promotion
+SELECT m.Username, IFNULL(SUM(smid.Deposit + smid.HandDeposit + smid.OnlineDeposit), 0) AS Deposit, IFNULL(SUM(smid.Withdraw + smid.OnlineWithdraw), 0) AS Withdraw, IFNULL(SUM(smid.PromotionAmount) - SUM(smid.RefundPromotionAmount), 0) AS Promotion, IFNULL(SUM(smid.RefundNetWin), 0) AS RefundNetwin
 FROM SummaryMemberInfoDaily AS smid
 JOIN Member AS m ON m.Id = smid.MemberId
 WHERE smid.AgentCode = ?

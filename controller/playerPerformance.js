@@ -58,6 +58,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       obj.deposit = parseFloat(item.Deposit);
       obj.withdraw = parseFloat(item.Withdraw);
       obj.promotion = parseFloat(item.Promotion);
+      obj.netwin = obj.netwin - parseFloat(item.RefundNetwin)
     } else {
       obj = {
         name: item.Username,
@@ -91,14 +92,13 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     })
   } 
   total.turnover = parseFloat(totalBetData.Turnover);
-  total.netwin = parseFloat(totalBetData.NetWin);
+  total.netwin = parseFloat(totalBetData.NetWin) - parseFloat(totalAccData.RefundNetwin);
   total.deposit = parseFloat(totalAccData.Deposit);
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
   total.newSignupCount = parseInt(newSignupData.TotalCount)
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    console.log(totalAccData.Promotion, totalBonusData, 'total promotion calculation')
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);
