@@ -98,12 +98,11 @@ let getCurrentBetData = async function (conn, agentCode, startDateTime, endDateT
     let sEndDate = moment(endDateTime).subtract({ days: 1 }).format('YYYY-MM-DD');
     
     let result = (await conn.query({ sql: db.sql('revenue/getTotalTurnoverNetwin.sql'), values: [ agentCode, sStartDate, sEndDate, `%${username}%` ]}))[0];
+    let resultRefund = (await conn.query({ sql: db.sql('revenue/getRefundNetwin.sql'), values: [ agentCode, sStartDate, sEndDate ]}))[0];
     if (result.length !== 0) {
       TotalTurnover += parseFloat(result[0].Turnover)
-      TotalNetWin += parseFloat(result[0].Revenue)
+      TotalNetWin += parseFloat(result[0].Revenue) - parseFloat(resultRefund[0].RefundNetwin)
     }
-    startDate = moment(sEndDate).add({ days: 1 }).format('YYYY-MM-DD 00:00:00');
-    endDate = endDateTime;
   }
   return { Turnover: TotalTurnover, Revenue: (TotalNetWin * -1)}
 }
