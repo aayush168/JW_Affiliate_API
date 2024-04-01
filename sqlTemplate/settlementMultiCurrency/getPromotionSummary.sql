@@ -6,7 +6,7 @@ FROM (
   FROM MemberAccTransfer AS mt
   JOIN Member AS m ON m.Id = mt.MemberId
   WHERE
-      mt.SuccessTime < ? AND mt.SuccessTime > '2022-12-31 23:59:59'
+      mt.SuccessTime < ? AND mt.SuccessTime > '2022-06-31 23:59:59'
       AND mt.Status = 1
       AND mt.Type = 7
       AND mt.AgentCode IN ( SELECT Code FROM AgentChannel )  
@@ -16,7 +16,7 @@ FROM (
   FROM PromotionWalletTrans AS pwt
   JOIN Member AS m ON m.Id = pwt.MemberId
   WHERE
-    CreateTime < ? AND CreateTime > '2022-12-31 23:59:59'
+    CreateTime < ? AND CreateTime > '2022-06-31 23:59:59'
     AND pwt.Status = 1
     AND pwt.Type IN (7, 19 , 20)
     AND pwt.AgentId IN ( SELECT Id FROM AgentChannel ) 
