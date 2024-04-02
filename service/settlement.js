@@ -74,6 +74,17 @@ service.getBetData = async function (startDate, endDate) {
   }
 }
 
+service.getRefundNetwin = async function (startDate, endDate) {
+  try {
+    let conn = await db.getConn('jw');
+    let result = await getRefundNetwin(conn, startDate, endDate)
+    return result[0];
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
 service.getPromotion = async function(startDate, endDate){
   try{
     let conn = await db.getConn('jw');
@@ -206,6 +217,10 @@ function getTotalMembers (conn) {
 
 function getBetData(conn, startDate, endDate){
   return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate, ocmsAgentId ] });
+}
+
+function getRefundNetwin(conn, startDate, endDate){
+  return conn.query({ sql: db.sql('settlementMultiCurrency/getRefundNetwin.sql'), values: [ startDate, endDate, ocmsAgentId ] });
 }
 
 function getFirstDepositMembers(conn, startDate, endDate){

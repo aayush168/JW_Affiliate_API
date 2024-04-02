@@ -16,6 +16,7 @@ let mGetMemberDeposits = memoize(settlementService.getMemberDeposits, { primitiv
 let mGetMemberByDate = memoize(settlementService.getMembersCountByDate, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
 let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mGetRefundData = memoize(settlementService.getRefundNetwin, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
@@ -63,6 +64,13 @@ async function getBetData (startDate, endDate) {
   return result;
 }
 
+async function getRefundData (startDate, endDate) {
+  console.time("getRefundData");
+  const result = await mGetRefundData(`${startDate} 00:00:00`, `${endDate} 23:59:59`);
+  console.timeEnd("getRefundData");
+  return result;
+}
+
 async function getMemberUsername (endDate) {
   console.time("getMemberUsername");
   let result = await mGetMemberUsername(`${endDate} 23:59:59`);
@@ -91,9 +99,10 @@ controller.getSettlementData = async function (startDate, endDate) {
   try {
     let affiliates = [];
     console.time('get-settlement');
-    let [ members, betData, memberUsername, firstDepositMembers, totalUsers, memberDeposits, memberCount ] = await Promise.all([
+    let [ members, betData, refundData, memberUsername, firstDepositMembers, totalUsers, memberDeposits, memberCount ] = await Promise.all([
       getMembers(endDate),
       getBetData(startDate, endDate),
+      getRefundData(startDate, endDate),
       getMemberUsername(endDate),
       getFirstDepositMembers(startDate, endDate),
       getTotalMembers(),
@@ -151,6 +160,10 @@ controller.getSettlementData = async function (startDate, endDate) {
       let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
       data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
       data.revenue = (bet) ? parseFloat(bet.Revenue) : 0;
+      let memberRefundNetwin = _.find(refundData, function(i){ return (item.Name === i.Name) ? true : false; });
+      if (memberRefundNetwin) {
+        data.revenue = data.revenue + parseFloat(memberRefundNetwin.TotalRefundNetWin);
+      }
       let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
       data.operationCost = data.revenue * operationCost;
       let promotionAmount = (promotion) ? parseFloat(promotion) : 0;
