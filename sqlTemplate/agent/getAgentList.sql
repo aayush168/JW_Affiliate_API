@@ -10,5 +10,6 @@ ${CreatedAt}
 ${PaymentTypeId}
 ${PlayerSoruceType}
 ${AccountType}
+${PlayerUsername}
 ORDER BY a.Created_at DESC
 LIMIT ?, ?

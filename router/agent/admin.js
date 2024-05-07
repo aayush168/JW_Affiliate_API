@@ -18,6 +18,7 @@ router.get('/getList', async (req, res) => {
       email: queryParams.email || '',
       mobile: queryParams.mobile || '',
       createdAt: queryParams.createdAt || '',
+      playerUsername: req.query.playerUsername || '',
       status: [0, 1, 2, 3, 4].includes(parseInt(queryParams.status)) ? parseInt(queryParams.status) : '',
       playerSourceType: parseInt(queryParams.playerSourceType) || '',
       accountType: parseInt(queryParams.accountType) || '',

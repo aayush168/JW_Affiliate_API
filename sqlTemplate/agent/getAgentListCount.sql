@@ -10,3 +10,4 @@ ${CreatedAt}
 ${PaymentTypeId}
 ${PlayerSoruceType}
 ${AccountType}
+${PlayerUsername}

@@ -5,7 +5,7 @@ let moment = require('moment-timezone');
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 const mode = process.env.mode;
 
-service.getAgentList = async (size, offset, { username, name, email, mobile, createdAt, status, playerSourceType, paymentType, accountType }) => {
+service.getAgentList = async (size, offset, { username, name, email, playerUsername, mobile, createdAt, status, playerSourceType, paymentType, accountType }) => {
   try {
     let conn = await db.getConn('extra:read')
     
@@ -22,6 +22,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
       sql = db.sql('agent/getBvAgentList.sql')
     }
     sql = sql.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
+    sql = sql.replace('${PlayerUsername}', (playerUsername === '') ? '' : ` AND ap.PlayerAccountUsername LIKE "%${playerUsername}%"`)
     sql = sql.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
     sql = sql.replace('${Mobile}', (mobile === '') ? '' : ` AND a.Mobile LIKE "%${mobile}%"`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
@@ -33,6 +34,7 @@ service.getAgentList = async (size, offset, { username, name, email, mobile, cre
 
     let sqlCount = db.sql('agent/getAgentListCount.sql')
     sqlCount = sqlCount.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
+    sqlCount = sqlCount.replace('${PlayerUsername}', (playerUsername === '') ? '' : ` AND ap.PlayerAccountUsername LIKE "%${playerUsername}%"`)
     sqlCount = sqlCount.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
     sqlCount = sqlCount.replace('${Mobile}', (mobile === '') ? '' : ` AND a.Mobile LIKE "%${mobile}%"`)
     sqlCount = sqlCount.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
