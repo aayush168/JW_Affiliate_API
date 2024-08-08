@@ -50,7 +50,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
       }
     }
     let status = 0;
-    if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod') {
+    if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod' || mode === 'jwpkrprod') {
       try {
         await ocms.createAgent(username, name);
         status = 1;

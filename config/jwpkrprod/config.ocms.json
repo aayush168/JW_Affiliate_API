@@ -3,11 +3,11 @@
   "accounts": {
     "createAgent": {
       "username": "jwpkr_affbot",
-      "password": "Welcome12"
+      "password": "Welcome1"
     },
     "bulkTransfer": {
       "username": "jwpkr_affbot1",
-      "password": "Welcome12"
+      "password": "Welcome1"
     }
   },
   "path": {
