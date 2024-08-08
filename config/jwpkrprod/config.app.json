@@ -9,7 +9,7 @@
   },
   "awsConfig": {
     "bucket": "agent-affiliate-s3",
-    "folder": "prod"
+    "folder": "jwpkrprod"
   },
   "currency": "PKR",
   "agentIdOCMS": "6549",
