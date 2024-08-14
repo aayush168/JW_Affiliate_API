@@ -56,7 +56,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
         status = 1;
       } catch (err) {
         if (err.response.body.code === 'channel.name.exist') {
-          return { code: 'code.username.exist', msg: 'Username is already taken' }
+          return { code: 'channel.name.exist', msg: 'Name is already taken' }
         }
         console.log(err.response.body, 'ocms error');
         throw new Error(err);
