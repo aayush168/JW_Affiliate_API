@@ -18,6 +18,8 @@ service.getAgentList = async (size, offset, { username, name, email, playerUsern
       sql = db.sql('agent/getJwBvAgentList.sql')
     } else if (mode === 'prod') {
       sql = db.sql('agent/getAgentList.sql')
+    } else if (mode === 'jwpkrprod') {
+      sql = db.sql('agent/getAgentListPkr.sql')
     } else {
       sql = db.sql('agent/getBvAgentList.sql')
     }
