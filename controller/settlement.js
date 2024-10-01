@@ -123,6 +123,7 @@ controller.getSettlementData = async function (startDate, endDate) {
         members: 0,
         totalMembers: 0,
         firstDeposit: 0,
+        totalFirstDepositAmount: 0,
         activeMembers: 0,
         turnover: 0,
         revenue: 0,
@@ -136,6 +137,7 @@ controller.getSettlementData = async function (startDate, endDate) {
       let firstDeposit = _.find(firstDepositMembers, function(i){ return (item.Name === i.Name) ? true : false; });
       if (firstDeposit) {
         data.firstDeposit = firstDeposit.Count;
+        data.totalFirstDepositAmount = firstDeposit.FirstDepositAmount
       }
       let activeMembers = _.find(betData, function(i){ return (item.Name === i.Name) ? true : false; });
       if (activeMembers) {

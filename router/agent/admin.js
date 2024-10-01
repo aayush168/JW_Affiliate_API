@@ -248,6 +248,10 @@ router.get('/settlement/getList', async function (req, res) {
             value: 'firstDeposit'
           },
           {
+            label: 'Total First Deposit Amount',
+            value: 'totalFirstDepositAmount'
+          },
+          {
             label: 'Active Members',
             value: 'activeMembers'
           },
