@@ -32,6 +32,25 @@ service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTi
   }
 };
 
+service.getFirstDepositData = async function(agentCode, startDateTime, endDateTime){
+  try{
+    let conn;
+    conn = await db.getConn('jw');
+    console.log(agentCode, startDateTime, endDateTime, 'asdad')
+    let result = (await conn.query({ sql: db.sql('revenue/getFirstDepositInfo.sql'), values: [ startDateTime, endDateTime, agentCode ] }))[0];
+    if (result.length === 0) {
+      return {
+        TotalFirstDepositMemberCount: 0,
+        TotalFirstDepositAmount: 0
+      }
+    }
+    return result[0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
 service.getCarriedRevenue = async function(agentCode, startDateTime, username = ""){
   try{
     let conn = await db.getConn('jw');

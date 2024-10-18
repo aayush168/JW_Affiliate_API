@@ -10,18 +10,20 @@ let mCurrentBetData = memoize(revenueService.getCurrentBetData, { primitive: tru
 let mCarriedRevenue = memoize(revenueService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mCurrentPromotion = memoize(revenueService.getCurrentPromotion, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mBonusAmount = memoize(revenueService.getBonusAmount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mFirstDeposit = memoize(revenueService.getFirstDepositData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let controller = {};
 const mode = process.env.mode
 
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
-  let [enableMembers, newMembers, activePlayerCount, currentPromotion, currentBetData, carriedRevenue] = await Promise.all([
+  let [enableMembers, newMembers, activePlayerCount, currentPromotion, currentBetData, carriedRevenue, firstDepositData] = await Promise.all([
     mEnableMembers(`${agentCode}%`, '', '', username, 0),
     mEnableMembers(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`),
     mActiveMembers(`${agentCode}%`, start, end),
     mCurrentPromotion(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
     mCurrentBetData(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username),
     mCarriedRevenue(`${agentCode}%`, `${start} 00:00:00`, username),
+    mFirstDeposit(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`),
   ])
   let bonusAmount = 0;
   if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
@@ -30,7 +32,7 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   let earning = calculateEstimateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
-  return { members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning.earning, platformFee: earning.fee, commissionRate: earning.commissionRate, totalMembers: parseFloat(enableMembers.TotalCount), newMembers: newMembers.TotalCount };
+  return { firstDepositMembers: firstDepositData.TotalFirstDepositMemberCount, totalFirstDepositAmount: firstDepositData.TotalFirstDepositAmount, members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning.earning, platformFee: earning.fee, commissionRate: earning.commissionRate, totalMembers: parseFloat(enableMembers.TotalCount), newMembers: newMembers.TotalCount };
 };
 
 function calculateEarning (revenue, members, commission) {
