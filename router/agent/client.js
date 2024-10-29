@@ -150,6 +150,75 @@ router.post('/auth/login', async function (req, res) {
   }
 })
 
+router.post('/auth/forgotPassword', async function (req, res) {
+  try {
+    const email = req.body.email
+    const langCode = req.body.langCode
+    const currency = req.body.currency
+    if (!email) {
+      return res.status(400).json({ code: 'params.email.required', msg: 'Email is required.' })
+    }
+    if (!langCode || !currency) {
+      return res.status(400).json({ code: 'params.email.unknown', msg: 'Something went wrong, Please try again.' })
+    }
+    let result = await agentService.forgotPassword(email, langCode, currency)
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
+router.post('/auth/reset-password/verify', async function (req, res) {
+  try {
+    const id = req.body.userId
+    const token = req.body.token
+    if (!id) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'User Id is required.' })
+    }
+    if (!token) {
+      return res.status(400).json({ code: 'params.token.required', msg: 'Token is required' })
+    }
+    let result = await agentService.resetPasswordTokenVerify(token, id)
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
+router.post('/auth/reset-password', async function (req, res) {
+  try {
+    const id = req.body.userId
+    if (!id) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'User Id is required.' })
+    }
+    const password = req.body.password
+    const newPassword = req.body.cpassword
+    console.log(newPassword, 'new password')
+    if (!password) {
+      return res.status(400).json({ code: 'params.password.required', msg: 'Password is required' })
+    }
+    if (!newPassword) {
+      return res.status(400).json({ code: 'params.newPassword.required', msg: 'New Password is required' })
+    }
+    let result = await agentService.resetNewPassword(id, password, newPassword)
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
 router.post('/profile/update', async function (req, res) {
   try {
     const id = req.body.id

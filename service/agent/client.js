@@ -2,8 +2,10 @@ let service = {}
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
+const mail = require(path.join(rootPath, 'utils', 'sendEmail.js'));
 const ocms = require(path.join(rootPath, 'ocms', 'index.js'));
 const mode = process.env.mode
+const moment = require('moment-timezone')
 
 service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram }) => {
   try {
@@ -110,6 +112,91 @@ service.resetPassword = async (id, oldPassword, newPassword) => {
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(newPassword, salt1, salt2);
+    await conn1.query({ sql: db.sql('agent/updatePassword.sql'), values: [ encryptPassword, newPassword, salt1, salt2, id ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+
+function generateResetLink(baseUrl, langCode, userId, token) {
+  return `${baseUrl}/${langCode}/reset-password?token=${token}&userId=${userId}`;
+}
+
+function generateExpiryTime() {
+  const expiryTime = moment().add(30, 'minutes').format('YYYY-MM-DD HH:mm:ss'); // Set expiry 30 minutes from now
+  return expiryTime;
+}
+
+function checkTokenExpiry(storedExpiryTime) {
+  const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+  const isExpired = moment(storedExpiryTime).isAfter(currentTime); // Checks if current time is after the expiry time
+  return isExpired;
+}
+
+service.forgotPassword = async (email, langCode, currency) => {
+  try {
+    if (currency !== 'PKR') {
+      return { code: 'code.system.support', msg: 'Feature not supported' }
+    }
+    const baseUrl = 'https://jeetwinaffiliates.com'
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let result = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0];
+    if (result.length === 0) {
+      return { code: 'code.email.invalid', msg: 'Invalid email' }
+    }
+    const resetToken = encrypt.generateResetToken();
+    const user = result[0]
+    const userId = user.Id
+    const link = generateResetLink(baseUrl, langCode, userId, resetToken)
+    const expiryTime = generateExpiryTime()
+    // need to hash resetToken
+    await conn1.query(db.sql('agent/addAgentResetPassword.sql'), [ userId, link, expiryTime, resetToken ]);
+    mail.sendMail('shrestha168@gmail.com', link);
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.resetPasswordTokenVerify = async (token, userId) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let result = (await conn.query(db.sql('agent/getResetPasswordToken.sql'), [ token, userId ]))[0];
+    if (result.length === 0) {
+      return { code: 'code.token.noExist', msg: 'Invalid token' }
+    }
+    const tokenData = result[0]
+    const expiryTime = tokenData.ExpiryTime
+    const validToken = checkTokenExpiry(expiryTime);
+    if (!validToken) {
+      return { code: 'code.token.expired', msg: 'Token Expired' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.resetNewPassword = async (id, password, newPassword) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let user = (await conn.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (user.length === 0) {
+      return { code: 'code.user.noExist', msg: 'Invalid User, Please try again' }
+    }
+    if (password !== newPassword) {
+      return { code: 'code.password.invalid', msg: 'Password does not match.' }
+    }
+    const salt1 = encrypt.getSalt(10)
+    const salt2 = encrypt.getSalt(12)
+    const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
     await conn1.query({ sql: db.sql('agent/updatePassword.sql'), values: [ encryptPassword, newPassword, salt1, salt2, id ]})
     return { code: 'common.success' }
   } catch (err) {

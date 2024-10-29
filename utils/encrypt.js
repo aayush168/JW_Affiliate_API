@@ -200,3 +200,7 @@ exports.encryptPassword = function(pass, salt, salt2){
 exports.getSalt = function (length) {
   return crypto.randomBytes(Math.ceil(length/2)).toString('hex').slice(0, length);
 }
+
+exports.generateResetToken = function () {
+  return crypto.randomBytes(32).toString('hex'); // 64-character token
+}
