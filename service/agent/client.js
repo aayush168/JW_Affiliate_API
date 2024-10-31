@@ -155,7 +155,7 @@ service.forgotPassword = async (email, langCode, currency) => {
     const expiryTime = generateExpiryTime()
     // need to hash resetToken
     await conn1.query(db.sql('agent/addAgentResetPassword.sql'), [ userId, link, expiryTime, resetToken ]);
-    mail.sendMail('shrestha168@gmail.com', link);
+    mail.sendMail(email, link);
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
