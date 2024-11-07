@@ -151,7 +151,7 @@ controller.getSettlementData = async function (startDate, endDate) {
       let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
       data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
       data.revenue = (bet) ? parseFloat(bet.Revenue) : 0;
-      if (mode && data.revenue && data.revenue < 0) {
+      if (mode && data.revenue && data.revenue > 0) {
         data.deduction = parseFloat(config.commission.operationCost) * parseFloat(data.revenue);
       }
       let operationCost = data.revenue < 0 ? 0 : config.commission.operationCost;
@@ -160,7 +160,7 @@ controller.getSettlementData = async function (startDate, endDate) {
       let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0
       data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
       data.carried = (carried) ? ((carried.Revenue < 0) ? parseFloat(carried.Revenue) : 0) : 0;
-      let result = calculateEstimateEarning(data.totalMembers, data.revenue, data.promotion, data.carried);
+      let result = calculateEstimateEarning(data.totalMembers, data.revenue, data.promotion, data.carried, data.deduction);
       data.level = (result.percentage === 0.1) ? 'Level 1 (10%)' : (result.percentage === 0.2) ? 'Level 2 (20%)' : (result.percentage === 0.3) ? 'Level 3 (30%)' : (result.percentage === 0.35) ? 'Level 4 (35%)' : '';
       data.earning = result.earning;
       affiliates.push(data)
@@ -191,8 +191,8 @@ function calculateEarning (revenue, members, commission) {
   };
 }
 
-function calculateEstimateEarning(members, revenue, promotion, carried) {
-  if ((revenue - promotion) <= 0) {
+function calculateEstimateEarning(members, revenue, promotion, carried, deduction) {
+  if (((revenue - promotion - deduction) + carried) <= 0) {
     return { earning: 0, percentage: 0 };
   }
   let operationCost = parseFloat(revenue) < 0 ? 0 : config.commission.operationCost;
