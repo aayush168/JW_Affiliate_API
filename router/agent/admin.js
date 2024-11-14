@@ -17,20 +17,62 @@ router.get('/getList', async (req, res) => {
       name: queryParams.name || '',
       email: queryParams.email || '',
       mobile: queryParams.mobile || '',
-      createdAt: queryParams.createdAt || '',
+      startDate: queryParams.startDate || '',
+      endDate: queryParams.endDate || '',
       playerUsername: req.query.playerUsername || '',
       status: [0, 1, 2, 3, 4].includes(parseInt(queryParams.status)) ? parseInt(queryParams.status) : '',
       playerSourceType: parseInt(queryParams.playerSourceType) || '',
       accountType: parseInt(queryParams.accountType) || '',
-      paymentType: queryParams.paymentType || ''
+      paymentType: queryParams.paymentType || '',
+      actionType: queryParams.actionType || 'search'
     };
-
     const calculatedPage = Math.max(1, parseInt(page));
     const calculatedSize = Math.max(1, parseInt(size));
     const startIndex = (calculatedPage - 1) * calculatedSize;
 
     const result = await agentService.getAgentList(calculatedSize, startIndex, params);
-    res.json(result);
+    if (params.actionType === 'search') {
+      res.json(result);
+    } else {
+      let fields = [
+        {
+          label: 'Name',
+          value: 'Name'
+        },
+        {
+          label: 'Username',
+          value: 'Username'
+        },
+        {
+          label: 'Mobile',
+          value: 'Mobile'
+        },
+        {
+          label: 'Whatsapp',
+          value: 'Whatsapp'
+        },
+        {
+          label: 'Telegram',
+          value: 'Telegram'
+        },
+        {
+          label: 'Skype',
+          value: 'Skype'
+        },
+        {
+          label: 'Email',
+          value: 'Email'
+        },
+        {
+          label: 'Created At',
+          value: 'Created_at'
+        }
+      ]
+      const json2csvParser = new Parser({ fields });
+      const csv = json2csvParser.parse(result.list);
+      res.attachment(`agent_list_report_${moment(params.startDate).format('YYYY-MM-DD')}_${moment(params.endDate).format('YYYY-MM-DD')}.csv`)
+      res.status(200).send(csv)
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send(err);

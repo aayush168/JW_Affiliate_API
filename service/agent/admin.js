@@ -5,10 +5,9 @@ let moment = require('moment-timezone');
 let encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'))
 const mode = process.env.mode;
 
-service.getAgentList = async (size, offset, { username, name, email, playerUsername, mobile, createdAt, status, playerSourceType, paymentType, accountType }) => {
+service.getAgentList = async (size, offset, { username, name, email, playerUsername, mobile, startDate, endDate, status, playerSourceType, paymentType, accountType, actionType }) => {
   try {
     let conn = await db.getConn('extra:read')
-    
     let sql
     if (mode === 'jwbdtprod') {
       sql = db.sql('agent/getBdtAgentList.sql')
@@ -17,9 +16,17 @@ service.getAgentList = async (size, offset, { username, name, email, playerUsern
     } else if (mode.includes('jwprod_')) {
       sql = db.sql('agent/getJwBvAgentList.sql')
     } else if (mode === 'prod') {
-      sql = db.sql('agent/getAgentList.sql')
+      if (actionType === 'search') {
+        sql = db.sql('agent/getAgentList.sql')
+      } else {
+        sql = db.sql('agent/getAgentListExport.sql')
+      }
     } else if (mode === 'jwpkrprod') {
-      sql = db.sql('agent/getAgentListPkr.sql')
+      if (actionType === 'search') {
+        sql = db.sql('agent/getAgentListPkr.sql')
+      } else {
+        sql = db.sql('agent/getAgentListPkrExport.sql')
+      }
     } else {
       sql = db.sql('agent/getBvAgentList.sql')
     }
@@ -28,22 +35,26 @@ service.getAgentList = async (size, offset, { username, name, email, playerUsern
     sql = sql.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
     sql = sql.replace('${Mobile}', (mobile === '') ? '' : ` AND a.Mobile LIKE "%${mobile}%"`)
     sql = sql.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
-    sql = sql.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt} 00:00:00" AND a.Created_at <= "${createdAt} 23:59:59"`)
+    sql = sql.replace('${CreatedAt}', (startDate === '') ? '' : `AND a.Created_at >= "${startDate} 00:00:00" AND a.Created_at <= "${endDate} 23:59:59"`)
     sql = sql.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
     sql = sql.replace('${AccountType}', (accountType === '') ? '' : `AND a.AccountType = ${accountType}`)
-    sql = sql.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType) > 0`)
-    const result = (await conn.query({ sql: sql, values: [ `%${username}%`, offset, size ]}));
-
+    sql = sql.replace('${PlayerSoruceType}', (playerSourceType === '' || actionType === 'export') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType) > 0`)
+    let result
+    if (actionType === 'search') {
+      result = (await conn.query({ sql: sql, values: [ `%${username}%`, offset, size ]}));
+    } else {
+      result = (await conn.query({ sql: sql, values: [ `%${username}%` ]}));
+    }
     let sqlCount = db.sql('agent/getAgentListCount.sql')
     sqlCount = sqlCount.replace('${Name}', (name === '') ? '' : ` AND a.Name LIKE "%${name}%"`)
     sqlCount = sqlCount.replace('${PlayerUsername}', (playerUsername === '') ? '' : ` AND ap.PlayerAccountUsername LIKE "%${playerUsername}%"`)
     sqlCount = sqlCount.replace('${Email}', (email === '') ? '' : ` AND a.Email LIKE "%${email}%"`)
     sqlCount = sqlCount.replace('${Mobile}', (mobile === '') ? '' : ` AND a.Mobile LIKE "%${mobile}%"`)
     sqlCount = sqlCount.replace('${Status}', (status === '') ? '' : `AND a.Status = ${status}`)
-    sqlCount = sqlCount.replace('${CreatedAt}', (createdAt === '') ? '' : `AND a.Created_at >= "${createdAt} 00:00:00" AND a.Created_at <= "${createdAt} 23:59:59"`)
+    sqlCount = sqlCount.replace('${CreatedAt}', (startDate === '') ? '' : `AND a.Created_at >= "${startDate} 00:00:00" AND a.Created_at <= "${endDate} 23:59:59"`)
     sqlCount = sqlCount.replace('${PaymentTypeId}', (paymentType === '') ? '' : `AND ap.PaymentTypeId = ${paymentType}`)
     sqlCount = sqlCount.replace('${AccountType}', (accountType === '') ? '' : `AND a.AccountType = ${accountType}`)
-    sqlCount = sqlCount.replace('${PlayerSoruceType}', (playerSourceType === '') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType)`)
+    sqlCount = sqlCount.replace('${PlayerSoruceType}', (playerSourceType === '' || actionType === 'export') ? '' : `AND FIND_IN_SET(${playerSourceType}, a.PlayerSourceType)`)
     const rowCount = (await conn.query({ sql: sqlCount, values: [ `%${username}%` ]}))[0];
     return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
