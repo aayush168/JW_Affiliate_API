@@ -80,7 +80,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
   }
 }
 
-service.updateProfile = async (id, email, phone, whatsapp, skype) => {
+service.updateProfile = async (id, email, businessEmail, phone, whatsapp, skype) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -96,7 +96,11 @@ service.updateProfile = async (id, email, phone, whatsapp, skype) => {
     if (agentEmail.length > 0) {
       return { code: 'code.email.exist', msg: 'Email is already taken' }
     }
-    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, phone, whatsapp, skype, id ]})
+    const agentBusinessEmail = (await conn.query(db.sql('agent/getAgentByBusinessEmail.sql'), [ businessEmail ]))[0]
+    if (agentBusinessEmail.length > 0) {
+      return { code: 'code.businessEmail.exist', msg: 'Business Email is already taken' }
+    }
+    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, businessEmail, phone, whatsapp, skype, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -506,7 +510,7 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, agentCodeName: user.AgentCodeName, email: user.Email, phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype, token: user.Token }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, agentCodeName: user.AgentCodeName, email: user.Email, businessEmail: user.BusinessEmail || '', phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype, token: user.Token }}
   } catch (err) {
     console.log(err);
     throw new Error(err);

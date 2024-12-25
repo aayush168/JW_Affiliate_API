@@ -8,6 +8,7 @@ SET
   Whatsapp = ?,
   Skype = ?,
   Email = ?,
+  BusinessEmail = ?,
   PlayerSourceType = ?,
   OtherSourceLink = ?,
   Status = ?,

@@ -15,7 +15,7 @@ service.getAgentList = async (size, offset, { username, name, email, playerUsern
       sql = db.sql('agent/getBvBDTAgentList.sql')
     } else if (mode.includes('jwprod_')) {
       sql = db.sql('agent/getJwBvAgentList.sql')
-    } else if (mode === 'prod') {
+    } else if (mode === 'prod' || mode === 'dev') {
       if (actionType === 'search') {
         sql = db.sql('agent/getAgentList.sql')
       } else {
@@ -64,7 +64,7 @@ service.getAgentList = async (size, offset, { username, name, email, playerUsern
 }
 
 
-service.updateAgentProfile = async ({ password, mobile, email, whatsapp, skype, playerSourceType, otherSourceLink, status, remark, telegram }, id) => {
+service.updateAgentProfile = async ({ password, mobile, email, businessEmail, whatsapp, skype, playerSourceType, otherSourceLink, status, remark, telegram }, id) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -75,7 +75,7 @@ service.updateAgentProfile = async ({ password, mobile, email, whatsapp, skype, 
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const agentPassword = encrypt.encryptPassword(password, salt1, salt2);
-    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, playerSourceType, otherSourceLink, status, remark, telegram, id ]})
+    await conn1.query({ sql: db.sql('agent/updateAgentProfile.sql'), values: [ password, agentPassword, salt1, salt2, mobile, whatsapp, skype, email, businessEmail, playerSourceType, otherSourceLink, status, remark, telegram, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);

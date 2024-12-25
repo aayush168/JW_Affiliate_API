@@ -60,6 +60,10 @@ router.get('/getList', async (req, res) => {
           value: 'Skype'
         },
         {
+          label: 'BusinessEmail',
+          value: 'BusinessEmail'
+        },
+        {
           label: 'Email',
           value: 'Email'
         },
@@ -87,6 +91,7 @@ router.put('/updateProfile/:id', async function (req, res) {
     const password = req.body.password
     const mobile = req.body.mobile
     const email = req.body.email
+    const businessEmail = req.body.businessEmail
     const whatsapp = req.body.whatsapp
     const skype = req.body.skype
     const playerSourceType = req.body.playerSourceType
@@ -107,6 +112,7 @@ router.put('/updateProfile/:id', async function (req, res) {
       password: password,
       mobile: mobile,
       email: email,
+      businessEmail: businessEmail,
       whatsapp: whatsapp,
       skype: skype,
       playerSourceType: playerSourceType.toString(),
