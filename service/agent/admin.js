@@ -167,6 +167,21 @@ service.updateAgentBankInfo = async ({ agentId, paymentType, bankName, accountNa
   }
 }
 
+service.updateAgentIntBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, swiftCode, currency, branch, remarks }) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    let agent = (await conn.query(db.sql('agent/getAgentIdPayment.sql'), [ agentId ]))[0];
+    if (agent.length === 0) {
+      await conn.query(db.sql('agent/addAgentIdPayment.sql'), [ agentId ]);
+    }
+    await conn.query({ sql: db.sql('agent/updateIntBankInfo.sql'), values: [ bankName, accountName, accountNumber, bankAccountType, swiftCode, currency, branch, remarks, paymentType, agentId ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 
 service.updateAgentSkrillInfo = async ({ agentId, paymentType, skrillAddress }) => {
   try {

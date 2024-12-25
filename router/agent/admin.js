@@ -415,6 +415,57 @@ async function updateJwPayments (req, paymentTypeListResult, agentId, paymentTyp
         branch: branch
       }
       response = await agentService.updateAgentBankInfo(payload);
+    } if (paymentTypeListResult.list[0].Code === 'int-bank-account') {
+      const bankName = req.body.bankName;
+      const accountName = req.body.accountName;
+      const accountNumber = req.body.accountNumber;
+      const bankAccountType = req.body.bankAccountType;
+      const swiftCode = req.body.swiftCode;
+      const currency = req.body.currency;
+      const branch = req.body.branch;
+      const remarks = req.body.remarks;
+      if (!bankName) {
+        return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
+      }
+      if (!accountName) {
+        return { code: 'params.accountName.required', msg: 'Account name is required.' }
+      }
+      if (!accountNumber) {
+        return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
+      }
+      if (!bankAccountType) {
+        return { code: 'params.bankAccountType.required', msg: 'Bank Account Type is required.' }
+      }
+      if (!swiftCode) {
+        return { code: 'params.swiftCode.required', msg: 'Swift Code is required.' }
+      }
+      if (!currency) {
+        return { code: 'params.currency.required', msg: 'Currency is required.' }
+      }
+      if (!branch) {
+        return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
+      }
+      let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+      if (!allowedBankAccountType.includes(bankAccountType)) {
+        return { code: 'params.accountType.invalid', msg: 'Invalid Account Type' }
+      }
+      let allowedCurrency = ['USD', 'EURO']
+      if (!allowedCurrency.includes(currency)) {
+        return { code: 'params.currency.invalid', msg: 'Invalid Currency' }
+      }
+      const payload = {
+        agentId: agentId,
+        paymentType: paymentType,
+        bankName: bankName,
+        accountName: accountName,
+        accountNumber: accountNumber,
+        bankAccountType: bankAccountType,
+        swiftCode: swiftCode,
+        currency: currency,
+        branch: branch,
+        remarks: remarks
+      }
+      response = await agentService.updateAgentIntBankInfo(payload);
     } else if (paymentTypeListResult.list[0].Code === 'skrill') {
       const skrillAddress = req.body.skrillAddress
       if (!skrillAddress) {

@@ -5,9 +5,9 @@ const encrypt = require(path.join(rootPath, 'utils', 'encrypt.js'));
 const mail = require(path.join(rootPath, 'utils', 'sendEmail.js'));
 const ocms = require(path.join(rootPath, 'ocms', 'index.js'));
 const mode = process.env.mode
-const moment = require('moment-timezone')
+const moment = require('moment-timezone');
 
-service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram }) => {
+service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram }) => {
   try {
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
@@ -32,6 +32,10 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
     if (agentEmail.length > 0) {
       return { code: 'code.email.exist', msg: 'Email is already taken' }
+    }
+    const agentBusinessEmail = (await conn.query(db.sql('agent/getAgentByBusinessEmail.sql'), [ businessEmail ]))[0]
+    if (agentBusinessEmail.length > 0) {
+      return { code: 'code.businessEmail.exist', msg: 'Business Email is already taken' }
     }
     if (whatsapp) {
       const agentWhatsapp = (await conn.query(db.sql('agent/getAgentByWhatsapp.sql'), [ whatsapp ]))[0]
@@ -67,7 +71,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, status ]})
+    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, status ]})
     const agentId = result[0].insertId
     return { code: 'common.success', agentId: agentId }
   } catch (err) {
@@ -246,6 +250,17 @@ service.addAgentBankInfo = async ({ agentId, paymentType, bankName, accountName,
   }
 }
 
+service.addAgentIntBankInfo = async ({ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, swiftCode, currency, branch }) => {
+  try {
+    const remarks = ""
+    let conn = await db.getConn('extra:write')
+    await conn.query({ sql: db.sql('agent/addIntBankInfo.sql'), values: [ agentId, paymentType, bankName, accountName, accountNumber, bankAccountType, swiftCode, currency, branch, remarks ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
 
 service.addAgentSkrillInfo = async ({ agentId, paymentType, skrillAddress }) => {
   try {
@@ -292,6 +307,20 @@ service.checkAgentBankAccountNumber = async (accountNumber) => {
   try {
     let conn = await db.getConn('extra:read');
     const result = (await conn.query({ sql: db.sql('agent/getAgentBankAccount.sql'), values: [ accountNumber ]}))[0]
+    if (result.length > 0) {
+      return { code: 'code.accountNumber.exist', msg: 'Bank Account Number is already linked with other account' }
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.checkAgentIntBankAccountNumber = async (accountNumber) => {
+  try {
+    let conn = await db.getConn('extra:read');
+    const result = (await conn.query({ sql: db.sql('agent/getAgentIntBankAccount.sql'), values: [ accountNumber ]}))[0]
     if (result.length > 0) {
       return { code: 'code.accountNumber.exist', msg: 'Bank Account Number is already linked with other account' }
     }
@@ -489,6 +518,30 @@ service.getDomainList = async (agentId) => {
     let conn = await db.getConn('jw')
     let result = (await conn.query({ sql: db.sql('agent/ocms/getDomainUrl.sql'), values: [ agentId ] }))[0];
     return { code: 'common.success', list: result }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.getWithdrawList = async (size, page, startDate, endDate, agentId) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let result = (await conn.query({ sql: db.sql('agent/getWithdrawList.sql'), values: [ agentId, `${startDate} 00:00:00`, `${endDate} 23:59:59`, page, size ] }))[0];
+    const rowCount = (await conn.query({ sql: db.sql('agent/getWithdrawListCount.sql'), values: [ agentId, `${startDate} 00:00:00`, `${endDate} 23:59:59`, ] }))[0]
+    return { code: 'common.success', list: result, rowCount: rowCount[0].Count }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.getCreditList = async (size, page, startDate, endDate, agentId) => {
+   try {
+    let conn = await db.getConn('extra:read')
+    let result = (await conn.query({ sql: db.sql('agent/getCreditList.sql'), values: [ agentId, `${startDate} 00:00:00`, `${endDate} 23:59:59`, page, size ] }))[0];
+    const rowCount = (await conn.query({ sql: db.sql('agent/getCreditListCount.sql'), values: [ agentId, `${startDate} 00:00:00`, `${endDate} 23:59:59`, ] }))[0]
+    return { code: 'common.success', list: result, rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);
     throw new Error(err);

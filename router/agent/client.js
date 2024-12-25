@@ -41,6 +41,12 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
         return res.status(400).send(result)
       }
     }
+    if (payment.includes('int-bank-account')) {
+      const result = await agentService.checkAgentIntBankAccountNumber(req.body.accountNumber);
+      if (result.code !== 'common.success') {
+        return res.status(400).send(result)
+      }
+    }
     if (payment === 'skrill') {
       const result = await agentService.checkAgentSkrillAdress(req.body.skrillAddress);
       if (result.code !== 'common.success') {
@@ -81,6 +87,7 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       whatsapp: req.body.whatsapp || null,
       skype: req.body.skype || null,
       email: req.body.email || null,
+      businessEmail: req.body.businessEmail || null,
       revenueShareType: req.body.revenueShareType,
       playerSourceType: playerSourceType.toString(),
       otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null,
@@ -99,6 +106,8 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       resultPayment = await addPlayerAccount(req, agentId, paymentType);
     } else if (payment === 'bank-account') {
       resultPayment = await addBankAccount(req, agentId, paymentType);
+    } else if (payment === 'int-bank-account') {
+      resultPayment = await addIntBankAccount(req, agentId, paymentType);
     } else if (payment === 'skrill') {
       resultPayment = await addSkrillAccount(req, agentId, paymentType);
     } else if (payment === 'usdt') {
@@ -377,6 +386,35 @@ router.get('/player/performance/data', async function (req, res) {
   }
 });
 
+router.get('/player/credit/data', async function (req, res) {
+  try {
+    const size = req.query.size ? parseInt(req.query.size) : 20;
+    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const agentId = req.query.agentId;
+    const startDate = req.query.startDate
+    const endDate = req.query.endDate
+    const result = await agentService.getCreditList(size, page, startDate, endDate, agentId);
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+});
+
+router.get('/player/withdraw/data', async function (req, res) {
+  try {
+    const size = req.query.size ? parseInt(req.query.size) : 20;
+    const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
+    const agentId = req.query.agentId;
+    const startDate = req.query.startDate
+    const endDate = req.query.endDate
+    const result = await agentService.getWithdrawList(size, page, startDate, endDate, agentId);
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+});
 
 router.get('/setting/getList', async function (req, res) {
   try {
@@ -462,6 +500,61 @@ async function addBankAccount (req, agentId, paymentType) {
       branch: branch
     }
     const res = await agentService.addAgentBankInfo(payload);
+    if (res.code !== 'common.success') {
+      return { code: 'params.unknown.error', msg: 'Unknown Error' }
+    }
+    return res;
+  } catch (err) {
+    throw err
+  }
+}
+
+async function addIntBankAccount (req, agentId, paymentType) {
+  try {
+    const bankName = req.body.bankName;
+    const accountName = req.body.accountName;
+    const accountNumber = req.body.accountNumber;
+    const bankAccountType = req.body.bankAccountType;
+    const swiftCode = req.body.swiftCode;
+    const currency = req.body.currency;
+    const branch = req.body.branch;
+    if (!bankName) {
+      return { code: 'params.bankName.required', msg: 'Bank Name is required.' }
+    }
+    if (!accountName) {
+      return { code: 'params.accountName.required', msg: 'Account name is required.' }
+    }
+    if (!accountNumber) {
+      return { code: 'params.accountNumber.required', msg: 'Account Number is required.' }
+    }
+    if (!bankAccountType) {
+      return { code: 'params.bankAccountType.required', msg: 'Account Type is required.' }
+    }
+    if (!swiftCode) {
+      return { code: 'params.swiftCode.required', msg: 'Swift Code is required.' }
+    }
+    if (!branch) {
+      return { code: 'params.branch.required', msg: 'Bank Branch is required.' }
+    }
+    if (!currency) {
+      return { code: 'params.currency.required', msg: 'Currency is required.' }
+    }
+    let allowedBankAccountType = [1,2,3] // 1: Saving, 2: Current, 3: Corporate
+    if (!allowedBankAccountType.includes(bankAccountType)) {
+      return { code: 'params.bankAccountType.invalid', msg: 'Invalid Account Type' }
+    }
+    const payload = {
+      agentId: agentId,
+      paymentType: paymentType,
+      bankName: bankName,
+      accountName: accountName,
+      accountNumber: accountNumber,
+      bankAccountType: bankAccountType,
+      swiftCode: swiftCode,
+      currency: currency,
+      branch: branch
+    }
+    const res = await agentService.addAgentIntBankInfo(payload);
     if (res.code !== 'common.success') {
       return { code: 'params.unknown.error', msg: 'Unknown Error' }
     }

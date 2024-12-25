@@ -34,12 +34,12 @@ const registrationRules = [
       return true
     }),
   body('email')
+    .exists().withMessage({ code: 'params.email.required', msg: 'Email is required.' })
+    .isEmail().withMessage({ code: 'params.email.invalid', msg: 'Invalid Email'}),
+  body('businessEmail')
     .custom(email => {
       return true
     }),
-  // body('email')
-  //   .exists().withMessage({ code: 'params.email.required', msg: 'Email is required.' })
-  //   .isEmail().withMessage({ code: 'params.email.invalid', msg: 'Invalid Email'}),
   body('whatsapp')
     .custom(whatsapp => {
       if(whatsapp) {
