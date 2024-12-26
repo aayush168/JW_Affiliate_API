@@ -1,24 +1,20 @@
 SELECT
-	a.NAME,
-	r.Date,
-	r.Revenue 
+	ac.`Name`,
+	SUM( `Revenue` ) AS `Revenue`
 FROM
 	(
-	SELECT
-	IF
-		( a.ParentId != 0, a.ParentId, m.AgentId ) AS AgentId,
-		DATE_FORMAT( smbd.AccountingDate, '%Y-%m' ) AS Date,
-		IFNULL( SUM( smbd.NetWin ) * - 1, 0 ) AS Revenue 
+	SELECT SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(smbd.AgentCode, 'C', '-')), '-', 2)), '-', 1) AS chGroupId,
+		SUM( smbd.NetWin ) * -1 AS `Revenue`
 	FROM
 		SummaryMemberBetDaily AS smbd
-		JOIN Member AS m ON m.Id = smbd.MemberId
-		JOIN Agent AS a ON m.AgentId = a.Id 
 	WHERE
-		AND smbd.AccountingDate < ?
-		AND smbd.AgentCode != "0-" 
+		smbd.AccountingDate < ?
+		AND smbd.AgentCode IN ( SELECT Code FROM AgentChannel ) 
 	GROUP BY
-	IF
-		( a.ParentId != 0, a.ParentId, m.AgentId ),
-		DATE_FORMAT( smbd.AccountingDate, '%Y-%m' ) 
-	) AS r
-	JOIN Agent AS a ON a.Id = r.AgentId
+		SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(smbd.AgentCode, 'C', '-')), '-', 2)), '-', 1)
+	) AS t
+	LEFT JOIN AgentChannel AS ac ON ac.Id = t.chGroupId
+WHERE
+	ac.AgentId = ?
+GROUP BY
+	`chGroupId`

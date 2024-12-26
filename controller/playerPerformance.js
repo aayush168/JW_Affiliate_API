@@ -31,7 +31,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     playerPerformanceService.getNewSignupData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('12betkh')) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
       playerPerformanceService.getBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
       playerPerformanceService.getTotalBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
@@ -71,7 +71,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       data.push(obj);
     }
   });
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('12betkh')) {
     _.each(bonusData, function (item) {
       let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
       if (obj) {
@@ -98,7 +98,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
   total.newSignupCount = parseInt(newSignupData.TotalCount)
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('12betkh')) {
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);

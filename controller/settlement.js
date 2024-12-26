@@ -86,7 +86,7 @@ async function getCarriedRevenue (startDate, memberUsername) {
 }
 
 async function getOtherBonus (startDate, endDate, memberUsername) {
-  if (mode && mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('12betkh')) {
     return []
   }
   console.time("getOtherBonus");

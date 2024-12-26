@@ -1,11 +1,11 @@
 SELECT a.Name, a.Username, r.Count
 FROM
 (
-SELECT REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) AS AgentId, COUNT(Id) AS Count
+SELECT SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(AgentCode, 'C', '-')), '-', 2)), '-', 1) AS AgentId, COUNT(Id) AS Count
 FROM Member
-WHERE REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1)) != ''
-AND Status != 2
+WHERE Status != 2
 AND AddTime <= ?
-GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1))
+AND AgentId = ?
+GROUP BY SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(AgentCode, 'C', '-')), '-', 2)), '-', 1)
 ) AS r
-JOIN Agent AS a ON a.Id = r.AgentId
+JOIN AgentChannel AS a ON a.Id = r.AgentId
