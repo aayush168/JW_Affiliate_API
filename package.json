@@ -7,7 +7,7 @@
     "start": "node app.js",
     "dev": "mode=dev node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "push": "docker build -t aio1108/jw-affiliate:api . && docker push aio1108/jw-affiliate:api",
+    "push": "docker build -t aio1108/jw-affiliate:api . && docker push aio1108/jw-affiliate:api"
   },
   "keywords": [],
   "author": "legendDai",
