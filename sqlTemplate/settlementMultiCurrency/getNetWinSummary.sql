@@ -4,6 +4,7 @@ FROM (
   FROM SummaryMemberBetDaily AS smbd
   JOIN Member AS m ON m.Id = smbd.MemberId
   WHERE smbd.AccountingDate < ?
+  AND smbd.AccountingDate > '2023-06-01'
   AND REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(m.AgentCode, '-', 2)), '-', 1)) != ''
   GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(m.AgentCode, '-', 2)), '-', 1)), DATE_FORMAT(smbd.AccountingDate, '%Y-%m')
 ) AS r
