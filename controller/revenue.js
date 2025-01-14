@@ -15,7 +15,6 @@ const mode = process.env.mode
 
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
-  console.log(start, end, 'startDate and endDAte')
   let [enableMembers, newMembers, activePlayerCount, currentPromotion, currentBetData, carriedRevenue] = await Promise.all([
     mEnableMembers(`${agentCode}%`, '', '', username, 0),
     mEnableMembers(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, '', ''),
