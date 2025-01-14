@@ -41,6 +41,20 @@ service.getPlayersCount = async function(agentCode, start, end, username, status
   }
 };
 
+service.getPlayersTotalCount = async function(agentCode){
+  try{
+    conn = await db.getConn('jw');
+    let result = await getPlayersTotalCount(conn, `${agentCode}`);
+    if(result[0].length === 0){
+      return null;
+    }
+    return result[0][0];
+  }catch(err){
+    console.log(err);
+    throw err;
+  }
+};
+
 service.getActivePlayersCount = async function(agentCode, start, end){
   try{
     let conn = await db.getConn('jw');
@@ -63,6 +77,10 @@ function getPlayers(conn, agentCode, cUsername, username, cStatus, status, cStar
 
 function getPlayersCount(conn, agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end){
   return conn.query({ sql: db.sql('member/getPlayersCount.sql'), values: [agentCode, cUsername, username, cStatus, status, cStart, start, cEnd, end]});
+}
+
+function getPlayersTotalCount(conn, agentCode){
+  return conn.query({ sql: db.sql('member/getPlayersTotalCount.sql'), values: [agentCode]});
 }
 
 function getActivePlayersCount(conn, agentCode, start, end){

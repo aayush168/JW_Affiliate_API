@@ -5,6 +5,7 @@ let _CACHE_MAX_AGE = 60000;
 let revenueService = require(path.join(rootPath, 'service', 'revenue.js'));
 let memberService = require(path.join(rootPath, 'service', 'member.js'));
 let mEnableMembers = memoize(memberService.getPlayersCount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+let mTotalMembers = memoize(memberService.getPlayersTotalCount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mActiveMembers = memoize(memberService.getActivePlayersCount, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mCurrentBetData = memoize(revenueService.getCurrentBetData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mCarriedRevenue = memoize(revenueService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
@@ -16,8 +17,8 @@ const mode = process.env.mode
 
 controller.getEstimateRevenue = async function(agentCode, start, end, username = ''){
   let [enableMembers, newMembers, activePlayerCount, currentPromotion, currentBetData, carriedRevenue] = await Promise.all([
-    mEnableMembers(`${agentCode}`, '', '', username, 0),
-    mEnableMembers(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`),
+    mTotalMembers(`${agentCode}`),
+    mEnableMembers(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`, '', ''),
     mActiveMembers(`${agentCode}`, start, end),
     mCurrentPromotion(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`, username),
     mCurrentBetData(`${agentCode}`, `${start} 00:00:00`, `${end} 23:59:59`, username),
