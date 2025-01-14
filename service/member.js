@@ -11,7 +11,7 @@ service.getPlayers = async function(agentCode, start, end, username, status, ind
     sql = sql.replace('${Status}', (status === '') ? '' : ` AND m.Status = ${status}`)
     sql = sql.replace('${StartDate}', (start === '') ? '' : ` AND m.AddTime >= "${start}"`)
     sql = sql.replace('${EndDate}', (end === '') ? '' : ` AND m.AddTime <= "${end}"`)
-    const result = await conn.query({ sql: sql, values: [ agentCode, index ]});
+    const result = await conn.query({ sql: sql, values: [ `${agentCode}%`, index ]});
     if(result[0].length === 0){
       return null;
     }
@@ -30,7 +30,7 @@ service.getPlayersCount = async function(agentCode, start, end, username, status
     sql = sql.replace('${Status}', (status === '') ? '' : ` AND m.Status = ${status}`)
     sql = sql.replace('${StartDate}', (start === '') ? '' : ` AND m.AddTime >= "${start}"`)
     sql = sql.replace('${EndDate}', (end === '') ? '' : ` AND m.AddTime <= "${end}"`)
-    const result = await conn.query({ sql: sql, values: [ agentCode ]});
+    const result = await conn.query({ sql: sql, values: [ `${agentCode}%` ]});
     if(result[0].length === 0){
       return null;
     }
