@@ -28,7 +28,8 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
   if (mode && !mode.includes('12betkh')) {
     bonusAmount = await mBonusAmount(agentCode, `${start} 00:00:00`, `${end} 23:59:59`, username);
   }
-  let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
+  let promotionAmount = parseFloat(currentPromotion.Amount);
+  // let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   let earning = calculateEstimateEarning(parseFloat(enableMembers.TotalCount), parseFloat(currentBetData.Revenue), cRevenue, parseFloat(promotionAmount));
   return { members: parseFloat(activePlayerCount.TotalCount), turnover: parseFloat(currentBetData.Turnover), revenue: parseFloat(currentBetData.Revenue), carried: cRevenue, promotion: parseFloat(promotionAmount), earning: earning.earning, platformFee: earning.fee, commissionRate: earning.commissionRate, totalMembers: parseFloat(enableMembers.TotalCount), newMembers: newMembers.TotalCount };
