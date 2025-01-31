@@ -99,7 +99,8 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.firstDepositCount = parseInt(firstDepositData.Count)
   total.newSignupCount = parseInt(newSignupData.TotalCount)
   if (mode && !mode.includes('12betkh')) {
-    total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
+    total.promotion = parseFloat(totalAccData.Promotion);
+    // total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);
   }

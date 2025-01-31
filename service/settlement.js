@@ -113,8 +113,6 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
     const dateFormat = 'YYYY-MM-DD'
     const lastMonthEnd = moment(startDate).endOf('months').format(dateFormat)
     const lastMonthStart = moment(startDate).startOf('months').format(dateFormat)
-    console.log(lastMonthEnd, 'lastMonthEnd');
-    console.log(lastMonthStart, 'lastMonthStart');
     const carriedRevenue = (await getSettlementCarriedRevenue(conn, lastMonthStart, lastMonthEnd))[0]
     return carriedRevenue;
   } catch(err) {
@@ -159,50 +157,6 @@ service.getOtherBonus = async function (startDate, endDate, memberUsername) {
   return data
 }
 
-function getTotalPromotion (promotionSummary, otherBonus) {
-  let promoData = Object.values([ ...promotionSummary, ...otherBonus ]).reduce(function (prev, next) {
-    prev[`${next.Name}-${next.Date}`] = { Name: next.Name, Date: next.Date, Promotion: (prev[`${next.Name}-${next.Date}`] ? prev[`${next.Name}-${next.Date}`].Promotion : 0) + parseFloat(next.Promotion) };
-    return prev;
-  }, {});
-  return promoData;
-  return [];
-}
-
-async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername) {
-  let data = [];
-  if (mode || mode.includes('12bet')) {
-    return data;
-  }
-  let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name });
-  let keys = _.keys(agentGroupBy);
-  for (let i = 0; i < keys.length; i++) {
-    let agent = keys[i];
-    let agentPlayers = _.pluck(agentGroupBy[agent], 'Username');
-    let agentPlayersId = _.pluck(agentGroupBy[agent], 'MemberId');
-    let totalBonus = {};
-    let agentPlayer = _.chunk(agentPlayers, 50000);
-    for (let j = 0; j < agentPlayer.length; j++) {
-      let agPlayer = agentPlayer[j];
-      let agPlayerId = agentPlayersId[j];
-      let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayer, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime
-      ]}))[0];
-      _.each(bonus, function (x) {
-        totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);
-      });
-    }
-    totalBonus = Object.keys(totalBonus).map(x => { return { Name: agent, Date: x, Promotion: totalBonus[x]  } });
-    data = [ ...data, ...totalBonus ];
-  }
-  return data;
-}
-
 function getMemberUsername (conn, endDate) {
   return conn.query({ sql: db.sql('settlement/getMemberUsername.sql'), values: [ endDate, ocmsAgentId ] });
 }
@@ -238,10 +192,6 @@ function getPromotion(conn, startDate, endDate){
 
 function getMembers(conn, endDate){
   return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ endDate, ocmsAgentId ] });
-}
-
-function getNetWinSummary(conn, startDate){
-  return conn.query({ sql: db.sql('settlement/getNetWinSummary.sql'), values: [ startDate, ocmsAgentId ] });
 }
 
 function getPromotionSummary (conn, startDate) {
