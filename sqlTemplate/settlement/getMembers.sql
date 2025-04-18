@@ -8,4 +8,4 @@ AND Status != 2
 AND AddTime <= ?
 GROUP BY REVERSE(SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(AgentCode, '-', 2)), '-', 1))
 ) AS r
-JOIN Agent AS a ON a.Id = r.AgentId
+JOIN AgentChannel AS a ON a.Id = r.AgentId

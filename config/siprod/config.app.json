@@ -1,6 +1,6 @@
 {
   "DOMAIN": {
-    "DATA_API": "https://admin.s99thai.net"
+    "DATA_API": "https://admin.s99thai.online"
   },
   "API_URL": {
     "HOURLY": "/service/analysis/getPlayerGamingByHour",

@@ -28,7 +28,7 @@
   "jw": {
     "user":"ocmsuser_si",
     "password":"fQMYWWth7ZEd8ehcaAoBqoLE",
-    "server":"dbr.s99thai.net",
+    "server":"dbr.s99thai.online",
     "database":"si_ocms_v2",
     "requestTimeout":10000,
     "connectionTimeout":10000,
