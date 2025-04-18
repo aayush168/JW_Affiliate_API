@@ -6,7 +6,7 @@ let config = require(path.join(rootPath, 'config', 'index.js'));
 let ocmsAgentId
 const mode = process.env.mode
 
-if (mode && !mode.includes('siprod')) {
+if (mode) {
   ocmsAgentId = parseInt(config.app.agentIdOCMS)
 }
 
@@ -220,84 +220,43 @@ async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername
 }
 
 function getMemberUsername (conn, endDate) {
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getMemberUsername.sql'), values: [ endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberUsername.sql'), values: [ endDate, ocmsAgentId ] });
-  }
 }
 
 function getMembersByDate (conn, startDate, endDate) {
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getMembersByDate.sql'), values: [ startDate, endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getMembersByDate.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-  }
 }
 
 function getTotalMembers (conn) {
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getTotalRegisteredMembers.sql') });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getTotalRegisteredMembers.sql'), values: [ ocmsAgentId ] });
-  }
 }
 
 function getBetData(conn, startDate, endDate){
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getBetData.sql'), values: [ startDate, endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getBetData.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-  }
 }
 
 function getFirstDepositMembers(conn, startDate, endDate){
-  console.log(startDate, endDate);
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getFirstDepositMembers.sql'), values: [ startDate, endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getFirstDepositMembers.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-  }
 }
 
 function getMemberDeposits(conn, startDate, endDate){
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getMemberDeposits.sql'), values: [ startDate, endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getMemberDeposits.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-  }
 }
 
 function getPromotion(conn, startDate, endDate){
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getPromotion.sql'), values: [ startDate, endDate, startDate, endDate, startDate, endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotion.sql'), values: [ startDate, endDate, ocmsAgentId ] });
-  }
 }
 
 function getMembers(conn, endDate){
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getMembers.sql'), values: [ endDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getMembers.sql'), values: [ endDate, ocmsAgentId ] });
-  }
 }
 
 function getNetWinSummary(conn, startDate){
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getNetWinSummary.sql'), values: [ startDate ] });
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getNetWinSummary.sql'), values: [ startDate, ocmsAgentId ] });
-  }
 }
 
 function getPromotionSummary (conn, startDate) {
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
-  } else {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
-  }
 }
 
 module.exports = service;
