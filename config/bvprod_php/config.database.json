@@ -1,8 +1,8 @@
 {
   "extra:read": {
-    "user":"bvlabs",
-    "password":"Welcome2BV",
-    "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "user":"rdlabs",
+    "password":"Welcome123",
+    "server":"labsdb.cluster-ro-chiyywekwbdy.ap-southeast-1.rds.amazonaws.com",
     "database":"affiliate_bvprod_php",
     "requestTimeout":20000,
     "connectionTimeout":20000,
@@ -13,9 +13,9 @@
     }
   },
   "extra:write": {
-    "user":"bvlabs",
-    "password":"Welcome2BV",
-    "server":"labsdb-cluster-cluster.cluster-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "user":"rdlabs",
+    "password":"Welcome123",
+    "server":"labsdb.cluster-chiyywekwbdy.ap-southeast-1.rds.amazonaws.com",
     "database":"affiliate_bvprod_php",
     "requestTimeout":20000,
     "connectionTimeout":20000,
@@ -39,9 +39,9 @@
     }
   },
   "extra1:read": {
-    "user":"bvlabs",
-    "password":"Welcome2BV",
-    "server":"labsdb-cluster-cluster.cluster-ro-cl8q3n2tusov.ap-southeast-1.rds.amazonaws.com",
+    "user":"rdlabs",
+    "password":"Welcome123",
+    "server":"labsdb.cluster-ro-chiyywekwbdy.ap-southeast-1.rds.amazonaws.com",
     "database":"betvisaextra_php",
     "requestTimeout":20000,
     "connectionTimeout":20000,
