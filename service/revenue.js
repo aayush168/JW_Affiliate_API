@@ -35,10 +35,6 @@ service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTi
 service.getCarriedRevenue = async function(agentCode, startDateTime, username = ""){
   try{
     let conn = await db.getConn('jw');
-    let xconn;
-    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh')) {
-      xconn = await db.getConn('extra1:read');
-    }
     console.time("getNetWinSummary");
     let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
     console.timeEnd("getNetWinSummary");
