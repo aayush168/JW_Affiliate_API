@@ -37,18 +37,5 @@
     "pool":{
         "max":100
     }
-  },
-  "extra1:read": {
-    "user":"rdlabs",
-    "password":"Welcome123",
-    "server":"labsdb.cluster-ro-chiyywekwbdy.ap-southeast-1.rds.amazonaws.com",
-    "database":"betvisaextra_aud",
-    "requestTimeout":20000,
-    "connectionTimeout":20000,
-    "port":3306,
-    "timezone": "+07:00",
-    "pool":{
-      "max":100
-    }
   }
 }

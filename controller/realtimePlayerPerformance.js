@@ -14,16 +14,6 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
     promotion: 0,
     loyaltyPoint: 0
   };
-  let bonusData;
-  let totalBonusData;
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    const [bonusInfo, totalBonusInfo] = await Promise.all([
-      realtimePlayerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-      realtimePlayerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username)
-    ])
-    bonusData = bonusInfo
-    totalBonusData = totalBonusInfo
-  }
   let [betData, depositData, withdrawData, promotionData, totalBetData, totalDepositData, totalWithdrawData, totalPromotionData] = await Promise.all([
     realtimePlayerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     realtimePlayerPerformanceService.getDepositData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
@@ -101,35 +91,12 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
       data.push(obj);
     }
   });
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    _.each(bonusData, function (item) {
-      let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
-      if (obj) {
-        obj.promotion = parseFloat(obj.promotion) + parseFloat(item.Amount);
-      } else {
-        obj = {
-          name: item.Username,
-          turnover: 0,
-          netwin: 0,
-          deposit: 0,
-          withdraw: 0,
-          promotion: parseFloat(item.Amount),
-          loyaltyPoint: 0
-        }
-        data.push(obj);
-      }
-    });
-  }
   
   total.turnover = parseFloat(totalBetData.Turnover);
   total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalDepositData.Amount);
   total.withdraw = parseFloat(totalWithdrawData.Amount);
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    total.promotion = parseFloat(totalPromotionData.Amount) + parseFloat(totalBonusData);
-  } else {
-    total.promotion = parseFloat(totalPromotionData.Amount);
-  }
+  total.promotion = parseFloat(totalPromotionData.Amount);
   total.loyaltyPoint = parseFloat(totalPromotionData.LoyaltyPoint);
   let totalCount = data.length;
   if (data.length > 0) {

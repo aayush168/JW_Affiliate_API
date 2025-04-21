@@ -141,37 +141,7 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
 
 service.getOtherBonus = async function (startDate, endDate, memberUsername) {
   let data = []
-  if (mode && mode.includes('ape') || mode.includes('12bet')) {
-    return data
-  }
-  let xconn = await db.getConn('extra1:read');
-  let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name })
-  let keys = _.keys(agentGroupBy);
-  for (let i = 0; i < keys.length; i++) {
-    let agent = keys[i];
-    let agentPlayers = _.pluck(agentGroupBy[agent], 'Username');
-    let agentPlayersId = _.pluck(agentGroupBy[agent], 'MemberId');
-    let bonusAmount = 0;
-    let agentPlayer = _.chunk(agentPlayers, 50000);
-    let agentPlayersIds = _.chunk(agentPlayersId, 50000);
-    for (var j = 0; j < agentPlayer.length; j++) {
-      let agPlayer = agentPlayer[j]
-      let agPlayerId = agentPlayersIds[j]
-      let bonus = (await xconn.query({ sql: db.sql('memberBonus/getTotalBonusAmount.sql'), values: [
-        agPlayerId, startDate, endDate,
-        agPlayerId, startDate, endDate,
-        agPlayer, startDate, endDate,
-        agPlayerId, startDate, endDate,
-        agPlayerId, startDate, endDate,
-        agPlayerId, startDate, endDate,
-        agPlayerId, startDate, endDate
-      ] }))[0];
-      bonusAmount = parseFloat(bonusAmount) + parseFloat(bonus[0].TotalAmount);
-    }
-    if (bonusAmount !== 0) {
-      data.push({ Name: agent, TotalBonus: bonusAmount });
-    }
-  }
+  console.log(startDate, endDate, memberUsername)
   return data
 }
 
@@ -186,36 +156,6 @@ function getTotalPromotion (promotionSummary, otherBonus) {
 
 async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername) {
   let data = [];
-  if (mode && mode.includes('ape') || mode.includes('12bet')) {
-    return data;
-  }
-  let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name });
-  let keys = _.keys(agentGroupBy);
-  for (let i = 0; i < keys.length; i++) {
-    let agent = keys[i];
-    let agentPlayers = _.pluck(agentGroupBy[agent], 'Username');
-    let agentPlayersId = _.pluck(agentGroupBy[agent], 'MemberId');
-    let totalBonus = {};
-    let agentPlayer = _.chunk(agentPlayers, 50000);
-    for (let j = 0; j < agentPlayer.length; j++) {
-      let agPlayer = agentPlayer[j];
-      let agPlayerId = agentPlayersId[j];
-      let bonus = (await xconn.query({ sql: db.sql('memberBonus/getCarriedBonusAmount.sql'), values: [
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayer, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime,
-        agPlayerId, startDateTime
-      ]}))[0];
-      _.each(bonus, function (x) {
-        totalBonus[x.Date] = !(x.Date in totalBonus) ? parseFloat(x.TotalAmount) : totalBonus[x.Date] + parseFloat(x.TotalAmount);
-      });
-    }
-    totalBonus = Object.keys(totalBonus).map(x => { return { Name: agent, Date: x, Promotion: totalBonus[x]  } });
-    data = [ ...data, ...totalBonus ];
-  }
   return data;
 }
 

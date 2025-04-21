@@ -4,7 +4,6 @@ let playerPerformanceService = require(path.join(rootPath, 'service', 'playerPer
 let revenueService = require(path.join(rootPath, 'service', 'revenue.js'));
 let config = require(path.join(rootPath, 'config', 'index.js'));
 let controller = {};
-const mode = process.env.mode
 
 controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index){
   let data = [];
@@ -18,8 +17,6 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     firstDeposit: 0,
     firstDepositCount: 0
   };
-  let bonusData;
-  let totalBonusData;
   const [betData, accData, totalBetData, totalAccData, firstDepositData, carriedRevenue] = await Promise.all([
     playerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
@@ -29,14 +26,6 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     revenueService.getCarriedRevenue(`${agentCode}%`, `${startDate} 00:00:00`, username)
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    const [bonusInfo, totalBonusInfo] = await Promise.all([
-      playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-      playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    ])
-    bonusData = bonusInfo
-    totalBonusData = totalBonusInfo
-  }
   _.each(betData, function(item){
     let obj = {
       name: item.Username,
@@ -67,37 +56,13 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       data.push(obj);
     }
   });
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    _.each(bonusData, function (item) {
-      let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
-      if (obj) {
-        obj.deposit = parseFloat(obj.deposit);
-        obj.withdraw = parseFloat(obj.withdraw);
-        obj.promotion = parseFloat(obj.promotion) + parseFloat(item.Amount);
-      } else {
-        obj = {
-          name: item.Username,
-          turnover: 0,
-          netwin: 0,
-          deposit: 0,
-          withdraw: 0,
-          promotion: parseFloat(item.Amount)
-        };
-        data.push(obj);
-      }
-    })
-  } 
   total.turnover = parseFloat(totalBetData.Turnover);
   total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalAccData.Deposit);
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
-    total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
-  } else {
-    total.promotion = parseFloat(totalAccData.Promotion);
-  }
+  total.promotion = parseFloat(totalAccData.Promotion);
   total.earning = calculateEstimateEarning(parseFloat(data.length), parseFloat(total.netwin), cRevenue, parseFloat(total.promotion))
   let totalCount = data.length;
   if (data.length > 0) {
