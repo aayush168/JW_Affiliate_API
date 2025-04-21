@@ -1,14 +1,12 @@
 let service = {};
 let path = require('path');
 let _ = require('underscore');
+const moment = require('moment-timezone')
 let db = require(path.join(rootPath, 'db', 'index.js'));
 let config = require(path.join(rootPath, 'config', 'index.js'));
-let ocmsAgentId
 const mode = process.env.mode
 
-if (mode && !mode.includes('siprod')) {
-  ocmsAgentId = parseInt(config.app.agentIdOCMS)
-}
+let ocmsAgentId = parseInt(config.app.agentIdOCMS)
 
 service.getMemberUsername = async function (endDate) {
   try {
@@ -100,40 +98,13 @@ service.getMembers = async function (endDate) {
 
 service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
-    let carriedRevenue = [];
-    let conn = await db.getConn('jw');
-    let xconn = await db.getConn('extra1:read');
-    let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
-      getNetWinSummary(conn, startDate),
-      getPromotionSummary(conn, startDate),
-      getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
-    ]);
-    let calculatedPromotion = getTotalPromotion(promotionSummary[0], otherBonusSummary);
-    let netWinGroup = _.groupBy(netWinSummary[0], 'Name');
-    let promotionGroup = _.groupBy(calculatedPromotion, 'Name');
-    let keys = _.keys(netWinGroup);
-    for (var i = 0; i < keys.length; i++) {
-      let agentName = keys[i];
-      let netWin = netWinGroup[agentName], promotion = promotionGroup[agentName];
-      let mergedArray = _.map(netWin, function (x) {
-        let f = _.find(promotion, function (y) { return (y.Date === x.Date) && y });
-        if (f) {
-          return { ...x, ...f, NetRevenue: parseFloat(x.Revenue) - parseFloat(f.Promotion) }
-        } else {
-          return { ...x, Promotion: 0, NetRevenue: parseFloat(x.Revenue) }
-        }
-      });
-      let carriedRevenueAmt = 0, netLoss = 0;
-      _.each(mergedArray, function (item) {
-        if (netLoss < 0) { carriedRevenueAmt = netLoss }
-        if (carriedRevenueAmt > 0 || netLoss >= 0) { carriedRevenueAmt = 0 }
-        netLoss = parseFloat(netLoss) + parseFloat(item.NetRevenue)
-        if (netLoss > 0) { netLoss = 0; }
-      })
-      carriedRevenue.push({ Name: agentName, Revenue: netLoss })
-    }
+    let conn = await db.getConn('extra:read');
+    const dateFormat = 'YYYY-MM-DD'
+    const lastMonthEnd = moment(startDate).endOf('months').format(dateFormat)
+    const lastMonthStart = moment(startDate).startOf('months').format(dateFormat)
+    const carriedRevenue = (await getSettlementCarriedRevenue(conn, lastMonthStart, lastMonthEnd))[0]
     return carriedRevenue;
-  }catch(err){
+  } catch(err) {
     console.log(err);
     throw err;
   }
@@ -143,20 +114,6 @@ service.getOtherBonus = async function (startDate, endDate, memberUsername) {
   let data = []
   console.log(startDate, endDate, memberUsername)
   return data
-}
-
-function getTotalPromotion (promotionSummary, otherBonus) {
-  let promoData = Object.values([ ...promotionSummary, ...otherBonus ]).reduce(function (prev, next) {
-    prev[`${next.Name}-${next.Date}`] = { Name: next.Name, Date: next.Date, Promotion: (prev[`${next.Name}-${next.Date}`] ? prev[`${next.Name}-${next.Date}`].Promotion : 0) + parseFloat(next.Promotion) };
-    return prev;
-  }, {});
-  return promoData;
-  return [];
-}
-
-async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername) {
-  let data = [];
-  return data;
 }
 
 function getMemberUsername (conn, endDate) {
@@ -224,20 +181,8 @@ function getMembers(conn, endDate){
   }
 }
 
-function getNetWinSummary(conn, startDate){
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getNetWinSummary.sql'), values: [ startDate ] });
-  } else {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getNetWinSummary.sql'), values: [ startDate, ocmsAgentId ] });
-  }
-}
-
-function getPromotionSummary (conn, startDate) {
-  if (mode && mode.includes('siprod')) {
-    return conn.query({ sql: db.sql('settlement/getPromotionSummary.sql'), values: [ startDate, startDate, startDate ]});
-  } else {
-    return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
-  }
+function getSettlementCarriedRevenue (conn, startDate, endDate) {
+  return conn.query({ sql: db.sql('settlementMultiCurrency/getNegativeCarryover.sql'), values: [ startDate, endDate ]});
 }
 
 module.exports = service;

@@ -8,6 +8,9 @@ let db = require(path.join(rootPath, 'db', 'index.js'));
 let ocms = require(path.join(rootPath, 'ocms', 'index.js'));
 let mTurnoverData = memoize(ocms.getTurnoverData, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
+let config = require(path.join(rootPath, 'config', 'index.js'));
+const ocmsAgentId = parseInt(config.app.agentIdOCMS)
+
 service.getCurrentBetData = async function(agentCode, startDateTime, endDateTime, username = ""){
   let conn;
   try{
@@ -35,35 +38,21 @@ service.getCurrentPromotion = async function(agentCode, startDateTime, endDateTi
 service.getCarriedRevenue = async function(agentCode, startDateTime, username = ""){
   try{
     let conn = await db.getConn('jw');
-    console.time("getNetWinSummary");
-    let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
-    console.timeEnd("getNetWinSummary");
-    console.time("getPromotionSummary");
-    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, agentCode, `%${username}%`, startDateTime, ]}))[0];
-    console.timeEnd("getPromotionSummary");
-    console.time("getAgentPlayer");
-    let data = [...promotionSummary]
-    let promotionCarried = Object.values(data).reduce(function (prev, next) {
-      prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
-      return prev;
-    }, {});
-
-    let mergedArray = _.map(netWinSummary, function (x) {
-      let f = _.find(promotionCarried, function (y) { return (y.Date == x.Date ) && y })
-      if (f) {
-        return { ...x, ...f, NetRevenue: parseFloat(x.Revenue) - parseFloat(f.Promotion) }
-      } else {
-        return { ...x, Promotion: 0, NetRevenue: parseFloat(x.Revenue) }
-      }
-    })
-    let carriedRevenue = 0, netLoss = 0;
-    _.each(mergedArray, function (item) {
-      if (netLoss < 0) { carriedRevenue = netLoss }
-      if (carriedRevenue > 0 || netLoss >= 0) { carriedRevenue = 0 }
-      netLoss = parseFloat(netLoss) + parseFloat(item.NetRevenue)
-      if (netLoss > 0) { netLoss = 0; }
-    })
-    return { Revenue: netLoss };
+    let xconn = await db.getConn('extra:read');
+    let agentData = (await conn.query({ sql: db.sql('revenue/getAgentData.sql'), values: [ agentCode, ocmsAgentId ] }))[0];
+    if (agentData.length === 0) {
+      return { Revenue: 0 }
+    }
+    const agentUsername = agentData[0].Username
+    const dateFormat = 'YYYY-MM-DD'
+    const lastMonthEnd = moment(startDateTime).endOf('months').format(dateFormat)
+    const lastMonthStart = moment(startDateTime).startOf('months').format(dateFormat)
+    let agentNegativeData = (await xconn.query({ sql: db.sql('revenue/getNegativeCarryover.sql'), values: [ lastMonthStart, lastMonthEnd, agentUsername ]}))[0];
+    if (agentNegativeData.length === 0) {
+      return { Revenue: 0 }
+    }
+    const amount = parseFloat(agentNegativeData[0].Amount)
+    return { Revenue: amount }
   } catch(err){
     console.log(err);
     throw err;
