@@ -146,7 +146,7 @@ controller.getSettlementData = async function (startDate, endDate) {
         data.memberDeposit = parseFloat(depositMembers.Deposit);
         promotion = depositMembers.Promotion;
       }
-      let carried = _.find(carriedRevenue, function(i){ return (item.Name === i.Name) ? true : false; });
+      let carried = _.find(carriedRevenue, function(i){ return (item.Username === i.Username) ? true : false; });
       let bet = _.find(betData, function (i) { return (item.Name === i.Name ) ? true : false; });
       let bonus = _.find(otherBonus, function (i) { return (item.Name === i.Name) ? true : false; });
       data.turnover = (bet) ? parseFloat(bet.Turnover) : 0;
@@ -159,7 +159,7 @@ controller.getSettlementData = async function (startDate, endDate) {
       let promotionAmount = (promotion) ? parseFloat(promotion) : 0;
       let bonusAmount = (bonus) ? parseFloat(bonus.TotalBonus) : 0
       data.promotion = parseFloat(promotionAmount) + parseFloat(bonusAmount);
-      data.carried = (carried) ? ((carried.Revenue < 0) ? parseFloat(carried.Revenue) : 0) : 0;
+      data.carried = (carried) ? ((carried.Amount < 0) ? parseFloat(carried.Amount) : 0) : 0;
       let result = calculateEstimateEarning(data.totalMembers, data.revenue, data.promotion, data.carried, data.deduction);
       data.level = (result.percentage === 0.1) ? 'Level 1 (10%)' : (result.percentage === 0.2) ? 'Level 2 (20%)' : (result.percentage === 0.3) ? 'Level 3 (30%)' : (result.percentage === 0.35) ? 'Level 4 (35%)' : '';
       data.earning = result.earning;
