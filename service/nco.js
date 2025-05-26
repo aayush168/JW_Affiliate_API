@@ -65,13 +65,14 @@ service.ncoBatchAdd = async (items) => {
       }
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
+        const money = item.amount.replace(/,/g, '');
         const startDate = moment(item.date).startOf('month').format('YYYY-MM-DD 00:00:00')
         const endDate = moment(item.date).endOf('month').format('YYYY-MM-DD 23:59:59')
         let nco = (await conn.query({ sql: db.sql('nco/getNCOByUsernameDate.sql'), values: [ item.username, startDate, endDate ]}))[0];
         if (nco.length === 0) {
-          await conn1.query({ sql: db.sql('nco/addNCO.sql'), values: [item.username, item.amount, item.date]})
+          await conn1.query({ sql: db.sql('nco/addNCO.sql'), values: [item.username, money, item.date]})
         } else {
-          console.log(`${item.username} nco already exist`);
+          await conn1.query({ sql: db.sql('nco/updateNCO.sql'), values: [ money, nco.Id]})
         }
       }
     } else {
