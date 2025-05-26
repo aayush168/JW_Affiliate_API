@@ -72,7 +72,7 @@ service.ncoBatchAdd = async (items) => {
         if (nco.length === 0) {
           await conn1.query({ sql: db.sql('nco/addNCO.sql'), values: [item.username, money, item.date]})
         } else {
-          await conn1.query({ sql: db.sql('nco/updateNCO.sql'), values: [ money, nco.Id]})
+          await conn1.query({ sql: db.sql('nco/updateNCOBatch.sql'), values: [ money, item.date, nco[0].Id]})
         }
       }
     } else {
