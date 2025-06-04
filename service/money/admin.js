@@ -94,23 +94,23 @@ service.transferBalancePlayerAccount = async (withdrawId, operatorId) => {
       return { code: 'code.username.invalid', msg: 'Invalid Player Account Registered OR Player Account Frozen' };
     }
 
-    if (Money > Balance) {
+    if (parseFloat(Money) > parseFloat(Balance)) {
       return { code: 'code.amount.invalid', msg: 'Invalid Amount. Please check and try again' };
     }
 
     try {
       const { MemberId } = username[0];
-      await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
+      await ocms.addBalancePlayerAccount(MemberId, parseFloat(Money), AgentUsername);
       const remainingBalance = parseFloat(Balance) - parseFloat(Money);
       await updateCredit(connWrite, remainingBalance, AgentId);
       await updateWithdraw(connWrite, 1, operatorId, withdrawId);
-      await addWithdrawLog(connWrite, withdrawId, Money, parseFloat(Balance), remainingBalance, 1);
+      await addWithdrawLog(connWrite, withdrawId, parseFloat(Money), parseFloat(Balance), remainingBalance, 1);
 
       return { code: 'common.success' };
     } catch (err) {
       console.log(err, 'ocms api error');
       await updateWithdraw(connWrite, 2, operatorId, withdrawId);
-      await addWithdrawLog(connWrite, withdrawId, Money, parseFloat(Balance), parseFloat(Balance), 2);
+      await addWithdrawLog(connWrite, withdrawId, parseFloat(Money), parseFloat(Balance), parseFloat(Balance), 2);
 
       return { code: 'code.money.transferFail', msg: 'Transfer Failed' };
     }
@@ -136,21 +136,21 @@ service.batchTransferPlayerAccount = async (operatorId) => {
       const request = withdrawRequest[i]
       const { PlayerAccountUsername, Money, Status, Balance, AgentUsername, AgentId } = request;
       const username = await getPlayerAccountByUsername(connJW, PlayerAccountUsername);
-      if (username.length === 0 || parseInt(Status) !== 0 || Money > Balance) {
+      if (username.length === 0 || parseInt(Status) !== 0 || parseFloat(Money) > parseFloat(Balance)) {
         // Validation fail case
         await updateWithdraw(connWrite, 2, operatorId, request.Id);
-        await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), parseFloat(Balance), 2);
+        await addWithdrawLog(connWrite, request.Id, parseFloat(Money), parseFloat(Balance), parseFloat(Balance), 2);
       } else {
         const { MemberId } = username[0];
         try {
-          await ocms.addBalancePlayerAccount(MemberId, Money, AgentUsername);
+          await ocms.addBalancePlayerAccount(MemberId, parseFloat(Money), AgentUsername);
         } catch (err) {
           console.log(err)
         }
         const remainingBalance = parseFloat(Balance) - parseFloat(Money);
         await updateCredit(connWrite, remainingBalance, AgentId);
         await updateWithdraw(connWrite, 1, operatorId, request.Id);
-        await addWithdrawLog(connWrite, request.Id, Money, parseFloat(Balance), remainingBalance, 1);
+        await addWithdrawLog(connWrite, request.Id, parseFloat(Money), parseFloat(Balance), remainingBalance, 1);
       }
     }
     return { code: 'common.success' };
@@ -180,7 +180,7 @@ service.rejectWithdrawRequest = async (withdrawId, operatorId) => {
       return { code: 'code.withdrawRequest.invalid', msg: 'Request has already been handled. Please refresh and try again' };
     }
     await updateWithdraw(connWrite, 3, operatorId, withdrawId);
-    await addWithdrawLog(connWrite, withdrawId, Money, parseFloat(Balance), parseFloat(Balance), 3);
+    await addWithdrawLog(connWrite, withdrawId, parseFloat(Money), parseFloat(Balance), parseFloat(Balance), 3);
     return { code: 'common.success' };
   } catch (err) {
     console.log(err);

@@ -51,20 +51,19 @@ service.updateCredit = async (agentId, operatorId, amount, type, memo) => {
     if (customer.length === 0) {
       dbCreditBalance = 0;
     } else {
-      dbCreditBalance = customer[0].Balance
+      dbCreditBalance = parseFloat(customer[0].Balance)
     }
     let creditAmount
     if (type === 2) {
-      creditAmount = amount * -1
+      creditAmount = parseFloat(amount) * -1
     } else {
-      creditAmount = amount
+      creditAmount = parseFloat(amount)
     }
-    const newBalance = dbCreditBalance + creditAmount
+    const newBalance = parseFloat(dbCreditBalance) + parseFloat(creditAmount)
     if (type === 2 && newBalance < 0) {
       return { code: "code.agent.insufficientBalance", msg: "Customer has insufficient balance." }
     }
     if (customer.length === 0) {
-      console.log('test');
       await conn1.query({ sql: db.sql('credit/addCredit.sql'), values: [agentId, newBalance]})
     } else {
       await conn1.query({ sql: db.sql('credit/updateCredit.sql'), values: [newBalance, agentId]})
@@ -84,7 +83,6 @@ service.creditBatchAdd = async (items, operatorId) => {
     let conn1 = await db.getConn('extra:write')
     let validationFailed = false;
     if (items.length > 0) {
-      console.log(items, 'test');
       for (const item of items) {
         if (!item.hasOwnProperty('amount') || !item.hasOwnProperty('username')) {
           validationFailed = true;
@@ -99,7 +97,7 @@ service.creditBatchAdd = async (items, operatorId) => {
         let agent = (await conn.query({ sql: db.sql('credit/getAgentAccountByUsername.sql'), values: [ item.username ]}))[0];
         if (agent.length > 0) {
           const agentId = agent[0].AgentId
-          const oldBalance = agent[0].Balance
+          const oldBalance = parseFloat(agent[0].Balance)
           const creditAmount = parseFloat(item.amount)
           const memo = `${item.username} credit added (batch upload)`
           if (oldBalance === null || oldBalance === '') {

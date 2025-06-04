@@ -45,7 +45,7 @@ service.addWithdrawRequest = async (agentId, playerAccount, amount, password) =>
     }
 
     // Add withdraw request
-    await conn1.query({ sql: db.sql('money/addWithdrawRequest.sql'), values: [agentId, PlayerAccountUsername, amount, Balance] });
+    await conn1.query({ sql: db.sql('money/addWithdrawRequest.sql'), values: [agentId, PlayerAccountUsername, parseFloat(amount), parseFloat(Balance)] });
 
     return { code: "common.success" };
   } catch (err) {
