@@ -97,7 +97,7 @@ service.creditBatchAdd = async (items, operatorId) => {
         let agent = (await conn.query({ sql: db.sql('credit/getAgentAccountByUsername.sql'), values: [ item.username ]}))[0];
         if (agent.length > 0) {
           const agentId = agent[0].AgentId
-          const oldBalance = parseFloat(agent[0].Balance)
+          const oldBalance = agent[0].Balance ? parseFloat(agent[0].Balance) : agent[0].Balance
           const creditAmount = parseFloat(item.amount)
           const memo = `${item.username} credit added (batch upload)`
           if (oldBalance === null || oldBalance === '') {
