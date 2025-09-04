@@ -56,8 +56,13 @@ service.init = async () => {
     await setupAWSCredential()
     aws.config.loadFromPath(path.join(rootPath, 'credentials/credential.json'));
     aws.config.setPromisesDependency(null);
-    s3 = new aws.S3();
-    log.info('AWS configuration set successfully.')
+    
+    // Set the correct region for S3 (ap-southeast-1 based on your error)
+    s3 = new aws.S3({
+      region: 'ap-southeast-1'
+    });
+    
+    log.info('AWS configuration set successfully with region: ap-southeast-1')
   } catch (err) {
     log.error(err)
     throw new Error(err);
@@ -89,6 +94,32 @@ service.delete = async (bucket, key) => {
   } catch (err) {
     log.error(err)
     throw err;
+  }
+}
+
+/**
+ * Generate pre-signed URL for downloading S3 objects
+ * @param {string} key - S3 object key
+ * @param {number} expiresIn - Expiration time in seconds (default: 3600 = 1 hour)
+ * @param {string} bucket - S3 bucket name (optional, uses default from config)
+ * @returns {string} Pre-signed URL for downloading
+ */
+service.getPresignedUrl = async (key, expiresIn = 3600, bucket = null) => {
+  try {
+    const bucketName = bucket || app.awsConfig.bucket;
+    
+    const params = {
+      Bucket: bucketName,
+      Key: key,
+      Expires: expiresIn
+    };
+
+    const url = await s3.getSignedUrlPromise('getObject', params);
+    log.info(`Generated pre-signed download URL for key: ${key}`);
+    return url;
+  } catch (err) {
+    log.error('Error generating pre-signed URL:', err);
+    throw new Error(err);
   }
 }
 

@@ -16,4 +16,15 @@ service.getBannerList = async (size, offset) => {
   }
 }
 
+service.getAdS3Data = async (adId) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    const result = (await conn.query({ sql: db.sql('advertisement/client/getAdvertisementBannerS3Data.sql'), values: [ adId ]}));
+    return result[0]
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service;
