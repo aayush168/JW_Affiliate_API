@@ -1,4 +1,4 @@
-SELECT a.Name, a.Username, r.Count
+SELECT a.Name, a.Username, r.Count, a.AddTime
 FROM
 (
 SELECT SUBSTRING_INDEX(REVERSE(SUBSTRING_INDEX(REVERSE(REPLACE(AgentCode, 'C', '-')), '-', 2)), '-', 1) AS AgentId, COUNT(Id) AS Count
