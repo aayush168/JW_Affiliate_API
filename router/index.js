@@ -15,7 +15,7 @@ const moneyClient = require(path.join(rootPath, 'router', 'money', 'client.js'))
 const nco = require(path.join(rootPath, 'router', 'nco.js'))
 const bonusAdmin = require(path.join(rootPath, 'router', 'bonus', 'admin.js'))
 const bonusClient = require(path.join(rootPath, 'router', 'bonus', 'client.js'))
-
+const ftd = require(path.join(rootPath, 'router', 'ftd.js'))
 const log = require(path.join(rootPath, 'router', 'log.js'))
 
 const router = {
@@ -35,6 +35,7 @@ const router = {
   nco: nco,
   bonusClient: bonusClient,
   bonusAdmin: bonusAdmin,
+  ftd: ftd,
 }
 
 module.exports = router
