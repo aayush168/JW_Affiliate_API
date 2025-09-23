@@ -19,13 +19,14 @@ service.getList = async (size, page, username, sTime, eTime) => {
     if (agent.length !== 0) {
       agentCode = agent[0].Code
     }
-    sql = sql.replace('${AgentCode}', (agentCode === '') ? '' : ` WHERE a.AgentCode = "${agentCode}"`)
+    sql = sql.replace('${AgentCode}', (agentCode === '') ? '' : `WHERE a.Code = "${agentCode}"`)
     sql = sql.replace('${StartDate}', (sTime === '') ? '' : `${eTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime >= "${startDate}"`)
     sql = sql.replace('${EndDate}', (eTime === '') ? '' : `${sTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime <= "${endDate}"`)
+    console.log(sql)
     const result = await conn.query({ sql: sql, values: [page, size] })
 
     let sqlCount = db.sql('ftd/getFirstDepositMembersCount.sql')
-    sqlCount = sqlCount.replace('${AgentCode}', (agentCode === '') ? '' : ` WHERE a.AgentCode = "${agentCode}"`)
+    sqlCount = sqlCount.replace('${AgentCode}', (agentCode === '') ? '' : ` WHERE a.Code = "${agentCode}"`)
     sqlCount = sqlCount.replace('${StartDate}', (sTime === '') ? '' : `${eTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime >= "${startDate}"`)
     sqlCount = sqlCount.replace('${EndDate}', (eTime === '') ? '' : `${sTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime <= "${endDate}"`)
     const rowCount = (await conn.query({ sql: sqlCount }))[0]

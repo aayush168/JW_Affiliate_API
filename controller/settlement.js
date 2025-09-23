@@ -118,6 +118,7 @@ controller.getSettlementData = async function (startDate, endDate) {
     console.timeEnd("carried-other-bonus");
     _.each(members, function (item) {
       let data = {
+        createdAt: item.AddTime,
         name: item.Name,
         username: item.Username,
         members: 0,
