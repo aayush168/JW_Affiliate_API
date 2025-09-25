@@ -80,7 +80,8 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
   }
 }
 
-service.updateProfile = async (id, email, businessEmail, phone, whatsapp, skype) => {
+// service.updateProfile = async (id, email, businessEmail, phone, whatsapp, skype) => {
+service.updateProfile = async (id, dob) => {
   try {
     let conn = await db.getConn('extra:read')
     let conn1 = await db.getConn('extra:write')
@@ -88,19 +89,20 @@ service.updateProfile = async (id, email, businessEmail, phone, whatsapp, skype)
     if (agent.length === 0) {
       return { code: "code.agent.noExist", msg: "Agent Not Found" }
     }
-    const agentMobile = (await conn.query(db.sql('agent/getAgentByMobile.sql'), [ phone ]))[0]
-    if (agentMobile.length > 0) {
-      return { code: 'code.phone.exist', msg: 'Number is already taken' }
-    }
-    const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
-    if (agentEmail.length > 0) {
-      return { code: 'code.email.exist', msg: 'Email is already taken' }
-    }
-    const agentBusinessEmail = (await conn.query(db.sql('agent/getAgentByBusinessEmail.sql'), [ businessEmail ]))[0]
-    if (agentBusinessEmail.length > 0) {
-      return { code: 'code.businessEmail.exist', msg: 'Business Email is already taken' }
-    }
-    await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, businessEmail, phone, whatsapp, skype, id ]})
+    // const agentMobile = (await conn.query(db.sql('agent/getAgentByMobile.sql'), [ phone ]))[0]
+    // if (agentMobile.length > 0) {
+    //   return { code: 'code.phone.exist', msg: 'Number is already taken' }
+    // }
+    // const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
+    // if (agentEmail.length > 0) {
+    //   return { code: 'code.email.exist', msg: 'Email is already taken' }
+    // }
+    // const agentBusinessEmail = (await conn.query(db.sql('agent/getAgentByBusinessEmail.sql'), [ businessEmail ]))[0]
+    // if (agentBusinessEmail.length > 0) {
+    //   return { code: 'code.businessEmail.exist', msg: 'Business Email is already taken' }
+    // }
+    // await conn1.query({ sql: db.sql('agent/updateProfile.sql'), values: [ email, businessEmail, phone, whatsapp, skype, id ]})
+    await conn1.query({ sql: db.sql('agent/updateProfileDOB.sql'), values: [ dob, id ]})
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
@@ -510,7 +512,7 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, agentCodeName: user.AgentCodeName, email: user.Email, businessEmail: user.BusinessEmail || '', phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype, token: user.Token }}
+    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, agentCodeName: user.AgentCodeName, email: user.Email, businessEmail: user.BusinessEmail || '', phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype, token: user.Token, dob: user.DOB, referralUsername: user.ReferralUsername }}
   } catch (err) {
     console.log(err);
     throw new Error(err);

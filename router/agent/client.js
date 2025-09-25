@@ -232,22 +232,24 @@ router.post('/auth/reset-password', async function (req, res) {
 
 router.post('/profile/update', async function (req, res) {
   try {
-    const id = req.body.id
+    const id = req.body.agentId
     if (!id) {
       return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
     }
-    const email = req.body.email
-    const businessEmail = req.body.businessEmail || ''
-    const phone = req.body.phone
-    const whatsapp = req.body.whatsapp || ''
-    const skype = req.body.skype || ''
-    if (!email) {
-      return res.status(400).json({ code: 'params.email.required', msg: 'Email is required.' })
-    }
-    if (!phone) {
-      return res.status(400).json({ code: 'params.phone.required', msg: 'Phone is required.' })
-    }
-    let result = await agentService.updateProfile(id, email, businessEmail, phone, whatsapp, skype)
+    // const email = req.body.email
+    // const businessEmail = req.body.businessEmail || ''
+    // const phone = req.body.phone
+    // const whatsapp = req.body.whatsapp || ''
+    // const skype = req.body.skype || ''
+    const dob = req.body.dob || null
+    // if (!email) {
+    //   return res.status(400).json({ code: 'params.email.required', msg: 'Email is required.' })
+    // }
+    // if (!phone) {
+    //   return res.status(400).json({ code: 'params.phone.required', msg: 'Phone is required.' })
+    // }
+    // let result = await agentService.updateProfile(id, email, businessEmail, phone, whatsapp, skype)
+    let result = await agentService.updateProfile(id, dob)
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
