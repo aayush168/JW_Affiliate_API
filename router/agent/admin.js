@@ -68,6 +68,14 @@ router.get('/getList', async (req, res) => {
           value: 'Email'
         },
         {
+          label: 'DOB',
+          value: 'DOB'
+        },
+        {
+          label: 'ReferralUsername',
+          value: 'ReferralUsername'
+        },
+        {
           label: 'Created At',
           value: 'Created_at'
         }
@@ -99,6 +107,8 @@ router.put('/updateProfile/:id', async function (req, res) {
     const remark = req.body.remark
     const telegram = req.body.telegram
     const otherSourceLink = req.body.otherSourceLink
+    const dob = req.body.dob || null
+    const referralUsername = req.body.referralUsername || null
     if (!id) {
       return res.status(400).json({ code: 'params.id.required', msg: 'Unknown Error' })
     }
@@ -119,7 +129,9 @@ router.put('/updateProfile/:id', async function (req, res) {
       status: status,
       otherSourceLink: otherSourceLink,
       remark: remark,
-      telegram: telegram
+      telegram: telegram,
+      dob: dob,
+      referralUsername: referralUsername
     }
     const result = await agentService.updateAgentProfile(payload, id);
     if (result.code !== 'common.success') {

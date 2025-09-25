@@ -13,6 +13,8 @@ SET
   OtherSourceLink = ?,
   Status = ?,
   Remark = ?,
-  Telegram = ?
+  Telegram = ?,
+  DOB = ?,
+  ReferralUsername = ?
 WHERE Id = ?
   
