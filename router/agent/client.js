@@ -93,6 +93,8 @@ router.post('/auth/register', agent.agentRegistrationRules(), validate, async fu
       otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null,
       ipAddress: ipAddress,
       telegram: req.body.telegram ? req.body.telegram : null,
+      dob: req.body.dob ? req.body.dob : null,
+      referralUsername: req.body.referralUsername ? req.body.referralUsername : null,
     }
     const result = await agentService.addAgent(registerAgentPayload);
     if (result.code !== 'common.success') {

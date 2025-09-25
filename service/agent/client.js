@@ -7,7 +7,7 @@ const ocms = require(path.join(rootPath, 'ocms', 'index.js'));
 const mode = process.env.mode
 const moment = require('moment-timezone');
 
-service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram }) => {
+service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, dob, referralUsername }) => {
   try {
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
@@ -71,7 +71,7 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, status ]})
+    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, dob, referralUsername, status ]})
     const agentId = result[0].insertId
     return { code: 'common.success', agentId: agentId }
   } catch (err) {
