@@ -18,6 +18,7 @@ const bonusClient = require(path.join(rootPath, 'router', 'bonus', 'client.js'))
 const ftd = require(path.join(rootPath, 'router', 'ftd.js'))
 const referral = require(path.join(rootPath, 'router', 'referral.js'))
 const log = require(path.join(rootPath, 'router', 'log.js'))
+const report = require(path.join(rootPath, 'router', 'report.js'))
 
 const router = {
   operator: operator,
@@ -38,6 +39,7 @@ const router = {
   bonusAdmin: bonusAdmin,
   ftd: ftd,
   referral: referral,
+  report: report,
 }
 
 module.exports = router
