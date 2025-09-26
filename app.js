@@ -47,6 +47,7 @@ app.use('/credit', router.credit);
 app.use('/money', router.moneyAdmin);
 app.use('/nco', router.nco);
 app.use('/ftd', router.ftd);
+app.use('/referral', router.referral);
 
 app.use('/api/v1/agent', router.agentClient);
 app.use('/api/v1/setting', router.settingClient);
