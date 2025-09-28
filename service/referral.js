@@ -3,7 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const moment = require('moment-timezone');
 
-service.getList = async (size, page, username, sTime, eTime) => {
+service.getList = async (size, page, username, sTime, eTime, actionType) => {
   try {
     let conn = await db.getConn('extra:read')
     
@@ -14,14 +14,19 @@ service.getList = async (size, page, username, sTime, eTime) => {
     if (eTime !== '') {
       endDate = moment(eTime).format('YYYY-MM-DD 23:59:59')
     }
-    let sql = db.sql('referral/getReferralMembers.sql')
-    sql = sql.replace('${Username}', (username === '') ? '' : `AND Username = "${username}"`)
+    let sql = actionType === 'search' ? db.sql('referral/getReferralMembers.sql') : db.sql('referral/getReferralMembersExport.sql')
+    sql = sql.replace('${Username}', (username === '') ? '' : `AND ReferralUsername = "${username}"`)
     sql = sql.replace('${StartDate}', (sTime === '') ? '' : `AND Created_at >= "${startDate}"`)
     sql = sql.replace('${EndDate}', (eTime === '') ? '' : `AND Created_at <= "${endDate}"`)
-    const result = await conn.query({ sql: sql, values: [page, size] })
+    let result
+    if (actionType === 'search') {
+      result = (await conn.query({ sql: sql, values: [page, size]}));
+    } else {
+      result = (await conn.query({ sql: sql}));
+    }
 
     let sqlCount = db.sql('referral/getReferralMembersCount.sql')
-    sqlCount = sqlCount.replace('${Username}', (username === '') ? '' : `AND Username = "${username}"`)
+    sqlCount = sqlCount.replace('${Username}', (username === '') ? '' : `AND ReferralUsername = "${username}"`)
     sqlCount = sqlCount.replace('${StartDate}', (sTime === '') ? '' : `AND Created_at >= "${startDate}"`)
     sqlCount = sqlCount.replace('${EndDate}', (eTime === '') ? '' : `AND Created_at <= "${endDate}"`)
     const rowCount = (await conn.query({ sql: sqlCount }))[0]
