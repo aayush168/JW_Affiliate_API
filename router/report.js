@@ -4,7 +4,9 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const log = logger.getLogger('Report');
 const reportService = require(path.join(rootPath, 'service', 'report.js'));
-const moment = require('moment');
+const { Parser } = require('json2csv');
+const moment = require('moment-timezone');
+
 
 router.get('/deposit-turnover/getList', async function (req, res) {
   try {
@@ -13,6 +15,7 @@ router.get('/deposit-turnover/getList', async function (req, res) {
     const username = req.query.username ? req.query.username : ''
     const startDate = req.query.startDate ? req.query.startDate : ''
     const endDate = req.query.endDate ? req.query.endDate : ''
+    const actionType = req.query.actionType ? req.query.actionType : 'search'
     if (username === '') {
       return res.status(400).send({ code: 'code.username.required', message: 'Username is required' })
     }
@@ -49,11 +52,32 @@ router.get('/deposit-turnover/getList', async function (req, res) {
       })
     }
 
-    const result = await reportService.getList(size, page, username, startDate, endDate);
+    const result = await reportService.getList(size, page, username, startDate, endDate, actionType);
     if (result.code !== 'common.success') {
       return res.status(400).send({ code: result.code, message: result.message })
     }
-    res.json(result)
+    if (actionType === 'search') {
+      res.json(result)
+    } else {
+      let fields = [
+        {
+          label: 'Player Username',
+          value: 'Username'
+        },
+        {
+          label: 'Total Turnover',
+          value: 'TotalTurnover'
+        },
+        {
+          label: 'Total Deposit',
+          value: 'TotalDeposit'
+        }
+      ]
+      const json2csvParser = new Parser({ fields });
+      const csv = json2csvParser.parse(result.list);
+      res.attachment(`${username}_deposit_turnover_list_${moment(startDate).format('YYYY-MM-DD')} to ${moment(endDate).format('YYYY-MM-DD')}.csv`)
+      res.status(200).send(csv)
+    }
   } catch (err) {
     log.error(err)
     res.status(500).send(err);

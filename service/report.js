@@ -3,7 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const moment = require('moment-timezone');
 
-service.getList = async (size, page, username, sTime, eTime) => {
+service.getList = async (size, page, username, sTime, eTime, actionType) => {
   try {
     let conn = await db.getConn('jw')
     let startDate, endDate
@@ -20,8 +20,13 @@ service.getList = async (size, page, username, sTime, eTime) => {
     } else {
       return { code: '“common.error', message: 'Agent not found' }
     }
-    let sql = db.sql('report/getTurnoverDeposit.sql')
-    const result = await conn.query({ sql: sql, values: [startDate, endDate, agentCode, startDate, endDate, agentCode, page, size] })
+    let sql = actionType === 'search' ? db.sql('report/getTurnoverDeposit.sql') : db.sql('report/getTurnoverDepositExport.sql')
+    let result
+    if (actionType === 'search') {
+      result = (await conn.query({ sql: sql, values: [startDate, endDate, agentCode, startDate, endDate, agentCode, page, size] }))
+    } else {
+      result = (await conn.query({ sql: sql, values: [startDate, endDate, agentCode, startDate, endDate, agentCode] }))
+    }
     let sqlCount = db.sql('report/getTurnoverDepositCount.sql')
     const rowCount = (await conn.query({ sql: sqlCount, values: [startDate, endDate, agentCode, startDate, endDate, agentCode] }))[0]
     return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
