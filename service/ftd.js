@@ -3,7 +3,7 @@ const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const moment = require('moment-timezone');
 
-service.getList = async (size, page, username, sTime, eTime) => {
+service.getList = async (size, page, username, sTime, eTime, actionType) => {
   try {
     let conn = await db.getConn('jw')
     let startDate, endDate
@@ -15,14 +15,19 @@ service.getList = async (size, page, username, sTime, eTime) => {
     }
     let agentCode = ''
     let agent = (await conn.query({ sql: db.sql('ftd/getAgentByUsername.sql'), values: [username] }))[0];
-    let sql = db.sql('ftd/getFirstDepositMembers.sql')
     if (agent.length !== 0) {
       agentCode = agent[0].Code
     }
+    let sql = actionType === 'search' ? db.sql('ftd/getFirstDepositMembers.sql') : db.sql('ftd/getFirstDepositMembersExport.sql')
     sql = sql.replace('${AgentCode}', (agentCode === '') ? '' : `WHERE a.Code = "${agentCode}"`)
     sql = sql.replace('${StartDate}', (sTime === '') ? '' : `${username === '' && eTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime >= "${startDate}"`)
     sql = sql.replace('${EndDate}', (eTime === '') ? '' : `${username === '' && sTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime <= "${endDate}"`)
-    const result = await conn.query({ sql: sql, values: [page, size] })
+    let result
+    if (actionType === 'search') {
+      result = (await conn.query({ sql: sql, values: [page, size] }))
+    } else {
+      result = (await conn.query({ sql: sql }))
+    }
 
     let sqlCount = db.sql('ftd/getFirstDepositMembersCount.sql')
     sqlCount = sqlCount.replace('${AgentCode}', (agentCode === '') ? '' : ` WHERE a.Code = "${agentCode}"`)
