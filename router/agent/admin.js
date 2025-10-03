@@ -347,6 +347,10 @@ router.get('/settlement/getList', async function (req, res) {
             label: 'Deduction',
             value: 'deduction'
           },
+          {
+            label: 'Registered Date',
+            value: 'createdAt'
+          }
         ]
         const json2csvParser = new Parser({ fields });
         const csv = json2csvParser.parse(result.affiliates);
