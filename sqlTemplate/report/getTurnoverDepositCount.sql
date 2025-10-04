@@ -7,7 +7,7 @@ FROM (
     FROM SummaryMemberInfoDaily
     WHERE AccountingDate >= ? 
       AND AccountingDate <= ?
-      AND AgentCode = ?
+      ${AgentCode}
     GROUP BY MemberId
 ) smid
 LEFT JOIN (
@@ -17,7 +17,7 @@ LEFT JOIN (
     FROM SummaryMemberBetDaily
     WHERE AccountingDate >= ? 
       AND AccountingDate <= ?
-      AND AgentCode = ?
+      ${AgentCode}
     GROUP BY MemberId
 ) smbd ON smbd.MemberId = smid.MemberId
 JOIN Member m ON m.Id = smid.MemberId

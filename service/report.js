@@ -17,18 +17,18 @@ service.getList = async (size, page, username, sTime, eTime, actionType) => {
     let agent = (await conn.query({ sql: db.sql('ftd/getAgentByUsername.sql'), values: [username] }))[0];
     if (agent.length !== 0) {
       agentCode = agent[0].Code
-    } else {
-      return { code: '“common.error', message: 'Agent not found' }
     }
     let sql = actionType === 'search' ? db.sql('report/getTurnoverDeposit.sql') : db.sql('report/getTurnoverDepositExport.sql')
     let result
+    sql = sql.replaceAll('${AgentCode}', (agentCode === '') ? '' : `AND AgentCode = "${agentCode}"`)
     if (actionType === 'search') {
-      result = (await conn.query({ sql: sql, values: [startDate, endDate, agentCode, startDate, endDate, agentCode, page, size] }))
+      result = (await conn.query({ sql: sql, values: [startDate, endDate, startDate, endDate, page, size] }))
     } else {
-      result = (await conn.query({ sql: sql, values: [startDate, endDate, agentCode, startDate, endDate, agentCode] }))
+      result = (await conn.query({ sql: sql, values: [startDate, endDate, startDate, endDate] }))
     }
     let sqlCount = db.sql('report/getTurnoverDepositCount.sql')
-    const rowCount = (await conn.query({ sql: sqlCount, values: [startDate, endDate, agentCode, startDate, endDate, agentCode] }))[0]
+    sqlCount = sqlCount.replaceAll('${AgentCode}', (agentCode === '') ? '' : `AND AgentCode = "${agentCode}"`)
+    const rowCount = (await conn.query({ sql: sqlCount, values: [startDate, endDate, startDate, endDate] }))[0]
     return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
     console.log(err);

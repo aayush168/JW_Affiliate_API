@@ -9,3 +9,4 @@ WHERE ReferralUsername IS NOT NULL
 ${Username}
 ${StartDate}
 ${EndDate}
+ORDER BY Created_at DESC

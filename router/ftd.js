@@ -15,9 +15,9 @@ router.get('/getList', async function (req, res) {
     const startDate = req.query.startDate ? req.query.startDate : ''
     const endDate = req.query.endDate ? req.query.endDate : ''
     const actionType = req.query.actionType ? req.query.actionType : 'search'
-    if (!username && actionType === 'export') {
-      return res.status(400).send({ code: 'code.username.required', message: 'Username is required' })
-    }
+    // if (!username && actionType === 'export') {
+    //   return res.status(400).send({ code: 'code.username.required', message: 'Username is required' })
+    // }
     if (!startDate && actionType === 'export') {
       return res.status(400).send({ code: 'code.startDate.required', message: 'Start date is required' })
     }
@@ -48,7 +48,7 @@ router.get('/getList', async function (req, res) {
       ]
       const json2csvParser = new Parser({ fields });
       const csv = json2csvParser.parse(result.list);
-      res.attachment(`${username}_ftd_list_${moment(startDate).format('YYYY-MM-DD')} to ${moment(endDate).format('YYYY-MM-DD')}.csv`)
+      res.attachment(`ftd_list_${moment(startDate).format('YYYY-MM-DD')} to ${moment(endDate).format('YYYY-MM-DD')}.csv`)
       res.status(200).send(csv)
     }
   } catch (err) {
