@@ -1,6 +1,7 @@
 SELECT 
     smid.MemberId,
     m.Username,
+    ac.Username AS AgentUsername,
     IFNULL(smbd.TotalTurnover, 0) AS TotalTurnover,
     IFNULL(smid.TotalDeposit, 0) AS TotalDeposit
 FROM (
@@ -24,4 +25,5 @@ LEFT JOIN (
     GROUP BY MemberId
 ) smbd ON smbd.MemberId = smid.MemberId
 JOIN Member m ON m.Id = smid.MemberId
+JOIN AgentChannel ac ON ac.Code = m.AgentCode
 LIMIT ?,?

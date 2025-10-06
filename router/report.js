@@ -65,6 +65,10 @@ router.get('/deposit-turnover/getList', async function (req, res) {
           value: 'Username'
         },
         {
+          label: 'Agent Username',
+          value: 'AgentUsername'
+        },
+        {
           label: 'Total Turnover',
           value: 'TotalTurnover'
         },
