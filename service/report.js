@@ -20,14 +20,16 @@ service.getList = async (size, page, username, sTime, eTime, actionType) => {
     }
     let sql = actionType === 'search' ? db.sql('report/getTurnoverDeposit.sql') : db.sql('report/getTurnoverDepositExport.sql')
     let result
-    sql = sql.replaceAll('${AgentCode}', (agentCode === '') ? '' : `AND AgentCode = "${agentCode}"`)
+    sql = sql.replace('${AgentCode}', (agentCode === '') ? '' : `AND AgentCode = "${agentCode}"`)
+    sql = sql.replace('${AgentCodeColumn}', (agentCode === '') ? '' : `AgentCode = "${agentCode}"`)
     if (actionType === 'search') {
       result = (await conn.query({ sql: sql, values: [startDate, endDate, startDate, endDate, page, size] }))
     } else {
       result = (await conn.query({ sql: sql, values: [startDate, endDate, startDate, endDate] }))
     }
     let sqlCount = db.sql('report/getTurnoverDepositCount.sql')
-    sqlCount = sqlCount.replaceAll('${AgentCode}', (agentCode === '') ? '' : `AND AgentCode = "${agentCode}"`)
+    sqlCount = sqlCount.replace('${AgentCode}', (agentCode === '') ? '' : `AND AgentCode = "${agentCode}"`)
+    sqlCount = sqlCount.replace('${AgentCodeColumn}', (agentCode === '') ? '' : `AgentCode = "${agentCode}"`)
     const rowCount = (await conn.query({ sql: sqlCount, values: [startDate, endDate, startDate, endDate] }))[0]
     return { code: 'common.success', list: result[0], rowCount: rowCount[0].Count }
   } catch (err) {
