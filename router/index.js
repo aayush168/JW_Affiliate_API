@@ -19,6 +19,7 @@ const ftd = require(path.join(rootPath, 'router', 'ftd.js'))
 const referral = require(path.join(rootPath, 'router', 'referral.js'))
 const log = require(path.join(rootPath, 'router', 'log.js'))
 const report = require(path.join(rootPath, 'router', 'report.js'))
+const agentTag = require(path.join(rootPath, 'router', 'agentTag.js'))
 
 const router = {
   operator: operator,
@@ -40,6 +41,7 @@ const router = {
   ftd: ftd,
   referral: referral,
   report: report,
+  agentTag: agentTag,
 }
 
 module.exports = router

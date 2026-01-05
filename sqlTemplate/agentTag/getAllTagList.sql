@@ -1,0 +1,4 @@
+SELECT *
+FROM AgentTag
+WHERE Status = 1
+ORDER BY UpdatedAt DESC
