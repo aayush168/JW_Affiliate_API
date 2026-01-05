@@ -350,6 +350,10 @@ router.get('/settlement/getList', async function (req, res) {
           {
             label: 'Registered Date',
             value: 'createdAt'
+          },
+          {
+            label: 'Tags',
+            value: 'tags'
           }
         ]
         const json2csvParser = new Parser({ fields });

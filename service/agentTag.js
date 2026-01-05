@@ -81,4 +81,15 @@ service.assignTag = async (agentId, tagIds, operatorId) => {
   }
 }
 
+service.getSettlementAgentTagList = async () => {
+  try {
+    let conn = await db.getConn('extra:read')
+    const result = await conn.query({ sql: db.sql('agentTag/settlement/getAgentTagList.sql') })
+    console.log(result[0], 'agent settlement tag list');
+    return { code: 'common.success', list: result[0] }
+  } catch (err) {
+    return { code: 'common.error', list: [] }
+  }
+}
+
 module.exports = service; 

@@ -6,6 +6,7 @@ let config = require(path.join(rootPath, 'config', 'index.js'));
 let _CACHE_MAX_AGE = 1000 * 60 * 60 * 24;
 
 let settlementService = require(path.join(rootPath, 'service', 'settlement.js'));
+let agentTagService = require(path.join(rootPath, 'service', 'agentTag.js'));
 let mGetMemberUsername = memoize(settlementService.getMemberUsername, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetMembers = memoize(settlementService.getMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetTotalMembers = memoize(settlementService.getTotalMembers, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
@@ -19,6 +20,7 @@ let mGetBetData = memoize(settlementService.getBetData, { primitive: true, maxAg
 let mGetRefundData = memoize(settlementService.getRefundNetwin, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetCarriedRevenue = memoize(settlementService.getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 let mGetOtherBonus = memoize(settlementService.getOtherBonus, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
+
 let controller = {};
 const mode = process.env.mode
 
@@ -95,11 +97,18 @@ async function getOtherBonus (startDate, endDate, memberUsername) {
   return result
 }
 
+async function getAgentTagList () {
+  console.time("getAgentTagList");
+  const result = await agentTagService.getSettlementAgentTagList();
+  console.timeEnd("getAgentTagList");
+  return result;
+}
+
 controller.getSettlementData = async function (startDate, endDate) {
   try {
     let affiliates = [];
     console.time('get-settlement');
-    let [ members, betData, refundData, memberUsername, firstDepositMembers, totalUsers, memberDeposits, memberCount ] = await Promise.all([
+    let [ members, betData, refundData, memberUsername, firstDepositMembers, totalUsers, memberDeposits, memberCount, agentTagList ] = await Promise.all([
       getMembers(endDate),
       getBetData(startDate, endDate),
       getRefundData(startDate, endDate),
@@ -107,8 +116,10 @@ controller.getSettlementData = async function (startDate, endDate) {
       getFirstDepositMembers(startDate, endDate),
       getTotalMembers(),
       getMemberDeposits(startDate, endDate),
-      getMembersbyDate(startDate, endDate)
+      getMembersbyDate(startDate, endDate),
+      getAgentTagList()
     ]);
+    console.log(agentTagList, 'agent settlement tag list');
     console.timeEnd("get-settlement");
     console.time("carried-other-bonus");
     let [ carriedRevenue, otherBonus ] = await Promise.all([
@@ -133,7 +144,12 @@ controller.getSettlementData = async function (startDate, endDate) {
         level: '',
         earning: 0,
         memberDeposit: 0,
-        deduction: 0
+        deduction: 0,
+        tags: 'N/A'
+      }
+      const agentTag = _.find(agentTagList.list, function(i){ return (item.Username === i.Username) ? true : false; });
+      if (agentTag) {
+        data.tags = agentTag.Tags;
       }
       let firstDeposit = _.find(firstDepositMembers, function(i){ return (item.Name === i.Name) ? true : false; });
       if (firstDeposit) {
