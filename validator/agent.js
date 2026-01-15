@@ -36,54 +36,6 @@ const registrationRules = [
   body('email')
     .exists().withMessage({ code: 'params.email.required', msg: 'Email is required.' })
     .isEmail().withMessage({ code: 'params.email.invalid', msg: 'Invalid Email'}),
-  body('businessEmail')
-    .custom(email => {
-      return true
-    }),
-  body('whatsapp')
-    .custom(whatsapp => {
-      if(whatsapp) {
-        let valid = /^[0-9]*$/.test(whatsapp)
-        if (!valid) {
-          throw { code: 'params.mobile.invalid', msg: 'Invalid Whatsapp Number'}
-        }
-      }
-      return true
-    }),
-    body('skype')
-      .custom(skype => {
-        return true
-      }),
-    body('revenueShareType')
-      .exists().withMessage({ code: 'params.revenueShareType.required', msg: 'Revenue Share Type is required.' })
-      .custom(revenueShareType => {
-        if(revenueShareType) {
-          let allowedRevenueShareType = [1,2] // 1: Weekly Revenue Share, 2: Monthly Revenue Share
-          if (!allowedRevenueShareType.includes(revenueShareType)) {
-            throw { code: 'params.revenueShareType.invalid', msg: 'Invalid Revenue Share Type'}
-          }
-        }
-        return true
-      }),
-      body('playerSourceType')
-        .exists().withMessage({ code: 'params.playerSourceType.required', msg: 'Player Source type is required.' })
-        .isArray().withMessage({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' }),
-      body('paymentType')
-        .exists().withMessage({ code: 'params.paymentType.required', msg: 'Payment type is required.' }),
-      body('bankName')
-        .isLength({ max: 100 }).withMessage({ code: 'params.bankName.illegal', msg: 'Invalid Bank Name.' }),
-      body('accountName')
-        .isLength({ max: 75 }).withMessage({ code: 'params.accountName.illegal', msg: 'Invalid Account Name.' }),
-      body('isfc')
-        .isLength({ max: 11 }).withMessage({ code: 'params.isfc.illegal', msg: 'Invalid ISFC.' }),
-      body('branch')
-        .isLength({ max: 100 }).withMessage({ code: 'params.branch.illegal', msg: 'Invalid Bank Branch Name.' }),
-      body('skrillAddress')
-        .isLength({ max: 255 }).withMessage({ code: 'params.skrillAddress.illegal', msg: 'Invalid Skrill Address.' }),
-      body('usdtWallet')
-        .isLength({ max: 255 }).withMessage({ code: 'params.usdtWallet.illegal', msg: 'Invalid USDT Wallet Address.' }),
-      body('playerAccountUsername')
-        .isLength({ max: 75 }).withMessage({ code: 'params.playerAccountUsername.illegal', msg: 'Invalid Player Account Username.' })
 ]
 
 const agentRegistrationRules = () => {
