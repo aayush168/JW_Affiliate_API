@@ -496,6 +496,31 @@ router.post('/money/getBalance', async function (req, res) {
   }
 });
 
+
+router.post('/player/addPlayerAccount', async function (req, res) {
+  try {
+    const playerAccountUsername = req.body.playerAccountUsername;
+    const agentId = req.body.agentId;
+    if (!agentId) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    if (!playerAccountUsername) {
+      return res.status(400).json({ code: 'params.playerAccountUsername.required', msg: 'Player Account Username is required.' })
+    }
+    const checkResult = await agentService.checkAgentPlayerAccountUsername(playerAccountUsername);
+    if (checkResult.code !== 'common.success') {
+      return res.status(400).send(checkResult)
+    }
+    const result = await agentService.updatePlayerAccount(agentId, playerAccountUsername);
+    res.json(result);
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+})
+
+
+
 router.get('/domain/getList', async function (req, res) {
   try {
     const agentIdOCMS = parseInt(config.app.agentIdOCMS);

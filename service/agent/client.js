@@ -598,4 +598,16 @@ service.getCreditList = async (size, page, startDate, endDate, agentId) => {
   }
 }
 
+service.addPlayerAccount = async (agentId, playerAccountUsername) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    const paymentTypeId = 4 // player-account
+    await conn.query({ sql: db.sql('agent/addPlayerAccount.sql'), values: [ agentId, paymentTypeId, playerAccountUsername ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 module.exports = service;
