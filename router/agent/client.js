@@ -511,7 +511,30 @@ router.post('/player/addPlayerAccount', async function (req, res) {
     if (checkResult.code !== 'common.success') {
       return res.status(400).send(checkResult)
     }
-    const result = await agentService.updatePlayerAccount(agentId, playerAccountUsername);
+    const result = await agentService.addPlayerAccount(agentId, playerAccountUsername);
+    res.json(result);
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err);
+  }
+})
+
+
+router.post('/player/addUsdtAddress', async function (req, res) {
+  try {
+    const usdtWallet = req.body.usdtWallet;
+    const agentId = req.body.agentId;
+    if (!agentId) {
+      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
+    }
+    if (!usdtWallet) {
+      return res.status(400).json({ code: 'params.usdtWallet.required', msg: 'USDT Wallet is required.' })
+    }
+    const checkResult = await agentService.checkAgentUsdtAddress(usdtWallet);
+    if (checkResult.code !== 'common.success') {
+      return res.status(400).send(checkResult)
+    }
+    const result = await agentService.addUsdtAddress(agentId, usdtWallet);
     res.json(result);
   } catch (err) {
     log.error(err)

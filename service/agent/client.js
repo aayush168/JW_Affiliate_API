@@ -601,8 +601,32 @@ service.getCreditList = async (size, page, startDate, endDate, agentId) => {
 service.addPlayerAccount = async (agentId, playerAccountUsername) => {
   try {
     let conn = await db.getConn('extra:write')
+    let conn1 = await db.getConn('extra:read')
+    const result = (await conn1.query({ sql: db.sql('agent/getAgentIdPayment.sql'), values: [ agentId ]}))[0]
     const paymentTypeId = 4 // player-account
-    await conn.query({ sql: db.sql('agent/addPlayerAccount.sql'), values: [ agentId, paymentTypeId, playerAccountUsername ]})
+    if (result.length === 0) {
+      await conn.query({ sql: db.sql('agent/addPlayerAccount.sql'), values: [ agentId, paymentTypeId, playerAccountUsername ]})
+    } else {
+      await conn.query({ sql: db.sql('agent/updatePlayerAccount.sql'), values: [ playerAccountUsername, paymentTypeId, agentId ]})
+    }
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.addUsdtAddress = async (agentId, usdtWallet) => {
+  try {
+    let conn = await db.getConn('extra:write')
+    let conn1 = await db.getConn('extra:read')
+    const result = (await conn1.query({ sql: db.sql('agent/getAgentIdPayment.sql'), values: [ agentId ]}))[0]
+    const paymentTypeId = 3 // usdt
+    if (result.length === 0) {
+      await conn.query({ sql: db.sql('agent/addUsdtWallet.sql'), values: [ agentId, paymentTypeId, usdtWallet ]})
+    } else {
+      await conn.query({ sql: db.sql('agent/updateUsdtWallet.sql'), values: [ usdtWallet, paymentTypeId, agentId ]})
+    }
     return { code: 'common.success' }
   } catch (err) {
     console.log(err);
