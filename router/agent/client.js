@@ -9,127 +9,172 @@ const settingService = require(path.join(rootPath, 'service', 'setting', 'admin.
 const controller = require(path.join(rootPath, 'controller', 'index.js'));
 const config = require('../../config/index.js');
 
+
+//Prev Agent Registration
+// router.post('/auth/register', agent.agentRegistrationRules(), validate, async function (req, res) {
+//   try {
+//     const paymentType = req.body.paymentType;
+//     const playerSourceType = req.body.playerSourceType;
+//     const paymentTypeListResult = await settingService.checkPaymentTypeById(paymentType)
+//     const playerSourceTypeListResult = await settingService.getSourceTypeList()
+//     if (paymentTypeListResult.code !== 'common.success') {
+//       return res.status(400).send(paymentTypeListResult)
+//     }
+//     if (playerSourceTypeListResult.list.length === 0) {
+//       return res.status(422).send({ code: 'code.playerSourceType.unknown', msg: 'Invalid Player Source type.' })
+//     }
+//     const allowedPlayerSourceType = playerSourceTypeListResult.list.map(x => x.Id);
+//     for (let i = 0; i < playerSourceType.length; i++) {
+//       const sourceType = playerSourceType[i];
+//       if (!allowedPlayerSourceType.includes(sourceType)) {
+//         return res.status(400).send({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' })
+//       }
+//     }
+//     const payment = paymentTypeListResult.list[0].Code;
+//     if (payment === 'player-account') {
+//       const result = await agentService.checkAgentPlayerAccountUsername(req.body.playerAccountUsername);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment.includes('bank-account')) {
+//       const result = await agentService.checkAgentBankAccountNumber(req.body.accountNumber);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment.includes('int-bank-account')) {
+//       const result = await agentService.checkAgentIntBankAccountNumber(req.body.accountNumber);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment === 'skrill') {
+//       const result = await agentService.checkAgentSkrillAdress(req.body.skrillAddress);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment === 'usdt') {
+//       const result = await agentService.checkAgentUsdtAddress(req.body.usdtWallet);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment === 'bkash') {
+//       const result = await agentService.checkAgentBkashAddress(req.body.bkashWallet);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment === 'nagad') {
+//       const result = await agentService.checkAgentNagadAddress(req.body.nagadWallet);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     if (payment === 'rocket') {
+//       const result = await agentService.checkAgentRocketAddress(req.body.rocketWallet);
+//       if (result.code !== 'common.success') {
+//         return res.status(400).send(result)
+//       }
+//     }
+//     let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+//     ipAddress = ipAddress.split(':').reverse()[0];
+//     const registerAgentPayload = {
+//       name: req.body.name,
+//       username: req.body.username,
+//       password: req.body.password,
+//       mobile: req.body.mobile || null,
+//       whatsapp: req.body.whatsapp || null,
+//       skype: req.body.skype || null,
+//       email: req.body.email || null,
+//       businessEmail: req.body.businessEmail || null,
+//       revenueShareType: req.body.revenueShareType,
+//       playerSourceType: playerSourceType.toString(),
+//       otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null,
+//       ipAddress: ipAddress,
+//       telegram: req.body.telegram ? req.body.telegram : null,
+//       dob: req.body.dob ? req.body.dob : null,
+//       referralUsername: req.body.referralUsername ? req.body.referralUsername : null,
+//     }
+//     const result = await agentService.addAgent(registerAgentPayload);
+//     if (result.code !== 'common.success') {
+//       return res.status(400).send(result)
+//     }
+//     const agentId = result.agentId
+//     const mode = process.env.mode
+//     let resultPayment;
+
+//     if (payment === 'player-account') {
+//       resultPayment = await addPlayerAccount(req, agentId, paymentType);
+//     } else if (payment === 'bank-account') {
+//       resultPayment = await addBankAccount(req, agentId, paymentType);
+//     } else if (payment === 'int-bank-account') {
+//       resultPayment = await addIntBankAccount(req, agentId, paymentType);
+//     } else if (payment === 'skrill') {
+//       resultPayment = await addSkrillAccount(req, agentId, paymentType);
+//     } else if (payment === 'usdt') {
+//       resultPayment = await addUsdtAccount(req, agentId, paymentType);
+//     } else if (payment === 'bkash') {
+//       resultPayment = await addBkashWallet(req, agentId, paymentType);
+//     } else if (payment === 'nagad') {
+//       resultPayment = await addNagadWallet(req, agentId, paymentType);
+//     } else if (payment === 'rocket') {
+//       resultPayment = await addRocketWallet(req, agentId, paymentType);
+//     } else if (payment === 'bdt-bank-account') {
+//       resultPayment = await addBdtBankAccount(req, agentId, paymentType);
+//     } else if (payment === 'bv-bank-account') {
+//       resultPayment = await addBvBankAccount(req, agentId, paymentType);
+//     } else if (payment === '12bet-bank-account') {
+//       resultPayment = await add12BetBankAccount(req, agentId, paymentType);
+//     } else {
+//       res.status(400).send({ msg: 'Feature not available' })
+//     }
+//     if (resultPayment.code !== 'common.success') {
+//       return res.status(400).send(result)
+//     }
+//     res.json(result)
+//   } catch (err) {
+//     log.error(err)
+//     res.status(500).send(err);
+//   }
+// })
+
 router.post('/auth/register', agent.agentRegistrationRules(), validate, async function (req, res) {
   try {
-    const paymentType = req.body.paymentType;
-    const playerSourceType = req.body.playerSourceType;
-    const paymentTypeListResult = await settingService.checkPaymentTypeById(paymentType)
-    const playerSourceTypeListResult = await settingService.getSourceTypeList()
-    if (paymentTypeListResult.code !== 'common.success') {
-      return res.status(400).send(paymentTypeListResult)
+    const name = req.body.name || null;
+    const username = req.body.username || null;
+    const password = req.body.password || null;
+    const mobile = req.body.mobile || null;
+    const email = req.body.email || null;
+    if (!name) {
+      return res.status(400).json({ code: 'params.name.required', msg: 'Name is required.' })
     }
-    if (playerSourceTypeListResult.list.length === 0) {
-      return res.status(422).send({ code: 'code.playerSourceType.unknown', msg: 'Invalid Player Source type.' })
+    if (!username) {
+      return res.status(400).json({ code: 'params.username.required', msg: 'Username is required.' })
     }
-    const allowedPlayerSourceType = playerSourceTypeListResult.list.map(x => x.Id);
-    for (let i = 0; i < playerSourceType.length; i++) {
-      const sourceType = playerSourceType[i];
-      if (!allowedPlayerSourceType.includes(sourceType)) {
-        return res.status(400).send({ code: 'params.playerSourceType.invalid', msg: 'Invalid Player Source type.' })
-      }
+    if (!password) {
+      return res.status(400).json({ code: 'params.password.required', msg: 'Password is required.' })
     }
-    const payment = paymentTypeListResult.list[0].Code;
-    if (payment === 'player-account') {
-      const result = await agentService.checkAgentPlayerAccountUsername(req.body.playerAccountUsername);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
+    if (!mobile) {
+      return res.status(400).json({ code: 'params.mobile.required', msg: 'Mobile number is required.' })
     }
-    if (payment.includes('bank-account')) {
-      const result = await agentService.checkAgentBankAccountNumber(req.body.accountNumber);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
-    }
-    if (payment.includes('int-bank-account')) {
-      const result = await agentService.checkAgentIntBankAccountNumber(req.body.accountNumber);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
-    }
-    if (payment === 'skrill') {
-      const result = await agentService.checkAgentSkrillAdress(req.body.skrillAddress);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
-    }
-    if (payment === 'usdt') {
-      const result = await agentService.checkAgentUsdtAddress(req.body.usdtWallet);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
-    }
-    if (payment === 'bkash') {
-      const result = await agentService.checkAgentBkashAddress(req.body.bkashWallet);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
-    }
-    if (payment === 'nagad') {
-      const result = await agentService.checkAgentNagadAddress(req.body.nagadWallet);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
-    }
-    if (payment === 'rocket') {
-      const result = await agentService.checkAgentRocketAddress(req.body.rocketWallet);
-      if (result.code !== 'common.success') {
-        return res.status(400).send(result)
-      }
+    if (!email) {
+      return res.status(400).json({ code: 'params.email.required', msg: 'Email is required.' })
     }
     let ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     ipAddress = ipAddress.split(':').reverse()[0];
     const registerAgentPayload = {
-      name: req.body.name,
-      username: req.body.username,
-      password: req.body.password,
-      mobile: req.body.mobile || null,
-      whatsapp: req.body.whatsapp || null,
-      skype: req.body.skype || null,
-      email: req.body.email || null,
-      businessEmail: req.body.businessEmail || null,
-      revenueShareType: req.body.revenueShareType,
-      playerSourceType: playerSourceType.toString(),
-      otherSourceLink: req.body.otherSourceLink ? req.body.otherSourceLink : null,
+      name: name,
+      username: username,
+      password: password,
+      mobile: mobile,
+      email: email,
       ipAddress: ipAddress,
-      telegram: req.body.telegram ? req.body.telegram : null,
-      dob: req.body.dob ? req.body.dob : null,
-      referralUsername: req.body.referralUsername ? req.body.referralUsername : null,
     }
     const result = await agentService.addAgent(registerAgentPayload);
     if (result.code !== 'common.success') {
-      return res.status(400).send(result)
-    }
-    const agentId = result.agentId
-    const mode = process.env.mode
-    let resultPayment;
-
-    if (payment === 'player-account') {
-      resultPayment = await addPlayerAccount(req, agentId, paymentType);
-    } else if (payment === 'bank-account') {
-      resultPayment = await addBankAccount(req, agentId, paymentType);
-    } else if (payment === 'int-bank-account') {
-      resultPayment = await addIntBankAccount(req, agentId, paymentType);
-    } else if (payment === 'skrill') {
-      resultPayment = await addSkrillAccount(req, agentId, paymentType);
-    } else if (payment === 'usdt') {
-      resultPayment = await addUsdtAccount(req, agentId, paymentType);
-    } else if (payment === 'bkash') {
-      resultPayment = await addBkashWallet(req, agentId, paymentType);
-    } else if (payment === 'nagad') {
-      resultPayment = await addNagadWallet(req, agentId, paymentType);
-    } else if (payment === 'rocket') {
-      resultPayment = await addRocketWallet(req, agentId, paymentType);
-    } else if (payment === 'bdt-bank-account') {
-      resultPayment = await addBdtBankAccount(req, agentId, paymentType);
-    } else if (payment === 'bv-bank-account') {
-      resultPayment = await addBvBankAccount(req, agentId, paymentType);
-    } else if (payment === '12bet-bank-account') {
-      resultPayment = await add12BetBankAccount(req, agentId, paymentType);
-    } else {
-      res.status(400).send({ msg: 'Feature not available' })
-    }
-    if (resultPayment.code !== 'common.success') {
       return res.status(400).send(result)
     }
     res.json(result)

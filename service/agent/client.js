@@ -7,7 +7,81 @@ const ocms = require(path.join(rootPath, 'ocms', 'index.js'));
 const mode = process.env.mode
 const moment = require('moment-timezone');
 
-service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, dob, referralUsername }) => {
+//Prev Agent Registration
+// service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, dob, referralUsername }) => {
+//   try {
+//     const conn = await db.getConn('extra:read')
+//     const conn1 = await db.getConn('extra:write')
+//     const conn2 = await db.getConn('jw')
+//     const agent = (await conn.query(db.sql('agent/getAgentByUsername.sql'), [ username ]))[0]
+//     if (agent.length > 0) {
+//       return { code: 'code.username.exist', msg: 'Username is already taken' }
+//     }
+//     let agentOCMS;
+//     if (mode && mode === 'siprod') {
+//       agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
+//     } else {
+//       agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
+//     }
+//     if (agentOCMS.length > 0) {
+//       return { code: 'code.username.exist', msg: 'Username is already taken' }
+//     }
+//     const agentMobile = (await conn.query(db.sql('agent/getAgentByMobile.sql'), [ mobile ]))[0]
+//     if (agentMobile.length > 0) {
+//       return { code: 'code.phone.exist', msg: 'Number is already taken' }
+//     }
+//     const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
+//     if (agentEmail.length > 0) {
+//       return { code: 'code.email.exist', msg: 'Email is already taken' }
+//     }
+//     const agentBusinessEmail = (await conn.query(db.sql('agent/getAgentByBusinessEmail.sql'), [ businessEmail ]))[0]
+//     if (agentBusinessEmail.length > 0) {
+//       return { code: 'code.businessEmail.exist', msg: 'Business Email is already taken' }
+//     }
+//     if (whatsapp) {
+//       const agentWhatsapp = (await conn.query(db.sql('agent/getAgentByWhatsapp.sql'), [ whatsapp ]))[0]
+//       if (agentWhatsapp.length > 0) {
+//         return { code: 'code.whatsapp.exist', msg: 'Whatsapp id is already taken' }
+//       }
+//     }
+//     if (skype) {
+//       const agentSkype = (await conn.query(db.sql('agent/getAgentBySkype.sql'), [ skype ]))[0]
+//       if (agentSkype.length > 0) {
+//         return { code: 'code.skype.exist', msg: 'Skype id is already taken' }
+//       }
+//     }
+//     if (telegram) {
+//       const agentTelegram = (await conn.query(db.sql('agent/getAgentByTelegram.sql'), [ telegram ]))[0]
+//       if (agentTelegram.length > 0) {
+//         return { code: 'code.telegram.exist', msg: 'Telegram id is already taken' }
+//       }
+//     }
+//     let status = 0;
+//     if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod' || mode === 'jwpkrprod') {
+//       try {
+//         await ocms.createAgent(username, name);
+//         status = 1;
+//       } catch (err) {
+//         if (err.response.body.code === 'channel.name.exist') {
+//           return { code: 'channel.name.exist', msg: 'Name is already taken' }
+//         }
+//         console.log(err.response.body, 'ocms error');
+//         throw new Error(err);
+//       }
+//     }
+//     const salt1 = encrypt.getSalt(10)
+//     const salt2 = encrypt.getSalt(12)
+//     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
+//     const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, dob, referralUsername, status ]})
+//     const agentId = result[0].insertId
+//     return { code: 'common.success', agentId: agentId }
+//   } catch (err) {
+//     console.log(err);
+//     throw new Error(err);
+//   }
+// }
+
+service.addAgent = async ({ name, username, password, mobile, email, ipAddress }) => {
   try {
     const conn = await db.getConn('extra:read')
     const conn1 = await db.getConn('extra:write')
@@ -16,64 +90,34 @@ service.addAgent = async ({ name, username, password, mobile, whatsapp, skype, e
     if (agent.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
-    let agentOCMS;
-    if (mode && mode === 'siprod') {
-      agentOCMS = (await conn2.query(db.sql('agent/ocms/getAgentByUsername.sql'), [ username ]))[0]
-    } else {
-      agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
-    }
+    const agentOCMS = (await conn2.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ username ]))[0];
     if (agentOCMS.length > 0) {
       return { code: 'code.username.exist', msg: 'Username is already taken' }
     }
     const agentMobile = (await conn.query(db.sql('agent/getAgentByMobile.sql'), [ mobile ]))[0]
     if (agentMobile.length > 0) {
-      return { code: 'code.phone.exist', msg: 'Number is already taken' }
+      return { code: 'code.mobile.exist', msg: 'Number is already taken' }
     }
     const agentEmail = (await conn.query(db.sql('agent/getAgentByEmail.sql'), [ email ]))[0]
     if (agentEmail.length > 0) {
       return { code: 'code.email.exist', msg: 'Email is already taken' }
     }
-    const agentBusinessEmail = (await conn.query(db.sql('agent/getAgentByBusinessEmail.sql'), [ businessEmail ]))[0]
-    if (agentBusinessEmail.length > 0) {
-      return { code: 'code.businessEmail.exist', msg: 'Business Email is already taken' }
-    }
-    if (whatsapp) {
-      const agentWhatsapp = (await conn.query(db.sql('agent/getAgentByWhatsapp.sql'), [ whatsapp ]))[0]
-      if (agentWhatsapp.length > 0) {
-        return { code: 'code.whatsapp.exist', msg: 'Whatsapp id is already taken' }
-      }
-    }
-    if (skype) {
-      const agentSkype = (await conn.query(db.sql('agent/getAgentBySkype.sql'), [ skype ]))[0]
-      if (agentSkype.length > 0) {
-        return { code: 'code.skype.exist', msg: 'Skype id is already taken' }
-      }
-    }
-    if (telegram) {
-      const agentTelegram = (await conn.query(db.sql('agent/getAgentByTelegram.sql'), [ telegram ]))[0]
-      if (agentTelegram.length > 0) {
-        return { code: 'code.telegram.exist', msg: 'Telegram id is already taken' }
-      }
-    }
     let status = 0;
-    if (mode && mode.includes('dev') || mode.includes('bvprod_jw') || mode === 'prod' || mode === 'jwbdtprod' || mode === 'jwpkrprod') {
-      try {
-        await ocms.createAgent(username, name);
-        status = 1;
-      } catch (err) {
-        if (err.response.body.code === 'channel.name.exist') {
-          return { code: 'channel.name.exist', msg: 'Name is already taken' }
-        }
-        console.log(err.response.body, 'ocms error');
-        throw new Error(err);
+    try {
+      await ocms.createAgent(username, name);
+      status = 1;
+    } catch (err) {
+      if (err.response.body.code === 'channel.name.exist') {
+        return { code: 'channel.name.exist', msg: 'Name is already taken' }
       }
+      console.log(err.response.body, 'ocms error');
+      throw new Error(err);
     }
     const salt1 = encrypt.getSalt(10)
     const salt2 = encrypt.getSalt(12)
     const encryptPassword = encrypt.encryptPassword(password, salt1, salt2);
-    const result = await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, whatsapp, skype, email, businessEmail, revenueShareType, playerSourceType, otherSourceLink, ipAddress, telegram, dob, referralUsername, status ]})
-    const agentId = result[0].insertId
-    return { code: 'common.success', agentId: agentId }
+    await conn1.query({ sql: db.sql('agent/addAgent.sql'), values: [ name, username, password, encryptPassword, salt1, salt2, mobile, email, ipAddress, status ]})
+    return { code: 'common.success' }
   } catch (err) {
     console.log(err);
     throw new Error(err);
