@@ -1,0 +1,17 @@
+{
+  "DOMAIN": {
+    "DATA_API": "https://admin.apewizar.com"
+  },
+  "API_URL": {
+    "HOURLY": "/service/analysis/getPlayerGamingByHour",
+    "DAILY": "/service/analysis/getPlayerGamingByDay",
+    "WIN": "/service/analysis/getPlayerWinMultiple"
+  },
+  "awsConfig": {
+    "bucket": "agent-affiliate-s3",
+    "folder": "jilikh_usd"
+  },
+  "currency": "USD",
+  "agentIdOCMS": "2833",
+  "blockedDomain": []
+}
