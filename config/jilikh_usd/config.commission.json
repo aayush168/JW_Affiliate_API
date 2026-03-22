@@ -1,0 +1,12 @@
+{
+  "operationCost": 0.05,
+  "level": [
+    {
+      "members": 5,
+      "minRevenue": 1,
+      "maxRevenue": 5000,
+      "rate": 0.40
+    }
+  ],
+  "calculationInfo": "<h4>Calculation</h4><br><p>( (Revenue - 5% Platform fee) - Promotion Cost ) = Net Revenue</p><p>( Net Revenue * Sharing percentage ) = Total Income</p>"
+}
