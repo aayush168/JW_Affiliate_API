@@ -190,7 +190,7 @@ router.put('/updatePayment/:id', async function (req, res) {
         return res.status(400).send(result)
       }
       res.json(result)
-    } else if (mode.includes('12betkh')) {
+    } else if (mode.includes('12betkh') || mode.includes('lucksparkh') || mode.includes('jilikh')) {
       const result = await update12BetkhPayments(req, paymentTypeListResult, agentId, paymentType)
       if (result.code !== 'common.success') {
         return res.status(400).send(result)

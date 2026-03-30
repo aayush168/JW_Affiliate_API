@@ -26,7 +26,7 @@ controller.getEstimateRevenue = async function(agentCode, start, end, username =
     mFirstDeposit(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`),
   ])
   let bonusAmount = 0;
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('ape') && !mode.includes('12betkh') && !mode.includes('lucksparkh') && !mode.includes('jilikh')) {
     bonusAmount = await mBonusAmount(`${agentCode}%`, `${start} 00:00:00`, `${end} 23:59:59`, username);
   }
   let promotionAmount = parseFloat(currentPromotion.Amount) + parseFloat(bonusAmount);

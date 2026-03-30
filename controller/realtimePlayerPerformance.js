@@ -16,7 +16,7 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
   };
   let bonusData;
   let totalBonusData;
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('ape') && !mode.includes('12betkh') && !mode.includes('lucksparkh') && !mode.includes('jilikh')) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
       realtimePlayerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
       realtimePlayerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username)
@@ -101,7 +101,7 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
       data.push(obj);
     }
   });
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('ape') && !mode.includes('12betkh') && !mode.includes('lucksparkh') && !mode.includes('jilikh')) {
     _.each(bonusData, function (item) {
       let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
       if (obj) {
@@ -125,7 +125,7 @@ controller.getRealtimePlayerPerformance = async function(agentCode, startDate, e
   total.netwin = parseFloat(totalBetData.NetWin);
   total.deposit = parseFloat(totalDepositData.Amount);
   total.withdraw = parseFloat(totalWithdrawData.Amount);
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh')) {
+  if (mode && !mode.includes('ape') && !mode.includes('12betkh') && !mode.includes('lucksparkh') && !mode.includes('jilikh')) {
     total.promotion = parseFloat(totalPromotionData.Amount) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalPromotionData.Amount);
