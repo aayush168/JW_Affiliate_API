@@ -102,12 +102,15 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
   try{
     let carriedRevenue = [];
     let conn = await db.getConn('jw');
-    let xconn = await db.getConn('extra1:read');
-    let [netWinSummary, promotionSummary, otherBonusSummary] = await Promise.all([
+    let [netWinSummary, promotionSummary] = await Promise.all([
       getNetWinSummary(conn, startDate),
-      getPromotionSummary(conn, startDate),
-      getOtherBonusCarriedRevenue(xconn, startDate, memberUsername)
+      getPromotionSummary(conn, startDate)
     ]);
+    let otherBonusSummary = [];
+    if (!shouldSkipOtherBonus()) {
+      let xconn = await db.getConn('extra1:read');
+      otherBonusSummary = await getOtherBonusCarriedRevenue(xconn, startDate, memberUsername);
+    }
     let calculatedPromotion = getTotalPromotion(promotionSummary[0], otherBonusSummary);
     let netWinGroup = _.groupBy(netWinSummary[0], 'Name');
     let promotionGroup = _.groupBy(calculatedPromotion, 'Name');
@@ -141,7 +144,7 @@ service.getCarriedRevenue = async function(startDate, memberUsername){
 
 service.getOtherBonus = async function (startDate, endDate, memberUsername) {
   let data = []
-  if (mode && mode.includes('ape') || mode.includes('12bet')) {
+  if (shouldSkipOtherBonus()) {
     return data
   }
   let xconn = await db.getConn('extra1:read');
@@ -186,7 +189,7 @@ function getTotalPromotion (promotionSummary, otherBonus) {
 
 async function getOtherBonusCarriedRevenue (xconn, startDateTime, memberUsername) {
   let data = [];
-  if (mode && mode.includes('ape') || mode.includes('12bet')) {
+  if (shouldSkipOtherBonus()) {
     return data;
   }
   let agentGroupBy = _.groupBy(memberUsername, function (item) { return item.Name });
@@ -257,6 +260,16 @@ function getNetWinSummary(conn, startDate){
 
 function getPromotionSummary (conn, startDate) {
     return conn.query({ sql: db.sql('settlementMultiCurrency/getPromotionSummary.sql'), values: [ startDate, startDate, startDate, ocmsAgentId ]});
+}
+
+function shouldSkipOtherBonus() {
+  if (!mode) {
+    return false;
+  }
+  return mode.includes('ape') ||
+    mode.includes('12betkh') ||
+    mode.includes('lucksparkh') ||
+    mode.includes('jilikh');
 }
 
 module.exports = service;
