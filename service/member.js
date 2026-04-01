@@ -8,10 +8,12 @@ service.getPlayers = async function(agentCode, start, end, username, status, ind
   let cEnd = (end == "" || _.isUndefined(end)) ? 1 : 0;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
   let cStatus = (status == "" || _.isUndefined(status)) ? 1 : 0;
+  let safeStart = cStart ? null : start;
+  let safeEnd = cEnd ? null : end;
   let conn;
   try{
     conn = await db.getConn('jw');
-    let result = await getPlayers(conn, `${agentCode}%`, cUsername, `%${username}%`, cStatus, status, cStart, start, cEnd, end, index);
+    let result = await getPlayers(conn, `${agentCode}%`, cUsername, `%${username}%`, cStatus, status, cStart, safeStart, cEnd, safeEnd, index);
     if(result[0].length === 0){
       return null;
     }
@@ -27,10 +29,12 @@ service.getPlayersCount = async function(agentCode, start, end, username, status
   let cEnd = (end == "" || _.isUndefined(end)) ? 1 : 0;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
   let cStatus = (status == "" || _.isUndefined(status)) ? 1 : 0;
+  let safeStart = cStart ? null : start;
+  let safeEnd = cEnd ? null : end;
   let conn;
   try{
     conn = await db.getConn('jw');
-    let result = await getPlayersCount(conn, `${agentCode}%`, cUsername, `%${username}%`, cStatus, status, cStart, start, cEnd, end);
+    let result = await getPlayersCount(conn, `${agentCode}%`, cUsername, `%${username}%`, cStatus, status, cStart, safeStart, cEnd, safeEnd);
     if(result[0].length === 0){
       return null;
     }
