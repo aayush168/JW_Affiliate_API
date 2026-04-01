@@ -18,8 +18,9 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     firstDeposit: 0,
     firstDepositCount: 0
   };
-  let bonusData;
-  let totalBonusData;
+  let bonusData = [];
+  let totalBonusData = 0;
+  let shouldIncludeBonus = false;
   const [betData, accData, totalBetData, totalAccData, firstDepositData, carriedRevenue] = await Promise.all([
     playerPerformanceService.getBetData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
     playerPerformanceService.getAccData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
@@ -29,7 +30,13 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
     revenueService.getCarriedRevenue(`${agentCode}%`, `${startDate} 00:00:00`, username)
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh' && !mode.includes('lucksparkh') && !mode.includes('jilikh'))) {
+  shouldIncludeBonus = !!mode &&
+    !mode.includes('ape') &&
+    !mode.includes('12betkh') &&
+    !mode.includes('lucksparkh') &&
+    !mode.includes('jilikh');
+
+  if (shouldIncludeBonus) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
       playerPerformanceService.getBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
       playerPerformanceService.getTotalBonusData(`${agentCode}%`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
@@ -67,7 +74,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       data.push(obj);
     }
   });
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh' && !mode.includes('lucksparkh') && !mode.includes('jilikh'))) {
+  if (shouldIncludeBonus) {
     _.each(bonusData, function (item) {
       let obj = _.find(data, function (i) { return (i.name === item.Username) ? true : false });
       if (obj) {
@@ -93,7 +100,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   total.withdraw = parseFloat(totalAccData.Withdraw);
   total.firstDeposit = parseFloat(firstDepositData.Deposit)
   total.firstDepositCount = parseInt(firstDepositData.Count)
-  if (mode && !mode.includes('ape') && !mode.includes('12betkh') && !mode.includes('lucksparkh') && !mode.includes('jilikh')) {
+  if (shouldIncludeBonus) {
     total.promotion = parseFloat(totalAccData.Promotion) + parseFloat(totalBonusData);
   } else {
     total.promotion = parseFloat(totalAccData.Promotion);
