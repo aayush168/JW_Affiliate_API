@@ -28,7 +28,13 @@ service.getList = async (size, page, username, sTime, eTime, actionType) => {
     } else {
       result = (await conn.query({ sql: sql }))
     }
-
+    let memberIds = result[0].map(row => row.MemberId)
+    let memberTurnover = (await conn.query({ sql: db.sql('ftd/getMemberTotalTurnover.sql'), values: [memberIds] }))
+    const memberTotalTurnover = memberTurnover[0]
+    result[0].forEach(row => {
+      const totalTurnover = memberTotalTurnover.find(item => item.MemberId === row.MemberId)
+      row.TotalTurnover = totalTurnover ? totalTurnover.TotalTurnover : 0
+    })
     let sqlCount = db.sql('ftd/getFirstDepositMembersCount.sql')
     sqlCount = sqlCount.replace('${AgentCode}', (agentCode === '') ? '' : ` WHERE a.Code = "${agentCode}"`)
     sqlCount = sqlCount.replace('${StartDate}', (sTime === '') ? '' : `${username === '' && eTime === '' ? 'WHERE' : 'AND' } ma.FirstDepositTime >= "${startDate}"`)

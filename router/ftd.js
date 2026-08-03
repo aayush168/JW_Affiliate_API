@@ -42,6 +42,10 @@ router.get('/getList', async function (req, res) {
           value: 'Amount'
         },
         {
+          label: 'Total Turnover',
+          value: 'TotalTurnover'
+        },
+        {
           label: 'Add Time',
           value: 'FirstDepositTime'
         }
