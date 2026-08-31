@@ -2,6 +2,7 @@ let service = {}
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 const moment = require('moment-timezone');
+const playerPerformanceController = require(path.join(rootPath, 'controller', 'playerPerformance.js'));
 
 service.getList = async (size, page, username, sTime, eTime, actionType) => {
   try {
@@ -35,6 +36,39 @@ service.getList = async (size, page, username, sTime, eTime, actionType) => {
   } catch (err) {
     console.log(err);
     throw new Error(err);
+  }
+}
+
+service.getPerformanceList = async (size, page, agentUsername, playerUsername, startDate, endDate, actionType) => {
+  try {
+    let conn = await db.getConn('jw')
+    let agentCode = ''
+    let agent = (await conn.query({ sql: db.sql('ftd/getAgentByUsername.sql'), values: [agentUsername] }))[0]
+    if (agent.length !== 0) {
+      agentCode = agent[0].Code
+    }
+    if (agentCode === '') {
+      return { code: 'code.agent.notFound', message: 'Agent not found' }
+    }
+    const pageSize = actionType === 'export' ? 999999 : size
+    const result = await playerPerformanceController.getPlayerPerformance(
+      agentCode,
+      startDate,
+      endDate,
+      playerUsername || '',
+      page,
+      pageSize,
+      false
+    )
+    return {
+      code: 'common.success',
+      list: result.data,
+      total: result.total,
+      rowCount: result.totalCount
+    }
+  } catch (err) {
+    console.log(err)
+    throw new Error(err)
   }
 }
 

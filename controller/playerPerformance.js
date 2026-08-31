@@ -6,7 +6,7 @@ let config = require(path.join(rootPath, 'config', 'index.js'));
 let controller = {};
 const mode = process.env.mode
 
-controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index){
+controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index, size = 20, maskUsername = true){
   let data = [];
   let total = {
     turnover: 0,
@@ -127,7 +127,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   }
   total.earning = calculateEstimateEarning(parseFloat(data.length), parseFloat(total.netwin), cRevenue, parseFloat(total.promotion))
   let totalCount = data.length;
-  if (data.length > 0) {
+  if (maskUsername && data.length > 0) {
     data = data.map(x => {
       if (x.name) {
        x.name =  x.name.slice(0, 3).concat('*******')
@@ -135,7 +135,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       return x
     })
   }
-  return { data: data.splice(index, 20), total: total, totalCount: totalCount };
+  return { data: data.splice(index, size), total: total, totalCount: totalCount };
 };
 
 function calculateEarning (revenue, members, commission) {
