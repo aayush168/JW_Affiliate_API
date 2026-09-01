@@ -4,4 +4,5 @@ JOIN Member AS m ON m.Id = smbd.MemberId
 WHERE smbd.AgentCode = ?
 AND smbd.AccountingDate >= ? AND smbd.AccountingDate <= ?
 AND (1 = ? OR m.Username LIKE ?)
+AND (1 = ? OR smbd.MemberId NOT IN (?))
 GROUP BY m.Username

@@ -3,4 +3,5 @@ FROM MemberAccount AS ma
 JOIN Member AS m ON m.Id = ma.MemberId
 WHERE ma.AgentCode = ?
 AND ma.FirstDepositTime >= ? AND ma.FirstDepositTime <= ?
+AND (1 = ? OR ma.MemberId NOT IN (?))
 

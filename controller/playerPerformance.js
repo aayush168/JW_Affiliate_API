@@ -6,7 +6,7 @@ let config = require(path.join(rootPath, 'config', 'index.js'));
 let controller = {};
 const mode = process.env.mode
 
-controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index, size = 20, maskUsername = true){
+controller.getPlayerPerformance = async function(agentCode, startDate, endDate, username, index, size = 20, maskUsername = true, excludedMemberIds = []){
   let data = [];
   let total = {
     turnover: 0,
@@ -22,20 +22,20 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
   let bonusData;
   let totalBonusData;
   const [betData, accData, totalBetData, totalAccData, firstDepositData, firstDepositMemberData, carriedRevenue, newSignupData] = await Promise.all([
-    playerPerformanceService.getBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getTotalAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-    playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
-    playerPerformanceService.getFirstDepositMemberData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
+    playerPerformanceService.getBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username, excludedMemberIds),
+    playerPerformanceService.getAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username, excludedMemberIds),
+    playerPerformanceService.getTotalBetData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username, excludedMemberIds),
+    playerPerformanceService.getTotalAccData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username, excludedMemberIds),
+    playerPerformanceService.getFirstDepositData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, excludedMemberIds),
+    playerPerformanceService.getFirstDepositMemberData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, excludedMemberIds),
     revenueService.getCarriedRevenue(`${agentCode}`, `${startDate} 00:00:00`, username),
-    playerPerformanceService.getNewSignupData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`),
+    playerPerformanceService.getNewSignupData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, excludedMemberIds),
   ])
   let cRevenue = (carriedRevenue.Revenue >= 0) ? 0 : parseFloat(carriedRevenue.Revenue);
   if (mode && !mode.includes('12betkh')) {
     const [bonusInfo, totalBonusInfo] = await Promise.all([
-      playerPerformanceService.getBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
-      playerPerformanceService.getTotalBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username),
+      playerPerformanceService.getBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username, excludedMemberIds),
+      playerPerformanceService.getTotalBonusData(`${agentCode}`, `${startDate} 00:00:00`, `${endDate} 23:59:59`, username, excludedMemberIds),
     ])
     bonusData = bonusInfo
     totalBonusData = totalBonusInfo
@@ -135,7 +135,7 @@ controller.getPlayerPerformance = async function(agentCode, startDate, endDate, 
       return x
     })
   }
-  return { data: data.splice(index, size), total: total, totalCount: totalCount };
+  return { data: data.slice(index, index + size), total: total, totalCount: totalCount };
 };
 
 function calculateEarning (revenue, members, commission) {

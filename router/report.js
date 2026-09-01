@@ -94,6 +94,7 @@ router.get('/performance/getList', async function (req, res) {
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0
     const agentUsername = req.query.agentUsername ? req.query.agentUsername : ''
     const playerUsername = req.query.playerUsername ? req.query.playerUsername : ''
+    const excludeMemberIds = req.query.excludeMemberIds || req.query['excludeMemberIds[]'] || []
     const startDate = req.query.startDate ? req.query.startDate : ''
     const endDate = req.query.endDate ? req.query.endDate : ''
     const actionType = req.query.actionType ? req.query.actionType : 'search'
@@ -133,7 +134,7 @@ router.get('/performance/getList', async function (req, res) {
       })
     }
 
-    const result = await reportService.getPerformanceList(size, page, agentUsername, playerUsername, startDate, endDate, actionType)
+    const result = await reportService.getPerformanceList(size, page, agentUsername, playerUsername, excludeMemberIds, startDate, endDate, actionType)
     if (result.code !== 'common.success') {
       return res.status(400).send({ code: result.code, message: result.message })
     }

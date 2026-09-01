@@ -3,13 +3,24 @@ const _ = require('underscore');
 const path = require('path');
 const db = require(path.join(rootPath, 'db', 'index.js'));
 
-service.getBetData = async function(agentCode, startDateTime, endDateTime, username){
+function getMemberFilter (memberIds) {
+  const ids = (Array.isArray(memberIds) ? memberIds : [])
+    .map(Number)
+    .filter(id => Number.isInteger(id) && id > 0)
+  if (ids.length === 0) {
+    return { disabled: 1, ids: [0] }
+  }
+  return { disabled: 0, ids }
+}
+
+service.getBetData = async function(agentCode, startDateTime, endDateTime, username, memberIds){
   let conn;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  let memberFilter = getMemberFilter(memberIds);
   try{
     conn = await db.getConn('jw');
     console.time("getBetData");
-    let result = await getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    let result = await getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`, memberFilter.disabled, memberFilter.ids);
     console.timeEnd("getBetData");
     return result[0];
   }catch(err){
@@ -18,13 +29,14 @@ service.getBetData = async function(agentCode, startDateTime, endDateTime, usern
   }
 };
 
-service.getTotalBetData = async function(agentCode, startDateTime, endDateTime, username){
+service.getTotalBetData = async function(agentCode, startDateTime, endDateTime, username, memberIds){
   let conn;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  let memberFilter = getMemberFilter(memberIds);
   try{
     conn = await db.getConn('jw');
     console.time("getTotalBetData");
-    let result = await getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    let result = await getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`, memberFilter.disabled, memberFilter.ids);
     console.timeEnd("getTotalBetData");
     return result[0][0];
   }catch(err){
@@ -33,13 +45,14 @@ service.getTotalBetData = async function(agentCode, startDateTime, endDateTime, 
   }
 };
 
-service.getAccData = async function(agentCode, startDateTime, endDateTime, username){
+service.getAccData = async function(agentCode, startDateTime, endDateTime, username, memberIds){
   let conn;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  let memberFilter = getMemberFilter(memberIds);
   try{
     conn = await db.getConn('jw');
     console.time("getAccData");
-    let result = await getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    let result = await getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`, memberFilter.disabled, memberFilter.ids);
     console.timeEnd("getAccData");
     return result[0];
   }catch(err){
@@ -48,11 +61,12 @@ service.getAccData = async function(agentCode, startDateTime, endDateTime, usern
   }
 };
 
-service.getFirstDepositData = async function(agentCode, startDateTime, endDateTime){
+service.getFirstDepositData = async function(agentCode, startDateTime, endDateTime, memberIds){
   try{
     const conn = await db.getConn('jw');
+    let memberFilter = getMemberFilter(memberIds);
     console.time("getFirstDepositData");
-    let result = await getFirstDepositData(conn, agentCode, startDateTime, endDateTime)
+    let result = await getFirstDepositData(conn, agentCode, startDateTime, endDateTime, memberFilter.disabled, memberFilter.ids)
     console.timeEnd("getFirstDepositData");
     return result[0][0];
   }catch(err){
@@ -61,11 +75,12 @@ service.getFirstDepositData = async function(agentCode, startDateTime, endDateTi
   }
 };
 
-service.getFirstDepositMemberData = async function(agentCode, startDateTime, endDateTime){
+service.getFirstDepositMemberData = async function(agentCode, startDateTime, endDateTime, memberIds){
   try{
     const conn = await db.getConn('jw');
+    let memberFilter = getMemberFilter(memberIds);
     console.time("getFirstDepositMemberData");
-    let result = await getFirstDepositMemberData(conn, agentCode, startDateTime, endDateTime);
+    let result = await getFirstDepositMemberData(conn, agentCode, startDateTime, endDateTime, memberFilter.disabled, memberFilter.ids);
     console.timeEnd("getFirstDepositMemberData");
     return result[0];
   }catch(err){
@@ -74,13 +89,14 @@ service.getFirstDepositMemberData = async function(agentCode, startDateTime, end
   }
 };
 
-service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, username){
+service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, username, memberIds){
   let conn;
   let cUsername = (username == "" || _.isUndefined(username)) ? 1 : 0;
+  let memberFilter = getMemberFilter(memberIds);
   try{
     conn = await db.getConn('jw');
     console.time("getTotalAccData");
-    let result = await getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`);
+    let result = await getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, `%${username}%`, memberFilter.disabled, memberFilter.ids);
     console.timeEnd("getTotalAccData");
     return result[0][0];
   }catch(err){
@@ -89,11 +105,12 @@ service.getTotalAccData = async function(agentCode, startDateTime, endDateTime, 
   }
 };
 
-service.getNewSignupData = async function(agentCode, startDateTime, endDateTime){
+service.getNewSignupData = async function(agentCode, startDateTime, endDateTime, memberIds){
   try{
     const conn = await db.getConn('jw');
+    let memberFilter = getMemberFilter(memberIds);
     console.time("getNewSignupData");
-    let result = await getNewSignupData(conn, agentCode, startDateTime, endDateTime);
+    let result = await getNewSignupData(conn, agentCode, startDateTime, endDateTime, memberFilter.disabled, memberFilter.ids);
     console.timeEnd("getNewSignupData");
     return result[0][0];
   }catch(err){
@@ -102,12 +119,16 @@ service.getNewSignupData = async function(agentCode, startDateTime, endDateTime)
   }
 };
 
-service.getBonusData = async function (agentCode, startDateTime, endDateTime, username) {
+service.getBonusData = async function (agentCode, startDateTime, endDateTime, username, excludedMemberIds) {
   try {
     let conn = await db.getConn('jw');
     let xconn = await db.getConn('extra1:read');
     let cUsername = (username === "" || _.isUndefined(username)) ? 1 : 0;
     let agentPlayer = (await conn.query({ sql: db.sql('realtimePlayer/getAgentPlayer.sql'), values: [ agentCode, cUsername, username ] }))[0];
+    if (Array.isArray(excludedMemberIds) && excludedMemberIds.length > 0) {
+      const excludedIds = new Set(excludedMemberIds.map(Number))
+      agentPlayer = agentPlayer.filter(player => !excludedIds.has(Number(player.MemberId)))
+    }
     let memberUsername = _.pluck(agentPlayer, 'Username');
     let memberId = _.pluck(agentPlayer, 'MemberId');
     let bonusData = [];
@@ -137,12 +158,16 @@ service.getBonusData = async function (agentCode, startDateTime, endDateTime, us
   }
 }
 
-service.getTotalBonusData = async function (agentCode, startDateTime, endDateTime, username) {
+service.getTotalBonusData = async function (agentCode, startDateTime, endDateTime, username, excludedMemberIds) {
   try {
     let conn = await db.getConn('jw');
     let xconn = await db.getConn('extra1:read');
     let cUsername = (username === "" || _.isUndefined(username)) ? 1 : 0;
     let agentPlayer = (await conn.query({ sql: db.sql('realtimePlayer/getAgentPlayer.sql'), values: [ agentCode, cUsername, username ] }))[0];
+    if (Array.isArray(excludedMemberIds) && excludedMemberIds.length > 0) {
+      const excludedIds = new Set(excludedMemberIds.map(Number))
+      agentPlayer = agentPlayer.filter(player => !excludedIds.has(Number(player.MemberId)))
+    }
     let memberUsername = _.pluck(agentPlayer, 'Username');
     let memberId = _.pluck(agentPlayer, 'MemberId');
     let totalBonus = 0;
@@ -169,32 +194,32 @@ service.getTotalBonusData = async function (agentCode, startDateTime, endDateTim
   }
 }
 
-function getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
-  return conn.query({ sql: db.sql('playerPerformance/getBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+function getBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds] });
 }
 
-function getNewSignupData(conn, agentCode, startDateTime, endDateTime){
-  return conn.query({ sql: db.sql('playerPerformance/getNewSignupCount.sql'), values: [agentCode, startDateTime, endDateTime] });
+function getNewSignupData(conn, agentCode, startDateTime, endDateTime, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getNewSignupCount.sql'), values: [agentCode, startDateTime, endDateTime, cMemberIds, memberIds] });
 }
 
-function getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
-  return conn.query({ sql: db.sql('playerPerformance/getTotalBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+function getTotalBetData(conn, agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getTotalBetData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds] });
 }
 
-function getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
-  return conn.query({ sql: db.sql('playerPerformance/getAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+function getAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds] });
 }
 
-function getFirstDepositData(conn, agentCode, startDateTime, endDateTime){
-  return conn.query({ sql: db.sql('playerPerformance/getFirstDepositData.sql'), values: [agentCode, startDateTime, endDateTime] });
+function getFirstDepositData(conn, agentCode, startDateTime, endDateTime, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getFirstDepositData.sql'), values: [agentCode, startDateTime, endDateTime, cMemberIds, memberIds] });
 }
 
-function getFirstDepositMemberData(conn, agentCode, startDateTime, endDateTime){
-  return conn.query({ sql: db.sql('playerPerformance/getFirstDepositMemberData.sql'), values: [agentCode, startDateTime, endDateTime] });
+function getFirstDepositMemberData(conn, agentCode, startDateTime, endDateTime, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getFirstDepositMemberData.sql'), values: [agentCode, startDateTime, endDateTime, cMemberIds, memberIds] });
 }
 
-function getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username){
-  return conn.query({ sql: db.sql('playerPerformance/getTotalAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username] });
+function getTotalAccData(conn, agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds){
+  return conn.query({ sql: db.sql('playerPerformance/getTotalAccData.sql'), values: [agentCode, startDateTime, endDateTime, cUsername, username, cMemberIds, memberIds] });
 }
 
 module.exports = service;

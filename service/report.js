@@ -39,7 +39,35 @@ service.getList = async (size, page, username, sTime, eTime, actionType) => {
   }
 }
 
-service.getPerformanceList = async (size, page, agentUsername, playerUsername, startDate, endDate, actionType) => {
+function toMemberIdArray (memberIds) {
+  let parsedMemberIds = memberIds
+  if (typeof memberIds === 'string') {
+    try {
+      parsedMemberIds = JSON.parse(memberIds)
+    } catch (err) {
+      parsedMemberIds = memberIds.split(',')
+    }
+  }
+  const values = Array.isArray(parsedMemberIds) ? parsedMemberIds : [parsedMemberIds]
+  return [...new Set(values
+    .map(memberId => Number(memberId))
+    .filter(memberId => Number.isInteger(memberId) && memberId > 0))]
+}
+
+async function getAgentMembers (conn, agentCode, playerUsername) {
+  const username = playerUsername || ''
+  const skipUsernameFilter = username === '' ? 1 : 0
+  const members = (await conn.query({
+    sql: db.sql('report/getMembersByAgent.sql'),
+    values: [agentCode, skipUsernameFilter, `%${username}%`]
+  }))[0]
+  return members.map(member => ({
+    memberId: Number(member.MemberId),
+    username: member.Username
+  }))
+}
+
+service.getPerformanceList = async (size, page, agentUsername, playerUsername, requestedExcludeMemberIds, startDate, endDate, actionType) => {
   try {
     let conn = await db.getConn('jw')
     let agentCode = ''
@@ -50,21 +78,31 @@ service.getPerformanceList = async (size, page, agentUsername, playerUsername, s
     if (agentCode === '') {
       return { code: 'code.agent.notFound', message: 'Agent not found' }
     }
+
+    const memberOptions = await getAgentMembers(conn, agentCode, playerUsername)
+    const validMemberIds = new Set(memberOptions.map(member => member.memberId))
+    const excludedMemberIds = toMemberIdArray(requestedExcludeMemberIds)
+      .filter(memberId => validMemberIds.has(memberId))
+
+    const pageIndex = actionType === 'export' ? 0 : page
     const pageSize = actionType === 'export' ? 999999 : size
     const result = await playerPerformanceController.getPlayerPerformance(
       agentCode,
       startDate,
       endDate,
       playerUsername || '',
-      page,
+      pageIndex,
       pageSize,
-      false
+      false,
+      excludedMemberIds
     )
+
     return {
       code: 'common.success',
       list: result.data,
       total: result.total,
-      rowCount: result.totalCount
+      rowCount: result.totalCount,
+      members: memberOptions
     }
   } catch (err) {
     console.log(err)
