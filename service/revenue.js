@@ -51,28 +51,38 @@ service.getFirstDepositData = async function(agentCode, startDateTime, endDateTi
   }
 };
 
-service.getCarriedRevenue = async function(agentCode, startDateTime, username = ""){
+async function getCarriedRevenue(agentCode, startDateTime, username = ""){
   try{
-    let conn = await db.getConn('jw');
-    let xconn;
-    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh') && !process.env.mode.includes('lucksparkh') && !process.env.mode.includes('jilikh')) {
-      xconn = await db.getConn('extra1:read');
-    }
-    console.time("getNetWinSummary");
-    let netWinSummary = (await conn.query({ sql: db.sql('revenue/getNetWinSummary.sql'), values: [ agentCode, startDateTime, `%${username}%` ] }))[0];
-    console.timeEnd("getNetWinSummary");
-    console.time("getPromotionSummary");
-    let promotionSummary = (await conn.query({ sql: db.sql('revenue/getPromotionSummary.sql'), values: [ agentCode, startDateTime, `%${username}%`, agentCode, `%${username}%`, startDateTime, agentCode, `%${username}%`, startDateTime, ]}))[0];
-    console.timeEnd("getPromotionSummary");
-    console.time("getAgentPlayer");
-    let agentMember = (await conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [ agentCode, `%${username}%` ]}))[0];
-    console.timeEnd("getAgentPlayer");
-    let memberUsername = _.pluck(agentMember, 'Username');
-    let memberId = _.pluck(agentMember, 'MemberId');
-    let memberUsers = _.chunk(memberUsername, 50000);
-    let memberIds = _.chunk(memberId, 50000);
+    const conn = await db.getConn('jw');
+    const mode = process.env.mode || '';
+    const skipBonus = mode.includes('ape') || mode.includes('12betkh') || mode.includes('lucksparkh') || mode.includes('jilikh');
+    const hasUsername = !(username === '' || _.isUndefined(username) || username === null);
+    const usernameLike = `%${username}%`;
+
+    console.time("getCarriedRevenueQueries");
+    const [netWinResult, promotionResult, agentMemberResult] = await Promise.all([
+      conn.query({
+        sql: db.sql(hasUsername ? 'revenue/getNetWinSummaryByUsername.sql' : 'revenue/getNetWinSummary.sql'),
+        values: hasUsername ? [agentCode, startDateTime, usernameLike] : [agentCode, startDateTime]
+      }),
+      conn.query({
+        sql: db.sql(hasUsername ? 'revenue/getPromotionSummaryByUsername.sql' : 'revenue/getPromotionSummary.sql'),
+        values: hasUsername ? [agentCode, startDateTime, usernameLike] : [agentCode, startDateTime]
+      }),
+      skipBonus ? Promise.resolve([[]]) : conn.query({ sql: db.sql('revenue/getAgentPlayer.sql'), values: [agentCode, usernameLike] })
+    ]);
+    console.timeEnd("getCarriedRevenueQueries");
+
+    const netWinSummary = netWinResult[0];
+    const promotionSummary = promotionResult[0];
     let totalBonus = {};
-    if (process.env.mode && !process.env.mode.includes('ape') && !process.env.mode.includes('12betkh') && !process.env.mode.includes('lucksparkh') && !process.env.mode.includes('jilikh')) {
+    if (!skipBonus) {
+      const xconn = await db.getConn('extra1:read');
+      const agentMember = agentMemberResult[0];
+      const memberUsername = _.pluck(agentMember, 'Username');
+      const memberId = _.pluck(agentMember, 'MemberId');
+      const memberUsers = _.chunk(memberUsername, 50000);
+      const memberIds = _.chunk(memberId, 50000);
       for (var i = 0; i < memberUsers.length; i++) {
         let users = memberUsers[i];
         let usersId = memberIds[i];
@@ -93,14 +103,10 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
       totalBonus = Object.keys(totalBonus).map(x => { return { Date: x, Promotion: totalBonus[x]  } });
     }
     let data;
-    if (process.env.mode.includes('ape') || process.env.mode.includes('12betkh') || process.env.mode.includes('lucksparkh') || process.env.mode.includes('jilikh') || Object.keys(totalBonus).length === 0) {
+    if (skipBonus || Object.keys(totalBonus).length === 0) {
       data = [...promotionSummary];
     } else {
-      if (Object.keys(totalBonus).length > 0) {
-        data = [ ...totalBonus, ...promotionSummary];
-      } else {
-        data = [...promotionSummary];
-      }
+      data = [ ...totalBonus, ...promotionSummary];
     }
     let promotionCarried = Object.values(data).reduce(function (prev, next) {
       prev[next.Date] = { Date: next.Date, Promotion: (prev[next.Date] ? prev[next.Date].Promotion : 0) + parseFloat(next.Promotion) }
@@ -127,7 +133,9 @@ service.getCarriedRevenue = async function(agentCode, startDateTime, username = 
     console.log(err);
     throw err;
   }
-};
+}
+
+service.getCarriedRevenue = memoize(getCarriedRevenue, { primitive: true, maxAge: _CACHE_MAX_AGE, promise: true });
 
 service.getBonusAmount = async function (agentCode, startDateTime, endDateTime, username = "") {
   try {
