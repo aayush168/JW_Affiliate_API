@@ -82,6 +82,29 @@ service.updatePassword = async (password, id) => {
   }
 }
 
+service.changePassword = async (id, oldPassword, newPassword) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let conn1 = await db.getConn('extra:write')
+    let operator = (await conn.query({ sql: db.sql('operator/getOperatorById.sql'), values: [ id ]}))[0];
+    if (operator.length === 0) {
+      return { code: 'code.operator.noExist', msg: 'Operator Not Found' }
+    }
+    const user = operator[0]
+    if (user.Password !== encrypt.encryptPassword(oldPassword, user.Salt1, user.Salt2)) {
+      return { code: 'code.password.invalid', msg: 'Current password does not match.' }
+    }
+    const salt1 = encrypt.getSalt(10)
+    const salt2 = encrypt.getSalt(12)
+    const operatorPwd = encrypt.encryptPassword(newPassword, salt1, salt2);
+    await conn1.query({ sql: db.sql('operator/updatePassword.sql'), values: [ operatorPwd, salt1, salt2, id ]})
+    return { code: 'common.success' }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('extra:read')

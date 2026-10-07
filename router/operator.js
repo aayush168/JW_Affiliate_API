@@ -78,6 +78,33 @@ router.put('/update/:id', async function (req, res) {
   }
 })
 
+router.post('/password/change', async function (req, res) {
+  try {
+    if (!req.session.user) {
+      return res.status(401).json({ code: 'code.auth.unauthorized', msg: 'Not logged in.' })
+    }
+    const oldPassword = req.body.oldPassword
+    const newPassword = req.body.newPassword
+    if (!oldPassword) {
+      return res.status(400).json({ code: 'params.oldPassword.required', msg: 'Current password is required.' })
+    }
+    if (!newPassword) {
+      return res.status(400).json({ code: 'params.newPassword.required', msg: 'New password is required.' })
+    }
+    if (newPassword.length < 5 || newPassword.length > 50) {
+      return res.status(400).json({ code: 'params.newPassword.invalid', msg: 'New password must be between 5 and 50 characters.' })
+    }
+    const result = await operatorService.changePassword(req.session.user.id, oldPassword, newPassword)
+    if (result.code !== 'common.success') {
+      return res.status(400).send(result)
+    }
+    res.json(result)
+  } catch (err) {
+    log.error(err)
+    res.status(500).send(err)
+  }
+})
+
 router.put('/updatePassword/:id', async function (req, res) {
   try {
     const id = req.params.id
@@ -121,7 +148,7 @@ router.post('/auth/login', async function (req, res) {
   }
 })
 
-router.post('/checklogin', async function (req, res) {
+const checkLoginHandler = async function (req, res) {
   try {
     if (req.session.user) {
       return res.json({ user: req.session.user });
@@ -131,7 +158,10 @@ router.post('/checklogin', async function (req, res) {
     log.error(err);
     res.status(500).send(err)
   }
-})
+}
+
+router.post('/checklogin', checkLoginHandler)
+router.post('/checkLogin', checkLoginHandler)
 
 router.post('/logout', async function (req, res) {
   try {
