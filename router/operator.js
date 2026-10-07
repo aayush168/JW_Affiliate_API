@@ -160,7 +160,6 @@ const checkLoginHandler = async function (req, res) {
   }
 }
 
-router.post('/checklogin', checkLoginHandler)
 router.post('/checkLogin', checkLoginHandler)
 
 router.post('/logout', async function (req, res) {
