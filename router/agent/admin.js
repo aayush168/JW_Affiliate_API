@@ -96,7 +96,6 @@ router.put('/updateProfile/:id', async function (req, res) {
     // 0: Disabled, 1: Enabled, 2: In review 3: Rejected, 4: Frozen
     const allowedStatus = [0, 1, 2, 3, 4]
     const id = req.params.id
-    const password = req.body.password
     const mobile = req.body.mobile
     const email = req.body.email
     const businessEmail = req.body.businessEmail
@@ -115,11 +114,7 @@ router.put('/updateProfile/:id', async function (req, res) {
     if (!allowedStatus.includes(status)) {
       return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid status' })
     }
-    if (!password) {
-      return res.status(400).json({ code: 'params.password.required', msg: 'Password is required' })
-    }
     const payload = {
-      password: password,
       mobile: mobile,
       email: email,
       businessEmail: businessEmail,

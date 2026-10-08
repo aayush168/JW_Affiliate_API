@@ -1,4 +1,4 @@
-SELECT a.Id, a.Name, a.Username, a.UnhashedPassword, a.Mobile, a.Whatsapp, a.Telegram, a.Skype, a.Email, a.RevenueShareType, a.PlayerSourceType, a.OtherSourceLink, a.Status, a.Created_at, a.Updated_at, a.Remark, a.IpAddress, ap.PaymentTypeId, ap.BankName, ap.AccountName, ap.AccountNumber, ap.BankAccountType, ap.Branch, ap.BkashAddress, ap.NagadAddress, ap.RocketAddress, ap.USDTAddress, a.AccountType
+SELECT a.Id, a.Name, a.Username, a.Mobile, a.Whatsapp, a.Telegram, a.Skype, a.Email, a.RevenueShareType, a.PlayerSourceType, a.OtherSourceLink, a.Status, a.Created_at, a.Updated_at, a.Remark, a.IpAddress, ap.PaymentTypeId, ap.BankName, ap.AccountName, ap.AccountNumber, ap.BankAccountType, ap.Branch, ap.BkashAddress, ap.NagadAddress, ap.RocketAddress, ap.USDTAddress, a.AccountType
 FROM Agent AS a
 LEFT JOIN AgentPaymentInfo AS ap ON ap.agentId = a.Id
 WHERE a.Username LIKE ?
