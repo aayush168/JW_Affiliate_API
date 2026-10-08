@@ -198,7 +198,7 @@ router.post('/auth/login', async function (req, res) {
     if (!result.user) {
       return res.status(401).send(result)
     }
-    req.session.client = result.user;
+    req.session.jwaff_user = result.user;
     res.json({ user: result.user })
   } catch (err) {
     log.error(err)
@@ -332,8 +332,8 @@ router.post('/password/reset', async function (req, res) {
 
 router.post('/checklogin', async function (req, res) {
   try {
-    if (req.session.client) {
-      return res.json({ user: req.session.client });
+    if (req.session.jwaff_user) {
+      return res.json({ user: req.session.jwaff_user });
     }
     res.json({ user: null })
   } catch (err) {
@@ -344,7 +344,7 @@ router.post('/checklogin', async function (req, res) {
 
 router.post('/logout', async function (req, res) {
   try {
-    req.session.user = null;
+    req.session.jwaff_user = null;
     req.session.destroy();
     res.status(200).end();
     return;

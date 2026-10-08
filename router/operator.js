@@ -80,7 +80,7 @@ router.put('/update/:id', async function (req, res) {
 
 router.post('/password/change', async function (req, res) {
   try {
-    if (!req.session.user) {
+    if (!req.session.jwuaff) {
       return res.status(401).json({ code: 'code.auth.unauthorized', msg: 'Not logged in.' })
     }
     const oldPassword = req.body.oldPassword
@@ -94,7 +94,7 @@ router.post('/password/change', async function (req, res) {
     if (newPassword.length < 5 || newPassword.length > 50) {
       return res.status(400).json({ code: 'params.newPassword.invalid', msg: 'New password must be between 5 and 50 characters.' })
     }
-    const result = await operatorService.changePassword(req.session.user.id, oldPassword, newPassword)
+    const result = await operatorService.changePassword(req.session.jwuaff.id, oldPassword, newPassword)
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
@@ -140,7 +140,7 @@ router.post('/auth/login', async function (req, res) {
     if (!result.user) {
       return res.status(401).send(result)
     }
-    req.session.user = result.user;
+    req.session.jwuaff = result.user;
     res.json({ user: result.user })
   } catch (err) {
     log.error(err)
@@ -150,8 +150,8 @@ router.post('/auth/login', async function (req, res) {
 
 const checkLoginHandler = async function (req, res) {
   try {
-    if (req.session.user) {
-      return res.json({ user: req.session.user });
+    if (req.session.jwuaff) {
+      return res.json({ user: req.session.jwuaff });
     }
     res.json({ user: null })
   } catch (err) {
@@ -164,7 +164,7 @@ router.post('/checkLogin', checkLoginHandler)
 
 router.post('/logout', async function (req, res) {
   try {
-    req.session.user = null;
+    req.session.jwuaff = null;
     req.session.destroy();
     res.status(200).end();
     return;
