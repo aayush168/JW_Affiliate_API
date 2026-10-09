@@ -13,5 +13,25 @@
   },
   "currency": "INR",
   "agentIdOCMS": "0",
-  "blockedDomain": ["https://www.jeetwinpk-official.com", "https://www.jeetwin.pro", "https://www.jeetwin.com", "https://www.jeetbet.com", "https://www.jeetwin.vip", "https://www.jeetwin.club"]
+  "jwtSecret": "7kQ2pL8vR1nW4xH6cY9tB3mF0sA5dE8u",
+  "jwtExpiresIn": "12h",
+  "blockedDomain": ["https://www.jeetwinpk-official.com", "https://www.jeetwin.pro", "https://www.jeetwin.com", "https://www.jeetbet.com", "https://www.jeetwin.vip", "https://www.jeetwin.club"],
+  "corsOrigins": [
+    "https://jeetwinaffiliates.com",
+    "https://www.jeetwinaffiliates.com",
+    "https://www.jeetwinaffiliate.com",
+    "https://jeetwinaffiliate.com",
+    "https://jeetwinaff.com",
+    "https://www.jeetwinaff.com",
+    "https://jw-aff.com",
+    "https://www.jw-aff.com",
+    "https://dash.jeetwinaffiliates.com",
+    "https://www.dash.jeetwinaffiliates.com",
+    "https://dash.jeetwinaffiliate.com",
+    "https://www.dash.jeetwinaffiliate.com",
+    "https://dash.jeetwinaff.com",
+    "https://www.dash.jeetwinaff.com",
+    "https://dash.jw-aff.com",
+    "https://www.dash.jw-aff.com"
+  ]
 }

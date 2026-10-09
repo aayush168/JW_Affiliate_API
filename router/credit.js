@@ -4,6 +4,7 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('agentCredit');
 const creditService = require(path.join(rootPath, 'service', 'credit.js'));
+const auth = require(path.join(rootPath, 'middlewares', 'auth.js'));
 const multer = require('multer');
 let xlstojson = require('xls-to-json-lc')
 let xlsxtojson = require('xlsx-to-json-lc')
@@ -59,7 +60,7 @@ router.get('/getList', async function (req, res) {
 router.post('/add', async function (req, res) {
   try {
     const agentId = req.body.agentId
-    const operatorId = req.body.operatorId
+    const operatorId = auth.getOperatorId(req)
     const amount = req.body.amount
     const memo = req.body.memo
     if (!agentId) {
@@ -92,7 +93,7 @@ router.post('/batch/add', upload.single('addCreditFile'), async function (req, r
     if (!req.file) {
       return res.status(400).json({ code: 'params.file.required', msg: 'File is required.' })
     }
-    const operatorId = req.body.operatorId
+    const operatorId = auth.getOperatorId(req)
     if (!operatorId) {
       return res.status(400).json({ code: 'params.operatorId.required', msg: 'OperatorId is required.' })
     }
@@ -121,7 +122,7 @@ router.post('/batch/add', upload.single('addCreditFile'), async function (req, r
 router.post('/deduct', async function (req, res) {
   try {
     const agentId = req.body.agentId
-    const operatorId = req.body.operatorId
+    const operatorId = auth.getOperatorId(req)
     const amount = req.body.amount
     const memo = req.body.memo
     let campaignId = req.body.campaignId

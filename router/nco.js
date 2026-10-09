@@ -82,10 +82,6 @@ router.post('/batch/add', upload.single('addNcoFile'), async function (req, res)
     if (!req.file) {
       return res.status(400).json({ code: 'params.file.required', msg: 'File is required.' })
     }
-    const operatorId = req.body.operatorId
-    // if (!operatorId) {
-    //   return res.status(400).json({ code: 'params.operatorId.required', msg: 'OperatorId is required.' })
-    // }
     let exceltojson = req.file.originalname.split('.')[req.file.originalname.split('.').length - 1] === 'xlsx' ? xlsxtojson : xlstojson;
     exceltojson({
       input: req.file.path,

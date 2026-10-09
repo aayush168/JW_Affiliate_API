@@ -13,5 +13,13 @@
   },
   "currency": "PHP",
   "agentIdOCMS": "0",
-  "blockedDomain": []
+  "jwtSecret": "7kQ2pL8vR1nW4xH6cY9tB3mF0sA5dE8u",
+  "jwtExpiresIn": "12h",
+  "blockedDomain": [],
+  "corsOrigins": [
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8080"
+  ]
 }

@@ -4,6 +4,7 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const log = logger.getLogger('agentTag');
 const agentTagService = require(path.join(rootPath, 'service', 'agentTag.js'));
+const auth = require(path.join(rootPath, 'middlewares', 'auth.js'));
 
 router.get('/getList', async function (req, res) {
   try {
@@ -37,7 +38,7 @@ router.post('/add', async function (req, res) {
     const name = req.body.name;
     const color = req.body.color;
     const status = req.body.status;
-    const operatorId = req.body.operatorId;
+    const operatorId = auth.getOperatorId(req);
     if (!name) {
       return res.status(400).json({ code: 'params.name.required', msg: 'Name is required.' })
     }
@@ -68,7 +69,7 @@ router.put('/update/:id', async function (req, res) {
     if (!allowedStatus.includes(status)) {
       return res.status(400).json({ code: 'params.status.invalid', msg: 'Invalid status.' })
     }
-    const operatorId = req.body.operatorId;
+    const operatorId = auth.getOperatorId(req);
     if (!id) {
       return res.status(400).json({ code: 'params.id.required', msg: 'Id is required.' })
     }
@@ -111,7 +112,7 @@ router.post('/agent/assignTag', async function (req, res) {
   try {
     const agentId = req.body.agentId;
     const tagIds = req.body.tagIds;
-    const operatorId = req.body.operatorId;
+    const operatorId = auth.getOperatorId(req);
     if (!agentId) {
       return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
     }

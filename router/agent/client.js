@@ -8,6 +8,9 @@ let { agent, validate } = require(path.join(rootPath, 'validator', 'index.js'))
 const settingService = require(path.join(rootPath, 'service', 'setting', 'admin.js'));
 const controller = require(path.join(rootPath, 'controller', 'index.js'));
 const config = require('../../config/index.js');
+const auth = require(path.join(rootPath, 'middlewares', 'auth.js'));
+
+router.use(auth.skipPublic(auth.AGENT_PUBLIC_PATHS, auth.requireAgentAuth));
 
 
 //Prev Agent Registration
@@ -198,8 +201,10 @@ router.post('/auth/login', async function (req, res) {
     if (!result.user) {
       return res.status(401).send(result)
     }
-    req.session.jwaff_user = result.user;
-    res.json({ user: result.user })
+    res.json({
+      user: result.user,
+      accessToken: auth.signAgentToken(result.user)
+    })
   } catch (err) {
     log.error(err)
     res.status(500).send(err)
@@ -277,10 +282,7 @@ router.post('/auth/reset-password', async function (req, res) {
 
 router.post('/profile/update', async function (req, res) {
   try {
-    const id = req.body.agentId
-    if (!id) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
+    const id = auth.getAgentId(req)
     // const email = req.body.email
     // const businessEmail = req.body.businessEmail || ''
     // const phone = req.body.phone
@@ -307,10 +309,7 @@ router.post('/profile/update', async function (req, res) {
 
 router.post('/password/reset', async function (req, res) {
   try {
-    const id = req.body.id
-    if (!id) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
+    const id = auth.getAgentId(req)
     const oldPassword = req.body.oldPassword
     const newPassword = req.body.newPassword
     if (!oldPassword) {
@@ -332,10 +331,15 @@ router.post('/password/reset', async function (req, res) {
 
 router.post('/checklogin', async function (req, res) {
   try {
-    if (req.session.jwaff_user) {
-      return res.json({ user: req.session.jwaff_user });
+    const agent = auth.readAgentFromRequest(req)
+    if (!agent || !agent.id) {
+      return res.json({ user: null })
     }
-    res.json({ user: null })
+    const result = await agentService.getClientSessionUser(agent.id)
+    if (!result.user) {
+      return res.json({ user: null })
+    }
+    res.json({ user: result.user })
   } catch (err) {
     log.error(err);
     res.status(500).send(err)
@@ -344,10 +348,7 @@ router.post('/checklogin', async function (req, res) {
 
 router.post('/logout', async function (req, res) {
   try {
-    req.session.jwaff_user = null;
-    req.session.destroy();
-    res.status(200).end();
-    return;
+    res.status(200).json({ code: 'common.success' })
   } catch (err) {
     log.error(err)
     res.status(500).send(err)
@@ -356,7 +357,7 @@ router.post('/logout', async function (req, res) {
 
 router.post('/revenue/estimate/data', async function (req, res) {
   try {
-    const agentCode = req.body.agentCode;
+    const agentCode = auth.getAgentCode(req);
     const start = req.body.start;
     const end = req.body.end;
     if (!start) {
@@ -375,10 +376,7 @@ router.post('/revenue/estimate/data', async function (req, res) {
 
 router.post('/player/getPaymentInfo', async function (req, res) {
   try {
-    const agentId = req.body.agentId;
-    if (!agentId) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
+    const agentId = auth.getAgentId(req);
     let result = await agentService.getAgentPaymentInfo(agentId)
     res.json(result)
   } catch (err) {
@@ -391,7 +389,7 @@ router.get('/player/getList', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
-    const agentCode = req.query.agentCode;
+    const agentCode = auth.getAgentCode(req);
     const username = req.query.username
     const startDate = req.query.startDate
     const endDate = req.query.endDate
@@ -408,7 +406,7 @@ router.get('/player/realtime/data', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
-    const agentCode = req.query.agentCode;
+    const agentCode = auth.getAgentCode(req);
     const username = req.query.username
     const startDate = req.query.startDate
     const endDate = req.query.endDate
@@ -424,7 +422,7 @@ router.get('/player/performance/data', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
-    const agentCode = req.query.agentCode;
+    const agentCode = auth.getAgentCode(req);
     const username = req.query.username
     const startDate = req.query.startDate
     const endDate = req.query.endDate
@@ -440,7 +438,7 @@ router.get('/player/credit/data', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
-    const agentId = req.query.agentId;
+    const agentId = auth.getAgentId(req);
     const startDate = req.query.startDate
     const endDate = req.query.endDate
     const result = await agentService.getCreditList(size, page, startDate, endDate, agentId);
@@ -455,7 +453,7 @@ router.get('/player/withdraw/data', async function (req, res) {
   try {
     const size = req.query.size ? parseInt(req.query.size) : 20;
     const page = req.query.page ? size * (parseInt(req.query.page) - 1) : 0;
-    const agentId = req.query.agentId;
+    const agentId = auth.getAgentId(req);
     const startDate = req.query.startDate
     const endDate = req.query.endDate
     const result = await agentService.getWithdrawList(size, page, startDate, endDate, agentId);
@@ -481,10 +479,7 @@ router.get('/setting/getList', async function (req, res) {
 
 router.post('/money/getBalance', async function (req, res) {
   try {
-    const id = req.body.id
-    if (!id) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
+    const id = auth.getAgentId(req)
     const result = await agentService.getBalance(id);
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
@@ -500,10 +495,7 @@ router.post('/money/getBalance', async function (req, res) {
 router.post('/player/addPlayerAccount', async function (req, res) {
   try {
     const playerAccountUsername = req.body.playerAccountUsername;
-    const agentId = req.body.agentId;
-    if (!agentId) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
+    const agentId = auth.getAgentId(req);
     if (!playerAccountUsername) {
       return res.status(400).json({ code: 'params.playerAccountUsername.required', msg: 'Player Account Username is required.' })
     }
@@ -523,10 +515,7 @@ router.post('/player/addPlayerAccount', async function (req, res) {
 router.post('/player/addUsdtAddress', async function (req, res) {
   try {
     const usdtWallet = req.body.usdtWallet;
-    const agentId = req.body.agentId;
-    if (!agentId) {
-      return res.status(400).json({ code: 'params.agentId.required', msg: 'Agent Id is required.' })
-    }
+    const agentId = auth.getAgentId(req);
     if (!usdtWallet) {
       return res.status(400).json({ code: 'params.usdtWallet.required', msg: 'USDT Wallet is required.' })
     }

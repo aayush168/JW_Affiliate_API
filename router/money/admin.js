@@ -4,6 +4,7 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('moneyAdmin');
 const moneyService = require(path.join(rootPath, 'service', 'money', 'admin.js'));
+const auth = require(path.join(rootPath, 'middlewares', 'auth.js'));
 
 router.get('/withdraw/getList', async (req, res) => {
   try {
@@ -29,8 +30,9 @@ router.get('/withdraw/getList', async (req, res) => {
 
 router.post('/withdraw/transfer', async (req, res) => {
   try {
-    const { withdrawId, operatorId } = req.body;
-    
+    const withdrawId = req.body.withdrawId;
+    const operatorId = auth.getOperatorId(req);
+
     if (!withdrawId) {
       return res.status(400).json({ code: 'params.withdrawId.required', msg: 'Withdraw Id is required' });
     }
@@ -50,8 +52,9 @@ router.post('/withdraw/transfer', async (req, res) => {
 
 router.post('/withdraw/reject', async (req, res) => {
   try {
-    const { withdrawId, operatorId } = req.body;
-    
+    const withdrawId = req.body.withdrawId;
+    const operatorId = auth.getOperatorId(req);
+
     if (!withdrawId) {
       return res.status(400).json({ code: 'params.withdrawId.required', msg: 'Withdraw Id is required' });
     }
@@ -71,7 +74,7 @@ router.post('/withdraw/reject', async (req, res) => {
 
 router.post('/withdraw/transfer/batch', async (req, res) => {
   try {
-    const operatorId = req.body.operatorId;
+    const operatorId = auth.getOperatorId(req);
     if (!operatorId) {
       return res.status(400).json({ code: 'params.operatorId.required', msg: 'Operator Id is required' });
     }

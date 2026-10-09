@@ -530,6 +530,26 @@ service.addAgent12BetBankInfo = async ({ agentId, paymentType, bankName, account
   }
 }
 
+function toAgentSessionUser (user) {
+  return {
+    id: user.Id,
+    username: user.Username,
+    name: user.Name,
+    agentCodeName: user.AgentCodeName,
+    email: user.Email,
+    businessEmail: user.BusinessEmail || '',
+    phone: user.Mobile,
+    code: user.Code,
+    accountType: user.AccountType,
+    created: user.Created_at,
+    whatsapp: user.Whatsapp,
+    skype: user.Skype,
+    token: user.Token,
+    dob: user.DOB,
+    referralUsername: user.ReferralUsername
+  }
+}
+
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('jw')
@@ -556,7 +576,37 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, agentCodeName: user.AgentCodeName, email: user.Email, businessEmail: user.BusinessEmail || '', phone: user.Mobile, code: user.Code, accountType: user.AccountType, created: user.Created_at, whatsapp: user.Whatsapp, skype: user.Skype, token: user.Token, dob: user.DOB, referralUsername: user.ReferralUsername }}
+    return { code: 'common.success', user: toAgentSessionUser(user) }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.getClientSessionUser = async (id, username) => {
+  try {
+    let conn = await db.getConn('jw')
+    let conn1 = await db.getConn('extra:read')
+    let result = (await conn1.query(db.sql('agent/getAgentById.sql'), [ id ]))[0];
+    if (result.length === 0) {
+      return { code: 'code.agent.noExist', user: null }
+    }
+    if (result[0].Status === 3) {
+      return { code: 'code.account.rejected', user: null }
+    }
+    const lookupUsername = result[0].Username
+    let agentData = (await conn.query(db.sql('agent/ocms/getDetailFromAgentChannel.sql'), [ lookupUsername ]))[0];
+    if (agentData.length === 0 || result[0].Status === 2) {
+      return { code: 'code.account.review', user: null }
+    }
+    if (result[0].Status !== 1) {
+      return { code: 'code.account.disabled', user: null }
+    }
+    let user = {
+      ...result[0],
+      ...agentData[0]
+    }
+    return { code: 'common.success', user: toAgentSessionUser(user) }
   } catch (err) {
     console.log(err);
     throw new Error(err);

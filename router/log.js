@@ -4,6 +4,7 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('modules');
 const logService = require(path.join(rootPath, 'service', 'log.js'));
+const auth = require(path.join(rootPath, 'middlewares', 'auth.js'));
 
 router.get('/agent/getList', async function (req, res) {
   try {
@@ -30,7 +31,7 @@ router.get('/agent/getList', async function (req, res) {
 router.post('/agent/add', async function (req, res) {
   try {
     const type = req.body.type
-    const operatorId = req.body.operatorId
+    const operatorId = auth.getOperatorId(req)
     const agentUsername = req.body.agentUsername
     const actionData = req.body.actionData
     const actionCode = req.body.actionCode

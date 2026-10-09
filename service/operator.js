@@ -105,6 +105,16 @@ service.changePassword = async (id, oldPassword, newPassword) => {
   }
 }
 
+function toOperatorSessionUser (user) {
+  return {
+    id: user.Id,
+    username: user.Username,
+    name: user.Name,
+    roleId: user.RoleId,
+    role: user.Role
+  }
+}
+
 service.login = async (username, password) => {
   try {
     let conn = await db.getConn('extra:read')
@@ -119,7 +129,33 @@ service.login = async (username, password) => {
     if (user.Password !== encrypt.encryptPassword(password, user.Salt1, user.Salt2)) {
       return { code: 'code.auth.login.invalid', user: null }
     }
-    return { code: 'common.success', user: { id: user.Id, username: user.Username, name: user.Name, roleId: user.RoleId, role: user.Role }}
+    return { code: 'common.success', user: toOperatorSessionUser(user) }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
+  }
+}
+
+service.getSessionUser = async (id, username) => {
+  try {
+    let conn = await db.getConn('extra:read')
+    let result
+    if (username) {
+      result = (await conn.query({ sql: db.sql('operator/getOperatorByUsername.sql'), values: [ username ]}))[0];
+    } else {
+      result = (await conn.query({ sql: db.sql('operator/getOperatorById.sql'), values: [ id ]}))[0];
+    }
+    if (result.length === 0) {
+      return { code: 'code.operator.noExist', user: null }
+    }
+    let user = result[0];
+    if (id && parseInt(user.Id, 10) !== parseInt(id, 10)) {
+      return { code: 'code.operator.noExist', user: null }
+    }
+    if (user.Status !== 1) {
+      return { code: 'code.account.disabled', user: null }
+    }
+    return { code: 'common.success', user: toOperatorSessionUser(user) }
   } catch (err) {
     console.log(err);
     throw new Error(err);

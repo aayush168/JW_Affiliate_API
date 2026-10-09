@@ -4,6 +4,9 @@ const router = express.Router();
 const logger = require(path.join(rootPath, 'logger', 'index.js'));
 const	log = logger.getLogger('operator');
 const operatorService = require(path.join(rootPath, 'service', 'operator.js'));
+const auth = require(path.join(rootPath, 'middlewares', 'auth.js'));
+
+router.use(auth.skipPublic(auth.OPERATOR_PUBLIC_PATHS, auth.requireOperatorAuth));
 
 router.get('/getList', async function (req, res) {
   try {
@@ -80,7 +83,8 @@ router.put('/update/:id', async function (req, res) {
 
 router.post('/password/change', async function (req, res) {
   try {
-    if (!req.session.jwuaff) {
+    const operatorId = auth.getOperatorId(req)
+    if (!operatorId) {
       return res.status(401).json({ code: 'code.auth.unauthorized', msg: 'Not logged in.' })
     }
     const oldPassword = req.body.oldPassword
@@ -94,7 +98,7 @@ router.post('/password/change', async function (req, res) {
     if (newPassword.length < 5 || newPassword.length > 50) {
       return res.status(400).json({ code: 'params.newPassword.invalid', msg: 'New password must be between 5 and 50 characters.' })
     }
-    const result = await operatorService.changePassword(req.session.jwuaff.id, oldPassword, newPassword)
+    const result = await operatorService.changePassword(operatorId, oldPassword, newPassword)
     if (result.code !== 'common.success') {
       return res.status(400).send(result)
     }
@@ -140,8 +144,10 @@ router.post('/auth/login', async function (req, res) {
     if (!result.user) {
       return res.status(401).send(result)
     }
-    req.session.jwuaff = result.user;
-    res.json({ user: result.user })
+    res.json({
+      user: result.user,
+      accessToken: auth.signOperatorToken(result.user)
+    })
   } catch (err) {
     log.error(err)
     res.status(500).send(err)
@@ -150,10 +156,15 @@ router.post('/auth/login', async function (req, res) {
 
 const checkLoginHandler = async function (req, res) {
   try {
-    if (req.session.jwuaff) {
-      return res.json({ user: req.session.jwuaff });
+    const operator = auth.readOperatorFromRequest(req)
+    if (!operator || !operator.id) {
+      return res.json({ user: null })
     }
-    res.json({ user: null })
+    const result = await operatorService.getSessionUser(operator.id)
+    if (!result.user) {
+      return res.json({ user: null })
+    }
+    res.json({ user: result.user })
   } catch (err) {
     log.error(err);
     res.status(500).send(err)
@@ -164,10 +175,7 @@ router.post('/checkLogin', checkLoginHandler)
 
 router.post('/logout', async function (req, res) {
   try {
-    req.session.jwuaff = null;
-    req.session.destroy();
-    res.status(200).end();
-    return;
+    res.status(200).json({ code: 'common.success' })
   } catch (err) {
     log.error(err)
     res.status(500).send(err)
