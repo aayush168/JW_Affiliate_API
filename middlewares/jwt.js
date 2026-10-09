@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+// jsonwebtoken@9 uses crypto.KeyObject (Node 12+). This API runs on Node 8.
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
